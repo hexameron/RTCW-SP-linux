@@ -659,6 +659,8 @@ void *Sys_LoadDll( const char *name,
 	snprintf( fname, sizeof( fname ), "%saxp.so", name );
 #elif defined __mips__
 	snprintf( fname, sizeof( fname ), "%smips.so", name );
+#elif defined __arm__
+        snprintf( fname, sizeof( fname ), "%sarm.so", name );
 #else
 #error Unknown arch
 #endif

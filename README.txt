@@ -1,3 +1,8 @@
+/***********************************************
+ * There is x86 code that needs to be converted* 
+ *  before this will run on arm CPUs           *
+ ***********************************************/
+
 Return to Castle Wolfenstein single player GPL source release
 =============================================================
 

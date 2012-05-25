@@ -258,7 +258,7 @@ $SERVER_REF = \@SERVER_FILES;
 $VM_REF = \@VM_FILES;
 
 # FIXME: import the CPU string to build the name of the target
-Program $env 'wolfsp.x86', '../game/q_shared.c', '../game/q_math.c',
+Program $env 'wolfsp.arm', '../game/q_shared.c', '../game/q_math.c',
   @$RENDERER_REF, @$CLIENT_REF, @$COMMON_REF, @$SOUND_REF,
-  @$UNIX_REF, @$SERVER_REF, @$VM_REF;
-Install $env '#' . $CONFIG_DIR . '/out', 'wolfsp.x86';
+  @$UNIX_REF, @$SERVER_REF;
+Install $env '#' . $CONFIG_DIR . '/out', 'wolfsp.arm';

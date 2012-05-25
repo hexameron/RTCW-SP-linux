@@ -20,23 +20,20 @@ $do_demo = 0;
 $do_info = 0;
 
 # compiler
-$CC='gcc -m32';
-$CXX='g++ -m32';
-$LINK=$CXX;
+$ROOTFS='/build/tegra2/';
+$CROSS_COMPILE='/usr/bin/armv7a-cros-linux-gnueabi-';
+$CC='/usr/bin/armv7a-cros-linux-gnueabi-gcc ';
+$CXX='/usr/bin/armv7a-cros-linux-gnueabi-g++ ';
+$LINK='/usr/bin/armv7a-cros-linux-gnueabi-ld';
 
 # detection of CPU type
-$cpu = `uname -m`;
-chop ($cpu);
-if ($cpu +~ /i?86/)
-{
-  $cpu = 'x86';
-}
+$cpu = 'arm';
+
 # OS
 $OS = `uname`;
 chop ($OS);
-# libc .. do the little magic!
-$libc_cmd = '/lib/libc.so.6 |grep "GNU C "|grep version|awk -F "version " \'{ print $2 }\'|cut -b -3';
-$libc = `$libc_cmd`;
+
+$libc = "2.11";
 chop ($libc);
 
 if(@ARGV gt 0)
@@ -123,7 +120,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O6 -mcpu=pentiumpro -march=pentium -fomit-frame-pointer -ffast-math -malign-loops=2 -malign-jumps=2 -malign-functions=2 -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -Os -march=armv6j -marm -mfpu=vfp -I/build/tegra2/usr/include/ -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h

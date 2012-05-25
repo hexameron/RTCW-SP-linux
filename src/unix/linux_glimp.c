@@ -73,7 +73,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>
 
-#include <X11/extensions/xf86dga.h>
+#include <X11/extensions/xf86dgaconst.h>
 #include <X11/extensions/xf86vmode.h>
 
 #define WINDOW_CLASS_NAME   "Return to Castle Wolfenstein"

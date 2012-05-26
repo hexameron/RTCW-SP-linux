@@ -102,6 +102,6 @@ Command $env ['../game/g_funcs.h', '../game/g_func_decs.h'], "[perl] &build_func
 # FIXME CPU string
 # FIXME wolfgamei386.so ?
 # TODO use an ldd -r after .so build to catch unresolved symbols? (PostBuild command)
-Program $env 'qagamei386.so', @$FILESREF;
+Program $env 'qagamearm.so', @$FILESREF;
 
-Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'qagamei386.so';
+Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'qagamearm.so';

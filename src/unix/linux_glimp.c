@@ -73,7 +73,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>
 
-#include <X11/extensions/xf86dgaconst.h>
+//#include <X11/extensions/Xxf86dga.h>
 #include <X11/extensions/xf86vmode.h>
 
 #define WINDOW_CLASS_NAME   "Return to Castle Wolfenstein"
@@ -389,6 +389,7 @@ static void install_grabs( void ) {
 
 	mouseResetTime = Sys_Milliseconds();
 
+#if 0 // disable XF86DGA
 	if ( in_dgamouse->value ) {
 		int MajorVersion, MinorVersion;
 
@@ -408,7 +409,14 @@ static void install_grabs( void ) {
 		mwy = glConfig.vidHeight / 2;
 		mx = my = 0;
 	}
+#else 
+	ri.Printf( PRINT_ALL, "XF86DGA Mouse Disabled\n" );
+        ri.Cvar_Set( "in_dgamouse", "0" );
+	mwx = glConfig.vidWidth / 2;
+        mwy = glConfig.vidHeight / 2;
+	mx = my = 0;
 
+#endif
 	XGrabKeyboard( dpy, win,
 				   False,
 				   GrabModeAsync, GrabModeAsync,
@@ -418,9 +426,9 @@ static void install_grabs( void ) {
 }
 
 static void uninstall_grabs( void ) {
-	if ( dgamouse ) {
+	if ( dgamouse ) { // DGA is disabled ?
 		dgamouse = qfalse;
-		XF86DGADirectVideo( dpy, DefaultScreen( dpy ), 0 );
+//		XF86DGADirectVideo( dpy, DefaultScreen( dpy ), 0 );
 	}
 
 	XChangePointerControl( dpy, qtrue, qtrue, mouse_accel_numerator,
@@ -891,6 +899,7 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen ) {
 
 	// Check for DGA
 	dga_MajorVersion = 0, dga_MinorVersion = 0;
+#if 0
 	if ( in_dgamouse->value ) {
 		if ( !XF86DGAQueryVersion( dpy, &dga_MajorVersion, &dga_MinorVersion ) ) {
 			// unable to query, probalby not supported
@@ -902,7 +911,10 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen ) {
 					   dga_MajorVersion, dga_MinorVersion );
 		}
 	}
-
+#else
+	ri.Printf( PRINT_ALL, "XF86DGA Mouse Disabled\n" );
+	ri.Cvar_Set( "in_dgamouse", "0" );
+#endif
 	if ( vidmode_ext ) {
 		int best_fit, best_dist, dist, x, y;
 

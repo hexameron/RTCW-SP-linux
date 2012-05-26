@@ -21,8 +21,8 @@ sub launch {
 }
 
 Depends $env 'foo',
-  'out/wolfsp.x86',
-  'out/' . $BASEGAME . '/cgamei386.so',
-  'out/' . $BASEGAME . '/qagamei386.so',
-  'out/' . $BASEGAME . '/uii386.so';
+  'out/wolfsp.arm',
+  'out/' . $BASEGAME . '/cgamearm.so',
+  'out/' . $BASEGAME . '/qagamearm.so',
+  'out/' . $BASEGAME . '/uiarm.so';
 Command $env 'foo', "[perl] &launch()";

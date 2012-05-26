@@ -25,6 +25,6 @@ $env = new cons(
 $FILESREF = \@FILES;
   
 # FIXME CPU string  
-Program $env 'uii386.so', @$FILESREF;
-Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'uii386.so';
+Program $env 'uiarm.so', @$FILESREF;
+Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'uiarm.so';
 

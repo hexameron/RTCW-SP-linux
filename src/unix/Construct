@@ -14,7 +14,7 @@
 # parse command line arguments and do the setup
 
 # defaults
-$config = 'debug';
+$config = 'release';
 $do_setup = 0;
 $do_demo = 0;
 $do_info = 0;
@@ -24,7 +24,7 @@ $ROOTFS='/build/tegra2/';
 $CROSS_COMPILE='/usr/bin/armv7a-cros-linux-gnueabi-';
 $CC='/usr/bin/armv7a-cros-linux-gnueabi-gcc ';
 $CXX='/usr/bin/armv7a-cros-linux-gnueabi-g++ ';
-$LINK='/usr/bin/armv7a-cros-linux-gnueabi-ld';
+$LINK='/usr/bin/armv7a-cros-linux-gnueabi-g++ ';
 
 # detection of CPU type
 $cpu = 'arm';

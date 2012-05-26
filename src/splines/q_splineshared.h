@@ -72,14 +72,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <stdlib.h>
 #include <time.h>
 #include <ctype.h>
-#ifdef WIN32                // mac doesn't have malloc.h
 #include <malloc.h>          // for _alloca()
-#endif
-#ifdef _WIN32
-
-//#pragma intrinsic( memset, memcpy )
-
-#endif
+#pragma intrinsic( memset, memcpy )
 
 
 // this is the define for determining if we have an asm version of a C function

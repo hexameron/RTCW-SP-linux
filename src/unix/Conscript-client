@@ -123,18 +123,19 @@ Library $env_jpeglib 'jpeglib', @$JPEGLIB_REF;
 
 
 # putting it all together
-
 $env = new cons(
 	CC => $CC,
 	CXX => $CXX,
 	LINK => $LINK,
 	CFLAGS => $BASE_CFLAGS,
   LIBS => ' ' . $BUILD_DIR . '/unix/splines.a ' 
-  . $BUILD_DIR . '/unix/botlib.a ' 
-  . $BUILD_DIR . '/unix/jpeglib.a '
-  . '/build/tegra2/usr/lib/libXau.so.6 /build/tegra2/usr/lib/libxcb.so.1 '
-  . '/build/tegra2/usr/lib/libXdmcp.so.6  /build/tegra2/usr/lib/libX11.so '
-  . '/build/tegra2/usr/lib/libXext.so /build/tegra2/usr/lib/libXxf86vm.so -ldl -lm'
+  . $BUILD_DIR . '/unix/botlib.a ' . $BUILD_DIR . '/unix/jpeglib.a '
+  . '$ROOTLIBS/libvcos.so $ROOTLIBS/libvchiq_arm.so '
+  . '$ROOTLIBS/libEGL.so $ROOTLIBS/libbcm_host.so '
+  . '$ROOTLIBS/libXau.so.6 $ROOTLIBS/libxcb.so.1 '
+  . '$ROOTLIBS/libXdmcp.so.6 $ROOTLIBS/libX11.so '
+  . '$ROOTLIBS/libXext.so $ROOTLIBS/libXxf86vm.so '
+  . '$ROOTLIBS/libGLESv2.so -ldl -lm'
 );
 
 @RENDERER_FILES = qw(
@@ -212,7 +213,7 @@ $SOUND_REF = \@SOUND_FILES;
   ../unix/unix_shared.c 
   ../unix/linux_common.c
   ../unix/linux_qgl.c   
-  ../unix/linux_glimp.c   
+  ../unix/pi_glimp.c   
   ../unix/linux_joystick.c  
   ../unix/linux_snd.c 
   );

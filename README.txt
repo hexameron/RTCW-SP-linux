@@ -1,5 +1,6 @@
 /***********************************************
- Assumes building in ChromeOS Chroot for Tegra 2
+ Assumes building in ChromeOS Chroot.
+ Raspberry pi version: 	 making progress.
  ***********************************************/
 
 Return to Castle Wolfenstein single player GPL source release

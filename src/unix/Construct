@@ -21,10 +21,13 @@ $do_info = 0;
 
 # compiler
 $ROOTFS='/build/tegra2/';
-$CROSS_COMPILE='/usr/bin/armv7a-cros-linux-gnueabi-';
-$CC='/usr/bin/armv7a-cros-linux-gnueabi-gcc ';
-$CXX='/usr/bin/armv7a-cros-linux-gnueabi-g++ ';
-$LINK='/usr/bin/armv7a-cros-linux-gnueabi-g++ ';
+$ROOTLIBS='/build/tegra2/usr/lib/';
+#using tegra2 as an alias for raspberrypi tree.
+
+$CROSS_COMPILE='/usr/bin/armv6j-cros-linux-gnueabi-';
+$CC='/usr/bin/armv6j-cros-linux-gnueabi-gcc ';
+$CXX='/usr/bin/armv6j-cros-linux-gnueabi-g++ ';
+$LINK='ROOTLIBS=/build/tegra2/usr/lib/; /usr/bin/armv6j-cros-linux-gnueabi-g++ ';
 
 # detection of CPU type
 $cpu = 'arm';
@@ -120,7 +123,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -Os -march=armv6j -marm -mfpu=vfp -I/build/tegra2/usr/include/ -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O2 -march=armv6j -mfpu=vfp -I/build/tegra2/usr/include/ -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h

@@ -542,7 +542,7 @@ void RB_BeginDrawingView( void ) {
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
 		float plane[4];
-		double plane2[4];
+		double plane2[4];//fix me: float
 
 		plane[0] = backEnd.viewParms.portalPlane.normal[0];
 		plane[1] = backEnd.viewParms.portalPlane.normal[1];
@@ -1023,9 +1023,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			//
 			if ( oldDepthRange != depthRange ) {
 				if ( depthRange ) {
-					qglDepthRange( 0, 0.3 );
+					qglDepthRange( 0, 0.3f );
 				} else {
-					qglDepthRange( 0, 1 );
+					qglDepthRange( 0, 1.0f );
 				}
 				oldDepthRange = depthRange;
 			}
@@ -1066,7 +1066,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
 	if ( depthRange ) {
-		qglDepthRange( 0, 1 );
+		qglDepthRange( 0, 1.0f );
 	}
 
 	// (SA) draw sun
@@ -1107,7 +1107,7 @@ void    RB_SetGL2D( void ) {
 	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
 	qglMatrixMode( GL_PROJECTION );
 	qglLoadIdentity();
-	qglOrtho( 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1 );
+	qglOrtho( 0.0f, glConfig.vidWidth, glConfig.vidHeight, 0.0f, 0.0f, 1.0f );
 	qglMatrixMode( GL_MODELVIEW );
 	qglLoadIdentity();
 
@@ -1138,6 +1138,9 @@ Used for cinematics.
 void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
 	int i, j;
 	int start, end;
+        vec2_t          texcoords[4];
+        vec2_t          verts[4];
+        glIndex_t       indicies[6] = {0, 1, 2, 0, 3, 2};
 
 	if ( !tr.registered ) {
 		return;
@@ -1186,19 +1189,20 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 
 	RB_SetGL2D();
-
-	qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
-
-	qglBegin( GL_QUADS );
-	qglTexCoord2f( 0.5f / cols,  0.5f / rows );
-	qglVertex2f( x, y );
-	qglTexCoord2f( ( cols - 0.5f ) / cols,  0.5f / rows );
-	qglVertex2f( x + w, y );
-	qglTexCoord2f( ( cols - 0.5f ) / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f( x + w, y + h );
-	qglTexCoord2f( 0.5f / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f( x, y + h );
-	qglEnd();
+        qglColor4f( tr.identityLight, tr.identityLight, tr.identityLight, 1.0f );
+        verts[0][0] = x;  verts[0][1] = y;
+        verts[1][0] = x+w;  verts[1][1] = y;
+        verts[2][0] = x+w;  verts[2][1] = y+h;
+        verts[3][0] = x;  verts[3][1] = y+h;
+        texcoords[0][0] = 0.5f/cols;      texcoords[0][1] = 0.5f/rows;
+        texcoords[1][0] = (cols-0.5f)/cols;   texcoords[1][1] = 0.5f/rows;
+        texcoords[2][0] = (cols-0.5f)/cols;   texcoords[2][1] = (rows-0.5f)/rows;
+        texcoords[3][0] = 0.5f/cols;      texcoords[3][1] = (rows-0.5f)/rows;
+        qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+        qglTexCoordPointer( 2, GL_FLOAT, 0, texcoords );
+        qglVertexPointer  ( 2, GL_FLOAT, 0, verts );
+        qglDrawElements( GL_TRIANGLE_STRIP, 6, GL_INDEX_TYPE, indicies );
+        qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
 }
 
 
@@ -1464,17 +1468,19 @@ void RB_ShowImages( void ) {
 	image_t *image;
 	float x, y, w, h;
 	int start, end;
+        vec2_t  texcoords[4] = { {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f} };
+        vec2_t  verts[4];
+        glIndex_t indicies[6] = { 0, 1, 2, 0, 3, 2};
 
 	if ( !backEnd.projection2D ) {
 		RB_SetGL2D();
 	}
 
 	qglClear( GL_COLOR_BUFFER_BIT );
-
 	qglFinish();
 
-
 	start = ri.Milliseconds();
+        qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		image = tr.images[i];
@@ -1490,20 +1496,15 @@ void RB_ShowImages( void ) {
 			w *= image->uploadWidth / 512.0f;
 			h *= image->uploadHeight / 512.0f;
 		}
-
-		GL_Bind( image );
-		qglBegin( GL_QUADS );
-		qglTexCoord2f( 0, 0 );
-		qglVertex2f( x, y );
-		qglTexCoord2f( 1, 0 );
-		qglVertex2f( x + w, y );
-		qglTexCoord2f( 1, 1 );
-		qglVertex2f( x + w, y + h );
-		qglTexCoord2f( 0, 1 );
-		qglVertex2f( x, y + h );
-		qglEnd();
-	}
-
+               verts[0][0] = x;  verts[0][1] = y;
+               verts[1][0] = x+w;  verts[1][1] = y;
+               verts[2][0] = x+w;  verts[2][1] = y+h;
+               verts[3][0] = x;  verts[3][1] = y+h;
+               qglTexCoordPointer( 2, GL_FLOAT, 0, texcoords );
+               qglVertexPointer  ( 2, GL_FLOAT, 0, verts );
+               qglDrawElements( GL_TRIANGLE_STRIP, 6, GL_INDEX_TYPE, indicies );
+        }
+        qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	qglFinish();
 
 	end = ri.Milliseconds();

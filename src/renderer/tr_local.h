@@ -37,16 +37,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_public.h"
 #include "qgl.h"
 
-#define GL_INDEX_TYPE       GL_UNSIGNED_INT
-typedef unsigned int glIndex_t;
+#define GL_INDEX_TYPE GL_UNSIGNED_SHORT
+typedef unsigned short  glIndex_t;
 
 // fast float to int conversion
-#if id386 && !( ( defined __linux__ || defined __FreeBSD__ ) && ( defined __i386__ ) ) // rb010123
-long myftol( float f );
-#else
 #define myftol( x ) ( (int)( x ) )
-#endif
-
 
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in

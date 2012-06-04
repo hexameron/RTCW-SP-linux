@@ -261,8 +261,7 @@ Draws triangle outlines for debugging
 */
 static void DrawTris( shaderCommands_t *input ) {
 	GL_Bind( tr.whiteImage );
-	qglColor3f( 1,1,1 );
-
+        qglColor4f (1.0f,1.0f,1.0f,1.0f);
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
 	if ( r_showtris->integer == 1 ) {
@@ -299,22 +298,24 @@ Draws vertex normals for debugging
 static void DrawNormals( shaderCommands_t *input ) {
 	int i;
 	vec3_t temp;
+	vec3_t  verts[2*SHADER_MAX_VERTEXES];
+        glIndex_t indicies[2*SHADER_MAX_VERTEXES];
 
+        for (i = 0 ; i < input->numVertexes ; i++) {
+               VectorCopy(input->xyz[i], verts[i*2]);
+               VectorMA (input->xyz[i], 2, input->normal[i], temp);
+               VectorCopy(temp, verts[(i*2)+1]);
+               indicies[(i*2)] = i*2;
+               indicies[(i*2)+1] = (i*2)+1;
+        }
 	GL_Bind( tr.whiteImage );
-	qglColor3f( 1,1,1 );
-
+        qglColor4f (1.0f,1.0f,1.0f,1.0f);
 	if ( r_shownormals->integer == 1 ) {
 		qglDepthRange( 0, 0 );  // never occluded
 	}
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
-
-	qglBegin( GL_LINES );
-	for ( i = 0 ; i < input->numVertexes ; i++ ) {
-		qglVertex3fv( input->xyz[i] );
-		VectorMA( input->xyz[i], 2, input->normal[i], temp );
-		qglVertex3fv( temp );
-	}
-	qglEnd();
+        qglVertexPointer(3, GL_FLOAT, 0, verts);
+        qglDrawElements( GL_LINES, i, GL_INDEX_TYPE, indicies );
 	qglDepthRange( 0, 1 );
 }
 
@@ -433,7 +434,7 @@ static void ProjectDlightTexture( void ) {
 	byte clipBits[SHADER_MAX_VERTEXES];
 	MAC_STATIC float texCoordsArray[SHADER_MAX_VERTEXES][2];
 	byte colorArray[SHADER_MAX_VERTEXES][4];
-	unsigned hitIndexes[SHADER_MAX_INDEXES];
+        glIndex_t hitIndexes[SHADER_MAX_INDEXES];
 	int numIndexes;
 	float scale;
 	float radius;
@@ -1253,6 +1254,7 @@ void RB_StageIteratorGeneric( void ) {
 	shaderCommands_t *input;
 
 	input = &tess;
+        if (input->numVertexes == 0 ) return; //error trapping is off.
 
 	RB_DeformTessGeometry();
 

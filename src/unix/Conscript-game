@@ -88,7 +88,7 @@ for($i=0; $i<scalar(@GAMES); $i++)
 # run extractfuncs with straight .c filenames, output to the right place
 sub build_funcs {
   print "Building functions table\n";
-  system("LDIR=`pwd`; cd ../game; echo \"in `pwd`\"; \$LDIR/extractfuncs -o \$LDIR/$BUILD_DIR/game/g_funcs.h \$LDIR/$BUILD_DIR/game/g_func_decs.h $GAMES_STRING");
+  system("cd ../game;../unix/extractfuncs -o ./g_funcs.h ./g_func_decs.h $GAMES_STRING");
   return 1;
 }
 

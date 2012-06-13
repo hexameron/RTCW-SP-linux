@@ -270,7 +270,7 @@ void Sys_Exit( int ex ) {
 		sleep( 1 );
 	}
 
-#ifdef NDEBUG // regular behavior
+#if 0
 
 	// We can't do this
 	//  as long as GL DLL's keep installing with atexit...
@@ -294,48 +294,11 @@ void Sys_Quit( void ) {
 void Sys_Init( void ) {
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
 
-#if defined __linux__
-#if defined __i386__
-	Cvar_Set( "arch", "linux i386" );
-#elif defined __alpha__
-	Cvar_Set( "arch", "linux alpha" );
-#elif defined __sparc__
-	Cvar_Set( "arch", "linux sparc" );
-#elif defined __FreeBSD__
-
-#if defined __i386__ // FreeBSD
-	Cvar_Set( "arch", "freebsd i386" );
-#elif defined __alpha__
-	Cvar_Set( "arch", "freebsd alpha" );
-#else
-	Cvar_Set( "arch", "freebsd unknown" );
-#endif // FreeBSD
-
-#else
-	Cvar_Set( "arch", "linux unknown" );
-#endif
-#elif defined __sun__
-#if defined __i386__
-	Cvar_Set( "arch", "solaris x86" );
-#elif defined __sparc__
-	Cvar_Set( "arch", "solaris sparc" );
-#else
-	Cvar_Set( "arch", "solaris unknown" );
-#endif
-#elif defined __sgi__
-#if defined __mips__
-	Cvar_Set( "arch", "sgi mips" );
-#else
-	Cvar_Set( "arch", "sgi unknown" );
-#endif
-#else
-	Cvar_Set( "arch", "unknown" );
-#endif
+	Cvar_Set( "arch", "linux arm" );
 
 	Cvar_Set( "username", Sys_GetCurrentUser() );
-
+        Com_Printf( PRINT_ALL, "Sysinit: Input Init.\n" );
 	IN_Init();
-
 }
 
 void Sys_Error( const char *error, ... ) {
@@ -651,15 +614,7 @@ void *Sys_LoadDll( const char *name,
 	// bk001206 - let's have some paranoia
 	assert( name );
 
-#if defined __i386__
-	snprintf( fname, sizeof( fname ), "%si386.so", name );
-#elif defined __powerpc__   //rcg010207 - PPC support.
-	snprintf( fname, sizeof( fname ), "%sppc.so", name );
-#elif defined __axp__
-	snprintf( fname, sizeof( fname ), "%saxp.so", name );
-#elif defined __mips__
-	snprintf( fname, sizeof( fname ), "%smips.so", name );
-#elif defined __arm__
+#if defined __arm__
         snprintf( fname, sizeof( fname ), "%sarm.so", name );
 #else
 #error Unknown arch
@@ -1127,7 +1082,7 @@ void  Sys_Print( const char *msg ) {
 
 void    Sys_ConfigureFPU() { // bk001213 - divide by zero
 #ifdef __linux__
-#ifdef __i386
+#if 0//x86 
 #ifndef NDEBUG
 
 	// bk0101022 - enable FPE's in debug mode
@@ -1296,6 +1251,7 @@ int main( int argc, char* argv[] ) {
 	saved_euid = geteuid();
 	seteuid( getuid() );
 
+	Com_Printf( "Starting main loop.\n" );
 	Sys_ParseArgs( argc, argv ); // bk010104 - added this for support
 
 	// TTimo: no CD path
@@ -1325,11 +1281,9 @@ int main( int argc, char* argv[] ) {
 
 	fcntl( 0, F_SETFL, fcntl( 0, F_GETFL, 0 ) | FNDELAY );
 
+        Com_Printf( "Starting infinite render loop.\n" );
 	while ( 1 )
 	{
-#ifdef __linux__
-		Sys_ConfigureFPU();
-#endif
 		Com_Frame();
 	}
 }

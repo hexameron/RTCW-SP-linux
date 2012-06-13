@@ -654,20 +654,20 @@ static qboolean GLimp_StartDriver()
    /* TODO cleanup on failure... */
 	const EGLint s_configAttribs[] =
 	{
-      EGL_RED_SIZE,       5,
-      EGL_GREEN_SIZE,     6,
-      EGL_BLUE_SIZE,      5,
+      EGL_RED_SIZE,       8,
+      EGL_GREEN_SIZE,     8,
+      EGL_BLUE_SIZE,      8,
       EGL_ALPHA_SIZE,     0,
-      EGL_DEPTH_SIZE,     16,
+      EGL_DEPTH_SIZE,     24,
       EGL_STENCIL_SIZE,   0,
       EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
       EGL_SAMPLE_BUFFERS, 1,
       EGL_NONE
-	}; //16 bit no stencil 
-	int colorbits, depthbits, stencilbits;
-	colorbits = 16;
-	depthbits = 16;	
-	stencilbits = 0;
+	}; //we get 24bit even if we ask for 5:6:5
+//	int colorbits, depthbits, stencilbits;
+//	colorbits = 24;
+//	depthbits = 24;	
+//	stencilbits = 0;
 
    EGLint numConfigs;
    EGLint majorVersion;
@@ -711,7 +711,6 @@ static qboolean GLimp_StartDriver()
       ri.Printf(PRINT_ALL, "eglCreateContext() failed\n");
       return qfalse;
    }
-  ri.Printf(PRINT_ALL, "Using native window.\n");
 
    g_EGLWindowSurface = eglCreateWindowSurface(g_EGLDisplay, g_EGLConfig, 0, NULL);
    if (g_EGLWindowSurface == EGL_NO_SURFACE) {
@@ -732,7 +731,7 @@ static qboolean GLimp_StartDriver()
       glConfig.colorBits = color;
       glConfig.depthBits = depth;
       glConfig.stencilBits = stencil;
-
+      glConfig.maxTextureSize = 1024;
       // Set background color and clear buffers
       glClearColor(0.5f, 0.5f, 0.5f, 0.7f);
       glClear( GL_COLOR_BUFFER_BIT );
@@ -759,22 +758,24 @@ int qXErrorHandler( Display *dpy, XErrorEvent *ev ) {
 */
 void GLimp_Init( void ) {
 	bcm_host_init();
-	
-	qboolean success = qtrue;
-        if ( !( dpy = XOpenDisplay( NULL ) ) ) {
+	Window root;
+
+	if ( !( dpy = XOpenDisplay( NULL ) ) ) {
 	        fprintf( stderr, "Error couldn't open the X display\n" );
 		ri.Error( ERR_FATAL, "GLimp_Init() - No X Window\n");
 		}
+        scrnum = DefaultScreen( dpy );
+        root = RootWindow( dpy, scrnum );
+
 	if( !GLimp_StartDriver() )
 		ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n" );
 
 	glConfig.driverType = GLDRV_ICD;
 	glConfig.hardwareType = GLHW_GENERIC;
 	glConfig.deviceSupportsGamma = qfalse;
-	ri.Printf(PRINT_ALL, "Initialised EGL.\n");
 
-	/*InitSig();
-		**There is none in ioQuake*/
+	if ( !QGL_Init() )
+		ri.Error( ERR_FATAL, "GLimp_Init() - could not link OpenGL hooks\n" );
 	return;
 }
 

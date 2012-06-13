@@ -118,12 +118,12 @@ if ($config eq 'debug')
   # NOTE TTimo using -Werror on debug build for QA
   #$BASE_CFLAGS = $COMMON_CFLAGS . '-g -O ';
   #$BASE_CFLAGS = $COMMON_CFLAGS . '-g -Werror -O ';
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -O ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-pipe -Wall ';
   #$BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -Werror -O ';
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O2 -march=armv6j -mfpu=vfp -I/build/tegra2/usr/include/ -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -Ofast -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/build/tegra2/usr/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h

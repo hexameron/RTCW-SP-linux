@@ -33,9 +33,25 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __QGL_H__
 #define __QGL_H__
 
-#if defined( __LINT__ )
-
+#define VCMODS_OPENGLES
+#ifdef VCMODS_OPENGLES
 #include <GL/gl.h>
+#include <GLES/gl.h>
+#include <GL/glx.h>
+
+#define qglActiveTextureARB glActiveTexture
+#define qglClientActiveTextureARB glClientActiveTexture
+
+/* functions to add for 3d rendering :
+extern void myglClear(GLbitfield mask);
+extern void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+extern void myglDrawBuffer(GLenum mode);
+extern void myglViewport(GLint x, GLint y, GLsizei width, GLsizei height);
+extern void myglScissor(GLint x, GLint y, GLsizei width, GLsizei height);
+*/ 
+
+extern void (* qglLockArraysEXT) (GLint first, GLsizei count);
+extern void (* qglUnlockArraysEXT) (void);
 
 #elif defined( _WIN32 )
 
@@ -92,7 +108,6 @@ If you have questions concerning this license or the applicable additional terms
 #define GL_ACTIVE_TEXTURE_ARB               0x84E0
 #define GL_CLIENT_ACTIVE_TEXTURE_ARB        0x84E1
 #define GL_MAX_ACTIVE_TEXTURES_ARB          0x84E2
-
 #define GL_TEXTURE0_ARB                     0x84C0
 #define GL_TEXTURE1_ARB                     0x84C1
 #define GL_TEXTURE2_ARB                     0x84C2
@@ -184,12 +199,6 @@ typedef void ( APIENTRY * PFNGLPNTRIANGLESFATIPROC )( GLenum pname, GLfloat para
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 #endif
-
-// extensions will be function pointers on all platforms
-
-extern void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
-extern void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
-extern void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
 extern void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
 extern void ( APIENTRY * qglUnlockArraysEXT )( void );

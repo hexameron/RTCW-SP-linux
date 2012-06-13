@@ -411,10 +411,6 @@ void ( APIENTRY * qglVertex4sv )( const GLshort *v );
 void ( APIENTRY * qglVertexPointer )( GLint size, GLenum type, GLsizei stride, const GLvoid *pointer );
 void ( APIENTRY * qglViewport )( GLint x, GLint y, GLsizei width, GLsizei height );
 
-void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
-void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
-void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
-
 void ( APIENTRY * qglLockArraysEXT )( int, int );
 void ( APIENTRY * qglUnlockArraysEXT )( void );
 
@@ -2701,26 +2697,11 @@ void *qwglGetProcAddress( char *symbol ) {
 **
 */
 
-qboolean QGL_Init( const char *dllname ) {
-	if ( ( glw_state.OpenGLLib = dlopen( dllname, RTLD_LAZY | RTLD_GLOBAL ) ) == 0 ) {
-		char fn[1024];
-		// FILE *fp; // bk001204 - unused
-		extern uid_t saved_euid; // unix_main.c
+qboolean QGL_Init() {
 
-		// if we are not setuid, try current directory
-		if ( getuid() == saved_euid ) {
-			getcwd( fn, sizeof( fn ) );
-			Q_strcat( fn, sizeof( fn ), "/" );
-			Q_strcat( fn, sizeof( fn ), dllname );
-
-			if ( ( glw_state.OpenGLLib = dlopen( fn, RTLD_LAZY ) ) == 0 ) {
-				ri.Printf( PRINT_ALL, "QGL_Init: Can't load %s from /etc/ld.so.conf or current dir: %s\n", dllname, dlerror() );
+	if ( ( glw_state.OpenGLLib = dlopen( "/usr/lib/libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL ) ) == 0 ) {
+				ri.Printf( PRINT_ALL, "QGL_Init: Can`t load /usr/lib/libGLESv2.so\n" );
 				return qfalse;
-			}
-		} else {
-			ri.Printf( PRINT_ALL, "QGL_Init: Can't load %s from /etc/ld.so.conf: %s\n", dllname, dlerror() );
-			return qfalse;
-		}
 	}
 
 	qglAccum                     = dllAccum = GPA( "glAccum" );
@@ -2736,10 +2717,10 @@ qboolean QGL_Init( const char *dllname ) {
 	qglClear                     = dllClear = GPA( "glClear" );
 	qglClearAccum                = dllClearAccum = GPA( "glClearAccum" );
 	qglClearColor                = dllClearColor = GPA( "glClearColor" );
-	qglClearDepth                = dllClearDepth = GPA( "glClearDepth" );
+	qglClearDepth                = dllClearDepth = GPA( "glClearDepthf" );
 	qglClearIndex                = dllClearIndex = GPA( "glClearIndex" );
 	qglClearStencil              = dllClearStencil = GPA( "glClearStencil" );
-	qglClipPlane                 = dllClipPlane = GPA( "glClipPlane" );
+	qglClipPlane                 = dllClipPlane = GPA( "glClipPlanef" );
 	qglColor3b                   = dllColor3b = GPA( "glColor3b" );
 	qglColor3bv                  = dllColor3bv = GPA( "glColor3bv" );
 	qglColor3d                   = dllColor3d = GPA( "glColor3d" );
@@ -2785,7 +2766,7 @@ qboolean QGL_Init( const char *dllname ) {
 	qglDeleteTextures            = dllDeleteTextures = GPA( "glDeleteTextures" );
 	qglDepthFunc                 = dllDepthFunc = GPA( "glDepthFunc" );
 	qglDepthMask                 = dllDepthMask = GPA( "glDepthMask" );
-	qglDepthRange                = dllDepthRange = GPA( "glDepthRange" );
+	qglDepthRange                = dllDepthRange = GPA( "glDepthRangef" );
 	qglDisable                   = dllDisable = GPA( "glDisable" );
 	qglDisableClientState        = dllDisableClientState = GPA( "glDisableClientState" );
 	qglDrawArrays                = dllDrawArrays = GPA( "glDrawArrays" );
@@ -2910,7 +2891,7 @@ qboolean QGL_Init( const char *dllname ) {
 	qglNormal3s                  =  dllNormal3s                  = GPA( "glNormal3s" );
 	qglNormal3sv                 =  dllNormal3sv                 = GPA( "glNormal3sv" );
 	qglNormalPointer             =  dllNormalPointer             = GPA( "glNormalPointer" );
-	qglOrtho                     =  dllOrtho                     = GPA( "glOrtho" );
+	qglOrtho                     =  dllOrtho                     = GPA( "glOrthof" );
 	qglPassThrough               =  dllPassThrough               = GPA( "glPassThrough" );
 	qglPixelMapfv                =  dllPixelMapfv                = GPA( "glPixelMapfv" );
 	qglPixelMapuiv               =  dllPixelMapuiv               = GPA( "glPixelMapuiv" );
@@ -3083,9 +3064,8 @@ qboolean QGL_Init( const char *dllname ) {
 	qgl3DfxSetPaletteEXT = 0;
 	qglSelectTextureSGIS = 0;
 	qglMTexCoord2fSGIS = 0;
-	qglActiveTextureARB = 0;
-	qglClientActiveTextureARB = 0;
-	qglMultiTexCoord2fARB = 0;
+//	qglActiveTextureARB = 0;
+//	qglClientActiveTextureARB = 0;
 
 	return qtrue;
 }

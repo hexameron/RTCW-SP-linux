@@ -252,23 +252,11 @@ void R_ImageList_f( void ) {
 		case 4:
 			ri.Printf( PRINT_ALL, "RGBA " );
 			break;
-		case GL_RGBA8:
-			ri.Printf( PRINT_ALL, "RGBA8" );
+		case GL_RGBA:
+			ri.Printf( PRINT_ALL, "GL_RGBA" );
 			break;
-		case GL_RGB8:
-			ri.Printf( PRINT_ALL, "RGB8" );
-			break;
-		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-			ri.Printf( PRINT_ALL, "DXT5 " );
-			break;
-		case GL_RGB4_S3TC:
-			ri.Printf( PRINT_ALL, "S3TC4" );
-			break;
-		case GL_RGBA4:
-			ri.Printf( PRINT_ALL, "RGBA4" );
-			break;
-		case GL_RGB5:
-			ri.Printf( PRINT_ALL, "RGB5 " );
+		case GL_RGB:
+			ri.Printf( PRINT_ALL, "GL_RGB" );
 			break;
 		default:
 			ri.Printf( PRINT_ALL, "???? " );
@@ -754,6 +742,8 @@ static void Upload32(   unsigned *data,
 		}
 		// select proper internal format
 		if ( samples == 3 ) {
+			internalFormat = GL_RGB;
+		/*
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
@@ -767,7 +757,10 @@ static void Upload32(   unsigned *data,
 			{
 				internalFormat = 3;
 			}
+		*/
 		} else if ( samples == 4 )   {
+			internalFormat = GL_RGBA;
+		/*
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
@@ -779,6 +772,7 @@ static void Upload32(   unsigned *data,
 			{
 				internalFormat = 4;
 			}
+		*/
 		}
 	} else {
 		internalFormat = 3;
@@ -787,7 +781,7 @@ static void Upload32(   unsigned *data,
 	if ( ( scaled_width == width ) &&
 		 ( scaled_height == height ) ) {
 		if ( !mipmap ) {
-			qglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+			myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 			*pUploadWidth = scaled_width;
 			*pUploadHeight = scaled_height;
 			*format = internalFormat;
@@ -818,7 +812,7 @@ static void Upload32(   unsigned *data,
 	*pUploadHeight = scaled_height;
 	*format = internalFormat;
 
-	qglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
+	myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 
 	if ( mipmap ) {
 		int miplevel;
@@ -841,7 +835,7 @@ static void Upload32(   unsigned *data,
 				R_BlendOverTexture( (byte *)scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel] );
 			}
 
-			qglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
+			myglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 		}
 	}
 done:
@@ -2230,7 +2224,8 @@ static void R_CreateFogImage( void ) {
 	borderColor[2] = 1.0;
 	borderColor[3] = 1;
 
-	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+//	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_ENV_COLOR, borderColor );
 }
 
 /*

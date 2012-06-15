@@ -375,7 +375,6 @@ void ( APIENTRY * qglTexGenfv )( GLenum coord, GLenum pname, const GLfloat *para
 void ( APIENTRY * qglTexGeni )( GLenum coord, GLenum pname, GLint param );
 void ( APIENTRY * qglTexGeniv )( GLenum coord, GLenum pname, const GLint *params );
 void ( APIENTRY * qglTexImage1D )( GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
-void ( APIENTRY * qglTexImage2D )( GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
 void ( APIENTRY * qglTexParameterf )( GLenum target, GLenum pname, GLfloat param );
 void ( APIENTRY * qglTexParameterfv )( GLenum target, GLenum pname, const GLfloat *params );
 void ( APIENTRY * qglTexParameteri )( GLenum target, GLenum pname, GLint param );
@@ -2165,7 +2164,7 @@ static void APIENTRY logTexImage1D( GLenum target, GLint level, GLint internalfo
 }
 static void APIENTRY logTexImage2D( GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels ) {
 	SIG( "glTexImage2D" );
-	dllTexImage2D( target, level, internalformat, width, height, border, format, type, pixels );
+	myglTexImage2D( target, level, internalformat, width, height, border, format, type, pixels );
 }
 
 static void APIENTRY logTexParameterf( GLenum target, GLenum pname, GLfloat param ) {
@@ -2623,7 +2622,6 @@ void QGL_Shutdown( void ) {
 	qglTexGeni                   = NULL;
 	qglTexGeniv                  = NULL;
 	qglTexImage1D                = NULL;
-	qglTexImage2D                = NULL;
 	qglTexParameterf             = NULL;
 	qglTexParameterfv            = NULL;
 	qglTexParameteri             = NULL;
@@ -3003,7 +3001,6 @@ qboolean QGL_Init() {
 	qglTexGeni                   =  dllTexGeni                   = GPA( "glTexGeni" );
 	qglTexGeniv                  =  dllTexGeniv                  = GPA( "glTexGeniv" );
 	qglTexImage1D                =  dllTexImage1D                = GPA( "glTexImage1D" );
-	qglTexImage2D                =  dllTexImage2D                = GPA( "glTexImage2D" );
 	qglTexParameterf             =  dllTexParameterf             = GPA( "glTexParameterf" );
 	qglTexParameterfv            =  dllTexParameterfv            = GPA( "glTexParameterfv" );
 	qglTexParameteri             =  dllTexParameteri             = GPA( "glTexParameteri" );
@@ -3415,7 +3412,6 @@ void QGL_EnableLogging( qboolean enable ) {
 		qglTexGeni                   =  logTexGeni                   ;
 		qglTexGeniv                  =  logTexGeniv                  ;
 		qglTexImage1D                =  logTexImage1D                ;
-		qglTexImage2D                =  logTexImage2D                ;
 		qglTexParameterf             =  logTexParameterf             ;
 		qglTexParameterfv            =  logTexParameterfv            ;
 		qglTexParameteri             =  logTexParameteri             ;
@@ -3753,7 +3749,6 @@ void QGL_EnableLogging( qboolean enable ) {
 		qglTexGeni                   =  dllTexGeni                   ;
 		qglTexGeniv                  =  dllTexGeniv                  ;
 		qglTexImage1D                =  dllTexImage1D                ;
-		qglTexImage2D                =  dllTexImage2D                ;
 		qglTexParameterf             =  dllTexParameterf             ;
 		qglTexParameterfv            =  dllTexParameterfv            ;
 		qglTexParameteri             =  dllTexParameteri             ;

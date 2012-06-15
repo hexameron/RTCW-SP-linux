@@ -326,7 +326,6 @@ If you have questions concerning this license or the applicable additional terms
 #define qglTexGeni glTexGeni
 #define qglTexGeniv glTexGeniv
 #define qglTexImage1D glTexImage1D
-#define qglTexImage2D glTexImage2D
 #define qglTexParameterf glTexParameterf
 #define qglTexParameterfv glTexParameterfv
 #define qglTexParameteri glTexParameteri

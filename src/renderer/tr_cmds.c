@@ -448,7 +448,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 	}
 
-	//
+	/*
 	// NVidia stuff
 	//
 
@@ -466,7 +466,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			glConfig.NVFogMode = (int)GL_EYE_RADIAL_NV;
 			ri.Cvar_Set( "r_nv_fogdist_mode", "GL_EYE_RADIAL_NV" );
 		}
-	}
+	}*/
 
 
 	//

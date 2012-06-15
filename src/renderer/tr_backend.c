@@ -305,6 +305,7 @@ void GL_State( unsigned long stateBits ) {
 		}
 	}
 
+	/* TODO
 	//
 	// fill/line mode
 	//
@@ -316,6 +317,7 @@ void GL_State( unsigned long stateBits ) {
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
+	*/
 
 	//
 	// depthtest
@@ -1170,7 +1172,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		qglTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		myglTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
@@ -1214,7 +1216,7 @@ void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		qglTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		myglTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
@@ -1536,6 +1538,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 
 	// we measure overdraw by reading back the stencil buffer and
 	// counting up the number of increments that have happened
+/* do not measure overdraw:
 	if ( r_measureOverdraw->integer ) {
 		int i;
 		long sum = 0;
@@ -1551,7 +1554,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 		backEnd.pc.c_overDraw += sum;
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
-
+*/
 
 	if ( !glState.finishCalled ) {
 		qglFinish();

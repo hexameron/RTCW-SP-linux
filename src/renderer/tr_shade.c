@@ -259,6 +259,7 @@ Draws triangle outlines for debugging
 ================
 */
 static void DrawTris( shaderCommands_t *input ) {
+/* Dont need that:
 	GL_Bind( tr.whiteImage );
         qglColor4f (1.0f,1.0f,1.0f,1.0f);
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
@@ -284,7 +285,9 @@ static void DrawTris( shaderCommands_t *input ) {
 		GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 	qglDepthRange( 0, 1 );
+*/
 }
+
 
 
 /*
@@ -374,12 +377,6 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	// done.
 
 	GL_State( pStage->stateBits );
-
-	// this is an ugly hack to work around a GeForce driver
-	// bug with multitexture and clip planes
-	if ( backEnd.viewParms.isPortal ) {
-		qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-	}
 
 	//
 	// base

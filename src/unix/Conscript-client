@@ -211,6 +211,7 @@ $SOUND_REF = \@SOUND_FILES;
   ../unix/unix_main.c 
   ../unix/unix_net.c 
   ../unix/unix_shared.c 
+  ../unix/etc1encode.c
   ../unix/pi_common.c
   ../unix/linux_qgl.c   
   ../unix/pi_glimp.c   

@@ -35,16 +35,25 @@ If you have questions concerning this license or the applicable additional terms
 
 #define VCMODS_OPENGLES
 #ifdef VCMODS_OPENGLES
-#include <GL/gl.h>
 #include <GLES/gl.h>
 #include <GL/glx.h>
+
+/* defines for GL not in GLES ! */
+typedef double          GLdouble;       /* double precision float */
+typedef double          GLclampd;
+#define GL_CLAMP GL_CLAMP_TO_EDGE //all we have ?
+#define GL_BACK					0x0405
+#define GL_BACK_LEFT				0x0402
+#define GL_BACK_RIGHT				0x0403
+/*end extra defines*/
+
 
 #define qglActiveTextureARB glActiveTexture
 #define qglClientActiveTextureARB glClientActiveTexture
 
+extern void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
 /* functions to add for 3d rendering :
 extern void myglClear(GLbitfield mask);
-extern void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
 extern void myglDrawBuffer(GLenum mode);
 extern void myglViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 extern void myglScissor(GLint x, GLint y, GLsizei width, GLsizei height);
@@ -52,21 +61,6 @@ extern void myglScissor(GLint x, GLint y, GLsizei width, GLsizei height);
 
 extern void (* qglLockArraysEXT) (GLint first, GLsizei count);
 extern void (* qglUnlockArraysEXT) (void);
-
-#elif defined( _WIN32 )
-
-#pragma warning (disable: 4201)
-#pragma warning (disable: 4214)
-#pragma warning (disable: 4514)
-#pragma warning (disable: 4032)
-#pragma warning (disable: 4201)
-#pragma warning (disable: 4214)
-#include <windows.h>
-#include <gl/gl.h>
-
-#elif defined( MACOS_X )
-
-#include "macosx_glimp.h"
 
 #elif defined( __linux__ )
 
@@ -524,7 +518,6 @@ extern void ( APIENTRY * qglTexGenfv )( GLenum coord, GLenum pname, const GLfloa
 extern void ( APIENTRY * qglTexGeni )( GLenum coord, GLenum pname, GLint param );
 extern void ( APIENTRY * qglTexGeniv )( GLenum coord, GLenum pname, const GLint *params );
 extern void ( APIENTRY * qglTexImage1D )( GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
-extern void ( APIENTRY * qglTexImage2D )( GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
 extern void ( APIENTRY * qglTexParameterf )( GLenum target, GLenum pname, GLfloat param );
 extern void ( APIENTRY * qglTexParameterfv )( GLenum target, GLenum pname, const GLfloat *params );
 extern void ( APIENTRY * qglTexParameteri )( GLenum target, GLenum pname, GLint param );

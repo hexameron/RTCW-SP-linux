@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 typedef double          GLdouble;       /* double precision float */
 typedef double          GLclampd;
 #define GL_CLAMP GL_CLAMP_TO_EDGE //all we have ?
-#define GL_BACK					0x0405
+//#define GL_BACK				0x0405
 #define GL_BACK_LEFT				0x0402
 #define GL_BACK_RIGHT				0x0403
 /*end extra defines*/

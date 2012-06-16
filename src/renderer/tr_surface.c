@@ -1348,22 +1348,6 @@ RB_SurfaceAxis
 
 Draws x/y/z lines from the origin for orientation debugging
 ===================
-void RB_SurfaceAxis( void ) {
-	GL_Bind( tr.whiteImage );
-	qglLineWidth( 3 );
-	qglBegin( GL_LINES );
-	qglColor3f( 1,0,0 );
-	qglVertex3f( 0,0,0 );
-	qglVertex3f( 16,0,0 );
-	qglColor3f( 0,1,0 );
-	qglVertex3f( 0,0,0 );
-	qglVertex3f( 0,16,0 );
-	qglColor3f( 0,0,1 );
-	qglVertex3f( 0,0,0 );
-	qglVertex3f( 0,0,16 );
-	qglEnd();
-	qglLineWidth( 1 );
-}
 */
 void RB_SurfaceAxis( void ) {
        byte colors[3][4] = { {255,0,0,255},{0,255,0,255},{0,0,255,255}};

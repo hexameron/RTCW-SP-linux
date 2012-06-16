@@ -775,7 +775,7 @@ static void Upload32(   unsigned *data,
 		*/
 		}
 	} else {
-		internalFormat = 3;
+		internalFormat = GL_RGB;
 	}
 	// copy or resample data as appropriate for first MIP level
 	if ( ( scaled_width == width ) &&

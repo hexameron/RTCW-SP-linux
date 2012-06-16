@@ -59,7 +59,7 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 R_DrawStripElements
 
 ===================
-*/
+
 static int c_vertexes;          // for seeing how long our average strips are
 static int c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )( GLint ) ) {
@@ -153,7 +153,6 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 
 
 
-/*
 ==================
 R_DrawElements
 
@@ -163,10 +162,10 @@ without compiled vertex arrays.
 ==================
 */
 static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
+#if 0
 	int primitives;
 
 	primitives = r_primitives->integer;
-
 	// default is to use triangles if compiled vertex arrays are present
 	if ( primitives == 0 ) {
 		if ( qglLockArraysEXT ) {
@@ -178,11 +177,13 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
 
 	if ( primitives == 2 ) {
-		qglDrawElements( GL_TRIANGLES,
+#endif
+	glDrawElements( GL_TRIANGLES,
 						 numIndexes,
 						 GL_INDEX_TYPE,
 						 indexes );
-		return;
+#if 0
+	return;
 	}
 
 	if ( primitives == 1 ) {
@@ -194,7 +195,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 		R_DrawStripElements( numIndexes,  indexes, R_ArrayElementDiscrete );
 		return;
 	}
-
+#endif
 	// anything else will cause no drawing
 }
 

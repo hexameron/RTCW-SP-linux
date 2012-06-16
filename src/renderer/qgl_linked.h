@@ -43,7 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 #define qglClearDepth glClearDepth
 #define qglClearIndex glClearIndex
 #define qglClearStencil glClearStencil
-#define qglClipPlane glClipPlane
 #define qglColor3b glColor3b
 #define qglColor3bv glColor3bv
 #define qglColor3d glColor3d

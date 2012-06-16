@@ -773,6 +773,7 @@ void GLimp_Init( void ) {
 	glConfig.driverType = GLDRV_ICD;
 	glConfig.hardwareType = GLHW_GENERIC;
 	glConfig.deviceSupportsGamma = qfalse;
+	glConfig.stereoEnabled = qfalse;
 
 	if ( !QGL_Init() )
 		ri.Error( ERR_FATAL, "GLimp_Init() - could not link OpenGL hooks\n" );

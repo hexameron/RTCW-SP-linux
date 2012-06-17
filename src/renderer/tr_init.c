@@ -736,7 +736,7 @@ void R_ScreenShotJPEG_f( void ) {
 ** GL_SetDefaultState
 */
 void GL_SetDefaultState( void ) {
-	qglClearDepth( 1.0f );
+	glClearDepthf( 1.0f );
 
 	qglCullFace( GL_FRONT );
 

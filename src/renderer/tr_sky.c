@@ -841,7 +841,7 @@ void RB_DrawSun( void ) {
 	VectorScale( vec2, size, vec2 );
 
 	// farthest depth range
-	qglDepthRange( 1.0, 1.0 );
+	glDepthRangef( 1.0f, 1.0f );
 
 	color[0] = color[1] = color[2] = color[3] = 255;
 
@@ -934,7 +934,7 @@ void RB_DrawSun( void ) {
 	}
 
 	// back to normal depth range
-	qglDepthRange( 0.0, 1.0 );
+	glDepthRangef( 0.0, 1.0 );
 }
 
 extern void R_Fog( glfog_t *curfog );
@@ -982,9 +982,9 @@ void RB_StageIteratorSky( void ) {
 	// front of everything to allow developers to see how
 	// much sky is getting sucked in
 	if ( r_showsky->integer ) {
-		qglDepthRange( 0.0, 0.0 );
+		glDepthRangef( 0.0, 0.0 );
 	} else {
-		qglDepthRange( 1.0, 1.0 );
+		glDepthRangef( 1.0, 1.0 );
 	}
 
 	// draw the outer skybox
@@ -1022,7 +1022,7 @@ void RB_StageIteratorSky( void ) {
 	// Rafael - end
 
 	// back to normal depth range
-	qglDepthRange( 0.0, 1.0 );
+	glDepthRangef( 0.0, 1.0 );
 
 	backEnd.refdef.rdflags &= ~RDF_DRAWINGSKY;
 

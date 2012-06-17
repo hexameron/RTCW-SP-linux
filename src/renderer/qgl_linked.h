@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #define qglClear glClear
 #define qglClearAccum glClearAccum
 #define qglClearColor glClearColor
-#define qglClearDepth glClearDepth
+#define qglClearDepth glClearDepthf
 #define qglClearIndex glClearIndex
 #define qglClearStencil glClearStencil
 #define qglColor3b glColor3b
@@ -88,7 +88,7 @@ If you have questions concerning this license or the applicable additional terms
 #define qglDeleteTextures glDeleteTextures
 #define qglDepthFunc glDepthFunc
 #define qglDepthMask glDepthMask
-#define qglDepthRange glDepthRange
+#define qglDepthRange glDepthRangef
 #define qglDisable glDisable
 #define qglDisableClientState glDisableClientState
 #define qglDrawArrays glDrawArrays
@@ -213,7 +213,7 @@ If you have questions concerning this license or the applicable additional terms
 #define qglNormal3s glNormal3s
 #define qglNormal3sv glNormal3sv
 #define qglNormalPointer glNormalPointer
-#define qglOrtho glOrtho
+#define qglOrtho glOrthof
 #define qglPassThrough glPassThrough
 #define qglPixelMapfv glPixelMapfv
 #define qglPixelMapuiv glPixelMapuiv

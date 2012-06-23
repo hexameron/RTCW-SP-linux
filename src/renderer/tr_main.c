@@ -94,10 +94,11 @@ void R_Fog( glfog_t *curfog ) {
 
 	// TODO: FIXME: only send changes if necessary
 
-//	if(curfog->mode != setfog.mode || !setfog.registered) {
-	qglFogi( GL_FOG_MODE, curfog->mode );
+//	TODO: Change fog mode, default is exponential
+//	qglFogf( GL_FOG_MODE, (float)GL_LINEAR);
 //		setfog.mode = curfog->mode;
-//	}
+
+
 //	if(curfog->color[0] != setfog.color[0] || curfog->color[1] != setfog.color[1] || curfog->color[2] != setfog.color[2] || !setfog.registered) {
 	qglFogfv( GL_FOG_COLOR, curfog->color );
 //		VectorCopy(setfog.color, curfog->color);
@@ -137,12 +138,6 @@ void R_Fog( glfog_t *curfog ) {
 //		}
 	}
 
-
-//----(SA)	added
-	// NV fog mode
-	if ( glConfig.NVFogAvailable ) {
-		qglFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
-	}
 //----(SA)	end
 
 	setfog.registered = qtrue;

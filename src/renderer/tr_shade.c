@@ -47,7 +47,7 @@ R_ArrayElementDiscrete
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 	qglColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
-		 GLimp_LogComment( "FATAL: Unsupported function.\n" );
+		ri.Printf( PRINT_ALL, "FATAL: Unsupported function.\n" );
 	} else {
 		qglTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
 	}

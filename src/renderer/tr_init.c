@@ -572,6 +572,7 @@ void R_LevelShot( void ) {
 	buffer[14] = 128;
 	buffer[16] = 24;    // pixel size
 
+	ri.Printf( PRINT_ALL, "Taking ScreenShot.\n" );
 	qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source );
 
 	// resample from source

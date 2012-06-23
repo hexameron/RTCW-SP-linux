@@ -67,8 +67,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "linux_local.h"
 
 #include "unix_glw.h"
-#include <X11/keysym.h>
-#include <X11/cursorfont.h>
 
 #define WINDOW_CLASS_NAME   "Return to Castle Wolfenstein"
 
@@ -81,11 +79,6 @@ typedef enum
 } rserr_t;
 
 glwstate_t glw_state;
-
-static Display *dpy = NULL;
-static int scrnum;
-static Window win = 0;
-static GLXContext ctx = NULL;
 
 static qboolean mouse_avail;
 static qboolean mouse_active;
@@ -140,7 +133,9 @@ static const char *Q_stristr( const char *s, const char *find ) {
 ** NOTE TTimo the keyboard handling is done with KeySyms
 **   that means relying on the keyboard mapping provided by X
 ******************************************************************************/
+/*
 static char *XLateKey( XKeyEvent *ev, int *key ) {
+}
 	static char buf[64];
 	KeySym keysym;
 	int XLookupRet;
@@ -269,16 +264,18 @@ static char *XLateKey( XKeyEvent *ev, int *key ) {
 
 	return buf;
 }
-
+*/
 /* makes a null cursor */
+/*
 static Cursor CreateNullCursor( Display *display, Window root ) {
+}
 	Pixmap cursormask;
 	XGCValues xgc;
 	GC gc;
 	XColor dummycolour;
 	Cursor cursor;
 
-	cursormask = XCreatePixmap( display, root, 1, 1, 1 /*depth*/ );
+	cursormask = XCreatePixmap( display, root, 1, 1, 1 );
 	xgc.function = GXclear;
 	gc =  XCreateGC( display, cursormask, GCFunction, &xgc );
 	XFillRectangle( display, cursormask, gc, 0, 0, 1, 1 );
@@ -291,8 +288,9 @@ static Cursor CreateNullCursor( Display *display, Window root ) {
 	XFreeGC( display,gc );
 	return cursor;
 }
-
+*/
 static void install_grabs( void ) {
+}/*
 	// inviso cursor
 	XWarpPointer( dpy, None, win,
 				  0, 0, 0, 0,
@@ -349,8 +347,9 @@ static void install_grabs( void ) {
 				   CurrentTime );
 	XSync( dpy, False );
 }
-
+*/
 static void uninstall_grabs( void ) {
+}/*
 	if ( dgamouse ) { // DGA is disabled ?
 		dgamouse = qfalse;
 //		XF86DGADirectVideo( dpy, DefaultScreen( dpy ), 0 );
@@ -366,9 +365,9 @@ static void uninstall_grabs( void ) {
 	// inviso cursor
 	XUndefineCursor( dpy, win );
 }
-
+*/
 static qboolean X11_PendingInput( void ) {
-
+}/*
 	assert( dpy != NULL );
 	XFlush( dpy );
 	if ( XEventsQueued( dpy, QueuedAlready ) ) {
@@ -389,8 +388,10 @@ static qboolean X11_PendingInput( void ) {
 	}
 	return qfalse;
 }
-
+*/
+/*
 static qboolean repeated_press( XEvent *event ) {
+}
 	XEvent peekevent;
 	qboolean repeated = qfalse;
 
@@ -407,8 +408,9 @@ static qboolean repeated_press( XEvent *event ) {
 	}
 	return( repeated );
 }
-
+*/
 static void HandleEvents( void ) {
+}/*
 	int b;
 	int key;
 	XEvent event;
@@ -570,8 +572,9 @@ static void HandleEvents( void ) {
 					  ( glConfig.vidWidth / 2 ),( glConfig.vidHeight / 2 ) );
 	}
 }
-
+*/
 void IN_ActivateMouse( void ) {
+}/*
 	if ( !mouse_avail || !dpy || !win ) {
 		return;
 	}
@@ -581,8 +584,9 @@ void IN_ActivateMouse( void ) {
 		mouse_active = qtrue;
 	}
 }
-
+*/
 void IN_DeactivateMouse( void ) {
+}/*
 	if ( !mouse_avail || !dpy || !win ) {
 		return;
 	}
@@ -592,7 +596,7 @@ void IN_DeactivateMouse( void ) {
 		mouse_active = qfalse;
 	}
 }
-
+*/
 static qboolean signalcaught = qfalse;;
 
 void Sys_Exit( int );
@@ -622,14 +626,7 @@ static void InitSig( void ) {
 
 /* GLimp_Shutdown */
 void GLimp_Shutdown( void ) {
-	if ( !ctx || !dpy ) {
-		return;
-	}
 	IN_DeactivateMouse();
-
-	dpy = NULL;
-	win = 0;
-	ctx = NULL;
 
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
@@ -639,9 +636,9 @@ void GLimp_Shutdown( void ) {
 
 /* GLimp_LogComment */
 void GLimp_LogComment( char *comment ) {
-	if ( glw_state.log_fp ) {
-		fprintf( glw_state.log_fp, "%s", comment );
-	}
+#if 0
+fprintf( glw_state.log_fp, "%s", comment );
+#endif
 }
 
 /* GLW_StartDriverAndSetMode */
@@ -736,36 +733,18 @@ static qboolean GLimp_StartDriver()
       glClearColor(0.5f, 0.5f, 0.5f, 0.7f);
       glClear( GL_COLOR_BUFFER_BIT );
       glClear( GL_DEPTH_BUFFER_BIT );
-
+      eglSwapBuffers(g_EGLDisplay, g_EGLWindowSurface);
    }
 
 	return qtrue;
 }
 
-/* the default X error handler exits the application */
-int qXErrorHandler( Display *dpy, XErrorEvent *ev ) {
-	static char buf[1024];
-	XGetErrorText( dpy, ev->error_code, buf, 1024 );
-	ri.Printf( PRINT_ALL, "X Error of failed request: %s\n", buf );
-	ri.Printf( PRINT_ALL, "  Major opcode of failed request: %d\n", ev->request_code, buf );
-	ri.Printf( PRINT_ALL, "  Minor opcode of failed request: %d\n", ev->minor_code );
-	ri.Printf( PRINT_ALL, "  Serial number of failed request: %d\n", ev->serial );
-	return 0;
-}
 
 /*
 ** This routine is responsible for initializing the OS specific portion sof OpenGL.
 */
 void GLimp_Init( void ) {
 	bcm_host_init();
-	Window root;
-
-	if ( !( dpy = XOpenDisplay( NULL ) ) ) {
-	        fprintf( stderr, "Error couldn't open the X display\n" );
-		ri.Error( ERR_FATAL, "GLimp_Init() - No X Window\n");
-		}
-        scrnum = DefaultScreen( dpy );
-        root = RootWindow( dpy, scrnum );
 
 	if( !GLimp_StartDriver() )
 		ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n" );
@@ -830,9 +809,5 @@ void IN_Activate( void ) {
 }
 
 void Sys_SendKeyEvents( void ) {
-	if ( !dpy ) {
-		return;
-	}
-	HandleEvents();
 }
 

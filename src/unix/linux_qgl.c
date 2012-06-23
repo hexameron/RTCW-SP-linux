@@ -65,7 +65,7 @@ void ( *qfxMesaMakeCurrent )( fxMesaContext ctx );
 fxMesaContext ( *qfxMesaGetCurrentContext )( void );
 void ( *qfxMesaSwapBuffers )( void );
 #endif
-
+/*
 //GLX Functions
 XVisualInfo * ( *qglXChooseVisual )( Display * dpy, int screen, int *attribList );
 GLXContext ( *qglXCreateContext )( Display *dpy, XVisualInfo *vis, GLXContext shareList, Bool direct );
@@ -73,7 +73,7 @@ void ( *qglXDestroyContext )( Display *dpy, GLXContext ctx );
 Bool ( *qglXMakeCurrent )( Display *dpy, GLXDrawable drawable, GLXContext ctx );
 void ( *qglXCopyContext )( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
 void ( *qglXSwapBuffers )( Display *dpy, GLXDrawable drawable );
-
+*/
 void ( APIENTRY * qglAccum )( GLenum op, GLfloat value );
 void ( APIENTRY * qglAlphaFunc )( GLenum func, GLclampf ref );
 GLboolean ( APIENTRY * qglAreTexturesResident )( GLsizei n, const GLuint *textures, GLboolean *residences );
@@ -2666,13 +2666,14 @@ void QGL_Shutdown( void ) {
 	qfxMesaGetCurrentContext     = NULL;
 	qfxMesaSwapBuffers           = NULL;
 #endif
-
+/*
 	qglXChooseVisual             = NULL;
 	qglXCreateContext            = NULL;
 	qglXDestroyContext           = NULL;
 	qglXMakeCurrent              = NULL;
 	qglXCopyContext              = NULL;
 	qglXSwapBuffers              = NULL;
+*/
 }
 
 #define GPA( a ) dlsym( glw_state.OpenGLLib, a )
@@ -3045,14 +3046,14 @@ qboolean QGL_Init() {
 	qfxMesaGetCurrentContext     =  GPA( "fxMesaGetCurrentContext" );
 	qfxMesaSwapBuffers           =  GPA( "fxMesaSwapBuffers" );
 #endif
-
+/*
 	qglXChooseVisual             =  GPA( "glXChooseVisual" );
 	qglXCreateContext            =  GPA( "glXCreateContext" );
 	qglXDestroyContext           =  GPA( "glXDestroyContext" );
 	qglXMakeCurrent              =  GPA( "glXMakeCurrent" );
 	qglXCopyContext              =  GPA( "glXCopyContext" );
 	qglXSwapBuffers              =  GPA( "glXSwapBuffers" );
-
+*/
 	qglLockArraysEXT = 0;
 	qglUnlockArraysEXT = 0;
 	qglPointParameterfEXT = 0;

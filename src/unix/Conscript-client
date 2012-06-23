@@ -132,9 +132,6 @@ $env = new cons(
   . $BUILD_DIR . '/unix/botlib.a ' . $BUILD_DIR . '/unix/jpeglib.a '
   . '$ROOTLIBS/libvcos.so $ROOTLIBS/libvchiq_arm.so '
   . '$ROOTLIBS/libEGL.so $ROOTLIBS/libbcm_host.so '
-  . '$ROOTLIBS/libXau.so.6 $ROOTLIBS/libxcb.so.1 '
-  . '$ROOTLIBS/libXdmcp.so.6 $ROOTLIBS/libX11.so '
-  . '$ROOTLIBS/libXext.so $ROOTLIBS/libXxf86vm.so '
   . '$ROOTLIBS/libGLESv2.so -ldl -lm'
 );
 

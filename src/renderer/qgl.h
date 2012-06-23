@@ -36,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #define VCMODS_OPENGLES
 #ifdef VCMODS_OPENGLES
 #include <GLES/gl.h>
-#include <GL/glx.h>
 
 /* defines for GL not in GLES ! */
 typedef double          GLdouble;       /* double precision float */
@@ -603,7 +602,7 @@ extern void ( *qfxMesaMakeCurrent )( fxMesaContext ctx );
 extern fxMesaContext ( *qfxMesaGetCurrentContext )( void );
 extern void ( *qfxMesaSwapBuffers )( void );
 #endif
-
+/*
 //GLX Functions
 extern XVisualInfo * ( *qglXChooseVisual )( Display * dpy, int screen, int *attribList );
 extern GLXContext ( *qglXCreateContext )( Display *dpy, XVisualInfo *vis, GLXContext shareList, Bool direct );
@@ -611,7 +610,7 @@ extern void ( *qglXDestroyContext )( Display *dpy, GLXContext ctx );
 extern Bool ( *qglXMakeCurrent )( Display *dpy, GLXDrawable drawable, GLXContext ctx );
 extern void ( *qglXCopyContext )( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
 extern void ( *qglXSwapBuffers )( Display *dpy, GLXDrawable drawable );
-
+*/
 #endif // __linux__ || __FreeBSD__ // rb010123
 
 #endif  // _WIN32 && __linux__

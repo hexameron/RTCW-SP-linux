@@ -76,7 +76,7 @@ void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei w
    if (format == GL_RGB ) {
       opaque = 1;
       etc1_compress_tex_image(target, level, format, width, height, border, format, type, pixels);
-   } else if (format == GL_RGBA) {
+   } else {//(format == GL_RGBA)
       if (level == 0)
          opaque = isopaque(width, height, pixels);
 

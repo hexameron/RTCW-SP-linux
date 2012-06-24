@@ -631,14 +631,10 @@ void GLimp_Shutdown( void ) {
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
         bcm_host_deinit();
-	QGL_Shutdown();
 }
 
 /* GLimp_LogComment */
 void GLimp_LogComment( char *comment ) {
-#if 0
-fprintf( glw_state.log_fp, "%s", comment );
-#endif
 }
 
 /* GLW_StartDriverAndSetMode */
@@ -754,8 +750,6 @@ void GLimp_Init( void ) {
 	glConfig.deviceSupportsGamma = qfalse;
 	glConfig.stereoEnabled = qfalse;
 
-	if ( !QGL_Init() )
-		ri.Error( ERR_FATAL, "GLimp_Init() - could not link OpenGL hooks\n" );
 	return;
 }
 

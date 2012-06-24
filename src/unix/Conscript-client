@@ -210,7 +210,6 @@ $SOUND_REF = \@SOUND_FILES;
   ../unix/unix_shared.c 
   ../unix/etc1encode.c
   ../unix/pi_common.c
-  ../unix/linux_qgl.c   
   ../unix/pi_glimp.c   
   ../unix/linux_joystick.c  
   ../unix/linux_snd.c 

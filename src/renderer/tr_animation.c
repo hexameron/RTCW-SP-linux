@@ -1326,7 +1326,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	}
 
 	DBG_SHOWTIME
-
+#if 0 //no debug needed here
 	if ( r_bonesDebug->integer ) {
 		if ( r_bonesDebug->integer < 3 ) {
 			// DEBUG: show the bones as a stick figure with axis at each bone
@@ -1409,7 +1409,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 		tess.numVertexes = baseVertex;
 		return;
 	}
-
+#endif
 #ifdef DBG_PROFILE_BONES
 	Com_Printf( "\n" );
 #endif

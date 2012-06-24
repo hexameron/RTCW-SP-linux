@@ -1443,9 +1443,9 @@ const void  *RB_DrawBuffer( const void *data ) {
 	const drawBufferCommand_t   *cmd;
 
 	cmd = (const drawBufferCommand_t *)data;
-
-	qglDrawBuffer( cmd->buffer );
-
+//	qglDrawBuffer( cmd->buffer );
+	glViewport(0,0,-1,-1);
+	glScissor(0,0,-1,-1);
 	// clear screen for debugging
 	if ( r_clear->integer ) {
 		qglClearColor( 1, 0, 0.5, 1 );
@@ -1555,10 +1555,10 @@ const void  *RB_SwapBuffers( const void *data ) {
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
 */
-
-	if ( !glState.finishCalled ) {
-		qglFinish();
-	}
+/*
+ * Do we need to wait for glFinish on every frame ?
+ */
+	qglFinish();
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 

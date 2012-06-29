@@ -19,15 +19,13 @@ $do_setup = 0;
 $do_demo = 0;
 $do_info = 0;
 
-# compiler
-$ROOTFS='/build/tegra2/';
-$ROOTLIBS='/build/tegra2/usr/lib/';
-#using tegra2 as an alias for raspberrypi tree.
-
+# Building ChromeOS for Raspberrypi gives us a useful toolchain.
+$ROOTFS='/build/raspberrypi/';
+$ROOTLIBS='/build/raspberrypi/usr/lib/';
 $CROSS_COMPILE='/usr/bin/armv6j-cros-linux-gnueabi-';
 $CC='/usr/bin/armv6j-cros-linux-gnueabi-gcc ';
 $CXX='/usr/bin/armv6j-cros-linux-gnueabi-g++ ';
-$LINK='ROOTLIBS=/build/tegra2/usr/lib/; /usr/bin/armv6j-cros-linux-gnueabi-g++ ';
+$LINK='ROOTLIBS=/build/raspberrypi/usr/lib/; /usr/bin/armv6j-cros-linux-gnueabi-g++ ';
 
 # detection of CPU type
 $cpu = 'arm';
@@ -123,7 +121,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -Ofast -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/build/tegra2/usr/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -Ofast -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/build/raspberrypi/usr/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h

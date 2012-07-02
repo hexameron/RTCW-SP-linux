@@ -45,21 +45,13 @@ typedef double          GLclampd;
 #define GL_BACK_LEFT				0x0402
 #define GL_BACK_RIGHT				0x0403
 /*end extra defines*/
-
-
-#define qglActiveTextureARB glActiveTexture
-#define qglClientActiveTextureARB glClientActiveTexture
-
 extern void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
+extern void noglClear(GLbitfield mask);
 /* functions to add for 3d rendering :
-extern void myglClear(GLbitfield mask);
 extern void myglDrawBuffer(GLenum mode);
 extern void myglViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 extern void myglScissor(GLint x, GLint y, GLsizei width, GLsizei height);
 */ 
-
-extern void (* qglLockArraysEXT) (GLint first, GLsizei count);
-extern void (* qglUnlockArraysEXT) (void);
 
 #elif defined( __linux__ )
 
@@ -192,9 +184,6 @@ typedef void ( APIENTRY * PFNGLPNTRIANGLESFATIPROC )( GLenum pname, GLfloat para
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 #endif
-
-extern void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
-extern void ( APIENTRY * qglUnlockArraysEXT )( void );
 
 //----(SA)	added
 extern void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param );

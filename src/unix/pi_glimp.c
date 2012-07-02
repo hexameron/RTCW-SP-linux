@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 **
 */
 
-#include "bcm_host.h"
+#include <bcm_host.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -656,7 +656,7 @@ static qboolean GLimp_StartDriver()
       EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
       EGL_SAMPLE_BUFFERS, 1,
       EGL_NONE
-	}; //we get 24bit even if we ask for 5:6:5
+	};
 //	int colorbits, depthbits, stencilbits;
 //	colorbits = 24;
 //	depthbits = 24;	
@@ -724,13 +724,11 @@ static qboolean GLimp_StartDriver()
       glConfig.colorBits = color;
       glConfig.depthBits = depth;
       glConfig.stencilBits = stencil;
-      glConfig.maxTextureSize = 1024;
+      glConfig.maxTextureSize = 512; //upto 2048 with unlimited ram
       // Set background color and clear buffers
-      glClearColor(0.5f, 0.5f, 0.5f, 0.7f);
-      glClear( GL_COLOR_BUFFER_BIT );
-      glClear( GL_DEPTH_BUFFER_BIT );
-      eglSwapBuffers(g_EGLDisplay, g_EGLWindowSurface);
-   }
+      glClearColor(0.0f, 0.5f, 1.0f, 0.5f);
+      glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
+      }
 
 	return qtrue;
 }
@@ -755,9 +753,11 @@ void GLimp_Init( void ) {
 
 /*
 Responsible for doing a swapbuffers and possibly for other stuff
+Only clear buffers once per frame
 */
 void GLimp_EndFrame( void ) {
-   eglSwapBuffers(g_EGLDisplay, g_EGLWindowSurface);
+	eglSwapBuffers(g_EGLDisplay, g_EGLWindowSurface);
+	glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
 }
 
 /* SINGLE CPU*/

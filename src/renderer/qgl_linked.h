@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #define qglBlendFunc glBlendFunc
 #define qglCallList glCallList
 #define qglCallLists glCallLists
-#define qglClear glClear
+#define qglClear noglClear
 #define qglClearAccum glClearAccum
 #define qglClearColor glClearColor
 #define qglClearDepth glClearDepthf

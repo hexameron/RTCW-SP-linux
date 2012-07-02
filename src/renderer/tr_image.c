@@ -812,12 +812,11 @@ static void Upload32(   unsigned *data,
 	*pUploadHeight = scaled_height;
 	*format = internalFormat;
 
-	myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-
 	if ( mipmap ) {
 		int miplevel;
-
-		miplevel = 0;
+	
+	        miplevel = 0;
+		myglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 		while ( scaled_width > 1 || scaled_height > 1 )
 		{
 			R_MipMap( (byte *)scaledBuffer, scaled_width, scaled_height );
@@ -834,9 +833,10 @@ static void Upload32(   unsigned *data,
 			if ( r_colorMipLevels->integer ) {
 				R_BlendOverTexture( (byte *)scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel] );
 			}
-
 			myglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 		}
+	}else{
+		myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 	}
 done:
 
@@ -922,15 +922,13 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 	image->wrapClampMode = glWrapClampMode;
 
 	// lightmaps are always allocated on TMU 1
-	if ( qglActiveTextureARB && isLightmap ) {
+	if ( isLightmap ) {
 		image->TMU = 1;
 	} else {
 		image->TMU = 0;
 	}
 
-	if ( qglActiveTextureARB ) {
-		GL_SelectTexture( image->TMU );
-	}
+	GL_SelectTexture( image->TMU );
 
 	GL_Bind( image );
 
@@ -2427,14 +2425,10 @@ void R_DeleteTextures( void ) {
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
 	if ( qglBindTexture ) {
-		if ( qglActiveTextureARB ) {
 			GL_SelectTexture( 1 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 			GL_SelectTexture( 0 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
-		} else {
-			qglBindTexture( GL_TEXTURE_2D, 0 );
-		}
 	}
 }
 
@@ -3500,14 +3494,10 @@ void R_PurgeImage( image_t *image ) {
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
 	if ( qglBindTexture ) {
-		if ( qglActiveTextureARB ) {
 			GL_SelectTexture( 1 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 			GL_SelectTexture( 0 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
-		} else {
-			qglBindTexture( GL_TEXTURE_2D, 0 );
-		}
 	}
 }
 
@@ -3578,14 +3568,10 @@ void R_BackupImages( void ) {
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
 	if ( qglBindTexture ) {
-		if ( qglActiveTextureARB ) {
 			GL_SelectTexture( 1 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 			GL_SelectTexture( 0 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
-		} else {
-			qglBindTexture( GL_TEXTURE_2D, 0 );
-		}
 	}
 }
 

@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* Could use Hardware DMA here */
 
@@ -71,18 +72,11 @@ void rgba4444_convert_tex_image(
 
 void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
 {
-   static int opaque = 0;
-
-   if (format == GL_RGB ) {
-      opaque = 1;
-      etc1_compress_tex_image(target, level, format, width, height, border, format, type, pixels);
-   } else {//(format == GL_RGBA)
-      if (level == 0)
-         opaque = isopaque(width, height, pixels);
-
-      if (opaque)
-         etc1_compress_tex_image(target, level, format, width, height, border, format, type, pixels);
-      else
-         rgba4444_convert_tex_image(target, level, format, width, height, border, format, type, pixels);
+   if (internalformat == GL_RGB ) {
+   	etc1_compress_tex_image(target, level, format, width, height, border, format, type, pixels);
+   } else {
+   	rgba4444_convert_tex_image(target, level, format, width, height, border, format, type, pixels);
    }
 }
+
+void noglClear(GLbitfield mask){}

@@ -168,11 +168,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 	primitives = r_primitives->integer;
 	// default is to use triangles if compiled vertex arrays are present
 	if ( primitives == 0 ) {
-		if ( qglLockArraysEXT ) {
 			primitives = 2;
-		} else {
-			primitives = 1;
-		}
 	}
 
 
@@ -274,17 +270,8 @@ static void DrawTris( shaderCommands_t *input ) {
 
 	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
 
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
-	}
-
 	R_DrawElements( input->numIndexes, input->indexes );
 
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
-	}
 	glDepthRangef( 0, 1 );
 */
 }
@@ -1321,11 +1308,6 @@ void RB_StageIteratorGeneric( void ) {
 	// lock XYZ
 	//
 	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
-	}
-
 	//
 	// enable color and texcoord arrays after the lock if necessary
 	//
@@ -1352,14 +1334,6 @@ void RB_StageIteratorGeneric( void ) {
 	//
 	if ( tess.fogNum && tess.shader->fogPass ) {
 		RB_FogPass();
-	}
-
-	//
-	// unlock arrays
-	//
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
 	//
@@ -1436,12 +1410,6 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
 	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
-
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
-	}
-
 	//
 	// call special shade routine
 	//
@@ -1461,14 +1429,6 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	if ( tess.fogNum && tess.shader->fogPass ) {
 		RB_FogPass();
-	}
-
-	//
-	// unlock arrays
-	//
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
 	if ( qglPNTrianglesiATI && tess.ATI_tess )
@@ -1559,14 +1519,6 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][1] );
 
-	//
-	// lock arrays
-	//
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
-	}
-
 	R_DrawElements( input->numIndexes, input->indexes );
 
 	//
@@ -1593,14 +1545,6 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	if ( tess.fogNum && tess.shader->fogPass ) {
 		RB_FogPass();
-	}
-
-	//
-	// unlock arrays
-	//
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
 	if ( qglPNTrianglesiATI && tess.ATI_tess )

@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 /* defines for GL not in GLES ! */
 typedef double          GLdouble;       /* double precision float */
 typedef double          GLclampd;
-#define GL_CLAMP GL_CLAMP_TO_EDGE //all we have ?
+#define GL_CLAMP GL_CLAMP_TO_EDGE
 //#define GL_BACK				0x0405
 #define GL_BACK_LEFT				0x0402
 #define GL_BACK_RIGHT				0x0403
@@ -89,7 +89,7 @@ extern void myglScissor(GLint x, GLint y, GLsizei width, GLsizei height);
 
 /*
 ** multitexture extension definitions
-*/
+
 #define GL_ACTIVE_TEXTURE_ARB               0x84E0
 #define GL_CLIENT_ACTIVE_TEXTURE_ARB        0x84E1
 #define GL_MAX_ACTIVE_TEXTURES_ARB          0x84E2
@@ -97,11 +97,11 @@ extern void myglScissor(GLint x, GLint y, GLsizei width, GLsizei height);
 #define GL_TEXTURE1_ARB                     0x84C1
 #define GL_TEXTURE2_ARB                     0x84C2
 #define GL_TEXTURE3_ARB                     0x84C3
-
+*/
 // TTimo: FIXME
 // linux needs those prototypes
 // GL_VERSION_1_2 is defined after #include <gl.h>
-#if !defined( GL_VERSION_1_2 ) || defined( __linux__ )
+#if 0//!defined( GL_VERSION_1_2 ) || defined( __linux__ )
 typedef void ( APIENTRY * PFNGLMULTITEXCOORD1DARBPROC )( GLenum target, GLdouble s );
 typedef void ( APIENTRY * PFNGLMULTITEXCOORD1DVARBPROC )( GLenum target, const GLdouble *v );
 typedef void ( APIENTRY * PFNGLMULTITEXCOORD1FARBPROC )( GLenum target, GLfloat s );

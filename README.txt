@@ -1,6 +1,6 @@
 /***********************************************
- Assumes building in ChromeOS Chroot.
- Raspberry pi version: 	 making progress.
+ Raspberry pi version: Still not rendering.
+ Assumes building in ChromeOS Toolchain.
  ***********************************************/
 
 Return to Castle Wolfenstein single player GPL source release

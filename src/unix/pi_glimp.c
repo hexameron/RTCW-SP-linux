@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include <bcm_host.h>
+#include <GLES2/gl2.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -647,20 +648,16 @@ static qboolean GLimp_StartDriver()
    /* TODO cleanup on failure... */
 	const EGLint s_configAttribs[] =
 	{
-      EGL_RED_SIZE,       8,
-      EGL_GREEN_SIZE,     8,
-      EGL_BLUE_SIZE,      8,
-      EGL_ALPHA_SIZE,     0,
-      EGL_DEPTH_SIZE,     24,
-      EGL_STENCIL_SIZE,   0,
-      EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
-      EGL_SAMPLE_BUFFERS, 1,
-      EGL_NONE
+	EGL_RED_SIZE,       5,
+	EGL_GREEN_SIZE,     6,
+	EGL_BLUE_SIZE,      5,
+	EGL_ALPHA_SIZE,     0,
+	EGL_DEPTH_SIZE,	   16,
+	EGL_STENCIL_SIZE,   0,
+	EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
+	EGL_SAMPLE_BUFFERS, 1,
+	EGL_NONE
 	};
-//	int colorbits, depthbits, stencilbits;
-//	colorbits = 24;
-//	depthbits = 24;	
-//	stencilbits = 0;
 
    EGLint numConfigs;
    EGLint majorVersion;
@@ -699,6 +696,8 @@ static qboolean GLimp_StartDriver()
          (int)g_EGLConfig, r, g, b, a, depth, stencil, samples, sample_buffers);
    }
 
+   EGLBoolean ignore_result = eglBindAPI(EGL_OPENGL_ES_API);
+
    g_EGLContext = eglCreateContext(g_EGLDisplay, g_EGLConfig, NULL, NULL);
    if (g_EGLContext == EGL_NO_CONTEXT) {
       ri.Printf(PRINT_ALL, "eglCreateContext() failed\n");
@@ -724,10 +723,6 @@ static qboolean GLimp_StartDriver()
       glConfig.colorBits = color;
       glConfig.depthBits = depth;
       glConfig.stencilBits = stencil;
-      glConfig.maxTextureSize = 512; //upto 2048 with unlimited ram
-      // Set background color and clear buffers
-      glClearColor(0.0f, 0.5f, 1.0f, 0.5f);
-      glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
       }
 
 	return qtrue;
@@ -746,8 +741,10 @@ void GLimp_Init( void ) {
 	glConfig.driverType = GLDRV_ICD;
 	glConfig.hardwareType = GLHW_GENERIC;
 	glConfig.deviceSupportsGamma = qfalse;
+	glConfig.anisotropicAvailable = qfalse;
 	glConfig.stereoEnabled = qfalse;
-
+	glConfig.maxTextureSize = 512; //upto 2048 with unlimited ram
+	glConfig.maxActiveTextures=8; //Only 2 used 
 	return;
 }
 
@@ -757,7 +754,6 @@ Only clear buffers once per frame
 */
 void GLimp_EndFrame( void ) {
 	eglSwapBuffers(g_EGLDisplay, g_EGLWindowSurface);
-	glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
 }
 
 /* SINGLE CPU*/

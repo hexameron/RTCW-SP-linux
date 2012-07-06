@@ -11,7 +11,7 @@ void Com_Memset( void* dest, const int val, const size_t count ) {
          memset( dest, val, count );
          }
 
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
 extern void etc1_compress_tex_image(
    GLenum target,
    GLint level,

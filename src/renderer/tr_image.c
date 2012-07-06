@@ -164,7 +164,7 @@ GL_TextureMode
 void GL_TextureMode( const char *string ) {
 	int i;
 	image_t *glt;
-
+/*
 	for ( i = 0 ; i < 6 ; i++ ) {
 		if ( !Q_stricmp( modes[i].name, string ) ) {
 			break;
@@ -183,7 +183,8 @@ void GL_TextureMode( const char *string ) {
 		ri.Printf( PRINT_ALL, "bad filter name\n" );
 		return;
 	}
-
+*/
+	i = 2 ;
 	gl_filter_min = modes[i].minimize;
 	gl_filter_max = modes[i].maximize;
 
@@ -604,7 +605,6 @@ static void Upload32(   unsigned *data,
 	int i, c;
 	byte        *scan;
 	GLenum internalFormat = GL_RGB;
-	float rMax = 0, gMax = 0, bMax = 0;
 	static int rmse_saved = 0;
 	float rmse;
 
@@ -723,60 +723,18 @@ static void Upload32(   unsigned *data,
 	c = width * height;
 	scan = ( (byte *)data );
 	samples = 3;
+	internalFormat = GL_RGB;
 	if ( !lightMap ) {
 		for ( i = 0; i < c; i++ )
 		{
-			if ( scan[i * 4 + 0] > rMax ) {
-				rMax = scan[i * 4 + 0];
-			}
-			if ( scan[i * 4 + 1] > gMax ) {
-				gMax = scan[i * 4 + 1];
-			}
-			if ( scan[i * 4 + 2] > bMax ) {
-				bMax = scan[i * 4 + 2];
-			}
 			if ( scan[i * 4 + 3] != 255 ) {
 				samples = 4;
+				internalFormat = GL_RGBA;
 				break;
 			}
 		}
-		// select proper internal format
-		if ( samples == 3 ) {
-			internalFormat = GL_RGB;
-		/*
-			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
-				// TODO: which format is best for which textures?
-				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			} else if ( !noCompress && glConfig.textureCompression == TC_S3TC )   {
-				internalFormat = GL_RGB4_S3TC;
-			} else if ( r_texturebits->integer == 16 )   {
-				internalFormat = GL_RGB5;
-			} else if ( r_texturebits->integer == 32 )   {
-				internalFormat = GL_RGB8;
-			} else
-			{
-				internalFormat = 3;
-			}
-		*/
-		} else if ( samples == 4 )   {
-			internalFormat = GL_RGBA;
-		/*
-			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
-				// TODO: which format is best for which textures?
-				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			} else if ( r_texturebits->integer == 16 )   {
-				internalFormat = GL_RGBA4;
-			} else if ( r_texturebits->integer == 32 )   {
-				internalFormat = GL_RGBA8;
-			} else
-			{
-				internalFormat = 4;
-			}
-		*/
-		}
-	} else {
-		internalFormat = GL_RGB;
 	}
+
 	// copy or resample data as appropriate for first MIP level
 	if ( ( scaled_width == width ) &&
 		 ( scaled_height == height ) ) {
@@ -948,7 +906,7 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 
 	qglBindTexture( GL_TEXTURE_2D, 0 );
 
-	if ( image->TMU == 1 ) {
+	if ( image->TMU > 0 ) {
 		GL_SelectTexture( 0 );
 	}
 
@@ -2424,12 +2382,10 @@ void R_DeleteTextures( void ) {
 	// done.
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
-	if ( qglBindTexture ) {
 			GL_SelectTexture( 1 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 			GL_SelectTexture( 0 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
-	}
 }
 
 /*
@@ -3493,12 +3449,10 @@ void R_PurgeImage( image_t *image ) {
 	R_CacheImageFree( image );
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
-	if ( qglBindTexture ) {
 			GL_SelectTexture( 1 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 			GL_SelectTexture( 0 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
-	}
 }
 
 
@@ -3567,12 +3521,10 @@ void R_BackupImages( void ) {
 	tr.numImages = 0;
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
-	if ( qglBindTexture ) {
 			GL_SelectTexture( 1 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 			GL_SelectTexture( 0 );
 			qglBindTexture( GL_TEXTURE_2D, 0 );
-	}
 }
 
 /*

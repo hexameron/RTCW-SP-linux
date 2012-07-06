@@ -5,8 +5,8 @@
 #include <math.h>
 #include <float.h>
 #include <assert.h>
-#include "GLES/gl.h"
-#include "GLES/glext.h"
+#include "GLES2/gl2.h"
+#include "GLES2/gl2ext.h"
 
 #if !defined(max)
 #define max(a, b) ((a) < (b) ? (b) : (a))

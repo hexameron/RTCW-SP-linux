@@ -1440,14 +1440,6 @@ const void  *RB_DrawBuffer( const void *data ) {
 
 	cmd = (const drawBufferCommand_t *)data;
 //	qglDrawBuffer( cmd->buffer );
-	glViewport(0,0,-1,-1);
-	glScissor(0,0,-1,-1);
-	// clear screen for debugging
-	if ( r_clear->integer ) {
-		qglClearColor( 1, 0, 0.5, 1 );
-		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	}
-
 	return (const void *)( cmd + 1 );
 }
 

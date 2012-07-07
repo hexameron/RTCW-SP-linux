@@ -410,14 +410,7 @@ to actually render the visible surfaces for this view
 void RB_BeginDrawingView( void ) {
 	int clearBits = 0;
 
-	// sync with gl if needed
-	if ( r_finish->integer == 1 && !glState.finishCalled ) {
-		qglFinish();
-		glState.finishCalled = qtrue;
-	}
-	if ( r_finish->integer == 0 ) {
-		glState.finishCalled = qtrue;
-	}
+	glState.finishCalled = qtrue;
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
@@ -519,7 +512,7 @@ void RB_BeginDrawingView( void ) {
 
 
 	if ( clearBits ) {
-		qglClear( clearBits );
+		glClear( clearBits );
 	}
 
 //----(SA)	done
@@ -1168,7 +1161,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		myglTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
@@ -1212,7 +1205,7 @@ void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		myglTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
@@ -1466,20 +1459,16 @@ void RB_ShowImages( void ) {
 		RB_SetGL2D();
 	}
 
-	qglClear( GL_COLOR_BUFFER_BIT );
-	qglFinish();
-
-	start = ri.Milliseconds();
         qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		image = tr.images[i];
 
 		w = glConfig.vidWidth / 40;
-		h = glConfig.vidHeight / 30;
+		h = w;
 
 		x = i % 40 * w;
-		y = i / 30 * h;
+		y = i / 40 * h;
 
 		// show in proportional size in mode 2
 		if ( r_showImages->integer == 2 ) {
@@ -1495,11 +1484,6 @@ void RB_ShowImages( void ) {
                qglDrawElements( GL_TRIANGLE_STRIP, 6, GL_INDEX_TYPE, indicies );
         }
         qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	qglFinish();
-
-	end = ri.Milliseconds();
-	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
-
 }
 
 

@@ -35,16 +35,42 @@ If you have questions concerning this license or the applicable additional terms
 
 #define VCMODS_OPENGLES
 #ifdef VCMODS_OPENGLES
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
 
-/* defines for GL not in GLES ! */
+/* defines for QGL not in GLES */
 typedef double          GLdouble;       /* double precision float */
 typedef double          GLclampd;
-#define GL_CLAMP GL_CLAMP_TO_EDGE
-//#define GL_BACK				0x0405
-#define GL_BACK_LEFT				0x0402
-#define GL_BACK_RIGHT				0x0403
+/* defines for GLES not in GLES2 */
+#define GL_ADD				0x0104
+#define GL_EXP				0x0800
+#define GL_EXP2				0x0801
+#define GL_FOG				0x0B60
+#define GL_FOG_DENSITY			0x0B62
+#define GL_FOG_START			0x0B63
+#define GL_FOG_END			0x0B64
+#define GL_FOG_MODE			0x0B65
+#define GL_FOG_COLOR			0x0B66
+#define GL_FOG_HINT			0x0C54
+#define GL_ALPHA_TEST			0x0BC0
+#define GL_MODELVIEW			0x1700
+#define GL_PROJECTION			0x1701
+#define GL_SMOOTH			0x1D01
+#define GL_MODULATE                    	0x2100
+#define GL_DECAL                        0x2101
+#define GL_CLAMP		GL_CLAMP_TO_EDGE
+#define GL_TEXTURE_ENV_MODE		0x2200
+#define GL_TEXTURE_ENV_COLOR		0x2201
+#define GL_TEXTURE_ENV			0x2300
+#define GL_CLIP_PLANE0                  0x3000
+#define GL_BACK_LEFT			0x0402
+#define GL_BACK_RIGHT			0x0403
+//#define GL_BACK                       0x0405
+#define GL_VERTEX_ARRAY			0x8074
+#define GL_NORMAL_ARRAY			0x8075
+#define GL_COLOR_ARRAY			0x8076
+#define GL_TEXTURE_COORD_ARRAY		0x8078
 /*end extra defines*/
+
 extern void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
 extern void noglClear(GLbitfield mask);
 /* functions to add for 3d rendering :

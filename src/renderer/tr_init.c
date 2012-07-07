@@ -327,12 +327,6 @@ void GL_CheckErrors( void ) {
 	case GL_INVALID_OPERATION:
 		strcpy( s, "GL_INVALID_OPERATION" );
 		break;
-	case GL_STACK_OVERFLOW:
-		strcpy( s, "GL_STACK_OVERFLOW" );
-		break;
-	case GL_STACK_UNDERFLOW:
-		strcpy( s, "GL_STACK_UNDERFLOW" );
-		break;
 	case GL_OUT_OF_MEMORY:
 		strcpy( s, "GL_OUT_OF_MEMORY" );
 		break;
@@ -374,28 +368,9 @@ vidmode_t r_vidModes[] =
 static int s_numVidModes = ( sizeof( r_vidModes ) / sizeof( r_vidModes[0] ) );
 
 qboolean R_GetModeInfo( int *width, int *height, float *windowAspect, int mode ) {
-	vidmode_t   *vm;
-
-	if ( mode < -1 ) {
-		return qfalse;
-	}
-	if ( mode >= s_numVidModes ) {
-		return qfalse;
-	}
-
-	if ( mode == -1 ) {
-		*width = r_customwidth->integer;
-		*height = r_customheight->integer;
-		*windowAspect = r_customaspect->value;
-		return qtrue;
-	}
-
-	vm = &r_vidModes[mode];
-
-	*width  = vm->width;
-	*height = vm->height;
-	*windowAspect = (float)vm->width / ( vm->height * vm->pixelAspect );
-
+	*width  = glConfig.vidWidth;
+	*height = glConfig.vidHeight;
+	*windowAspect = (float)(glConfig.vidWidth/glConfig.vidHeight);
 	return qtrue;
 }
 
@@ -730,7 +705,7 @@ void R_ScreenShotJPEG_f( void ) {
 void GL_SetDefaultState( void ) {
 	glClearDepthf( 1.0f );
 
-	qglCullFace( GL_FRONT );
+	qglCullFace( GL_BACK );
 
 	qglColor4f( 0.0f,0.0f,0.0f,1.0f );
 

@@ -1867,12 +1867,12 @@ static qboolean CollapseMultitexture( void ) {
 	if ( collapse[i].blendA == -1 ) {
 		return qfalse;
 	}
-
+/* We have GL_ADD:
 	// GL_ADD is a separate extension
 	if ( collapse[i].multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable ) {
 		return qfalse;
 	}
-
+*/
 	// make sure waveforms have identical parameters
 	if ( ( stages[0].rgbGen != stages[1].rgbGen ) ||
 		 ( stages[0].alphaGen != stages[1].alphaGen ) ) {

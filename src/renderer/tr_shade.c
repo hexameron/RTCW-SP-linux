@@ -355,11 +355,9 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	pStage = tess.xstages[stage];
 
 	// Ridah
-	if ( tess.shader->noFog && pStage->isFogged ) {
-		R_FogOn();
-	} else if ( tess.shader->noFog && !pStage->isFogged ) {
+	if ( tess.shader->noFog && !pStage->isFogged ) {
 		R_FogOff(); // turn it back off
-	} else {    // make sure it's on
+		} else {    // make sure it's on
 		R_FogOn();
 	}
 	// done.
@@ -1441,7 +1439,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 #endif
 }
 
-//define	REPLACE_MODE
+#define	REPLACE_MODE
 
 void RB_StageIteratorLightmappedMultitexture( void ) {
 	shaderCommands_t *input;
@@ -1482,7 +1480,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
 #ifdef REPLACE_MODE
 	qglDisableClientState( GL_COLOR_ARRAY );
-	qglColor3f( 1, 1, 1 );
+	qglColor4f( 1.0f, 1.0f, 1.0f,1.0f );
 	qglShadeModel( GL_FLAT );
 #else
 	qglEnableClientState( GL_COLOR_ARRAY );

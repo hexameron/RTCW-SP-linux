@@ -2174,14 +2174,14 @@ static void R_CreateFogImage( void ) {
 	// what we want.
 	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
 	ri.Hunk_FreeTempMemory( data );
-
+/* GLES uses clamp-to-edge, and cannot set texture border colour */
 	borderColor[0] = 1.0;
 	borderColor[1] = 1.0;
 	borderColor[2] = 1.0;
 	borderColor[3] = 1;
 
 //	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
-	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_ENV_COLOR, borderColor );
+*/
 }
 
 /*

@@ -37,9 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef VCMODS_OPENGLES
 #include <GLES2/gl2.h>
 
-/* defines for QGL not in GLES */
-typedef double          GLdouble;       /* double precision float */
-typedef double          GLclampd;
 /* defines for GLES not in GLES2 */
 #define GL_ADD				0x0104
 #define GL_EXP				0x0800
@@ -55,9 +52,10 @@ typedef double          GLclampd;
 #define GL_MODELVIEW			0x1700
 #define GL_PROJECTION			0x1701
 #define GL_SMOOTH			0x1D01
+#define GL_FLAT				0x1D00
 #define GL_MODULATE                    	0x2100
 #define GL_DECAL                        0x2101
-#define GL_CLAMP		GL_CLAMP_TO_EDGE
+#define GL_CLAMP		0x812F	//GL_CLAMP_TO_EDGE
 #define GL_TEXTURE_ENV_MODE		0x2200
 #define GL_TEXTURE_ENV_COLOR		0x2201
 #define GL_TEXTURE_ENV			0x2300

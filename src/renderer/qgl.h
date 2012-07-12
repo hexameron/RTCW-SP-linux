@@ -35,9 +35,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #define VCMODS_OPENGLES
 #ifdef VCMODS_OPENGLES
+
+#include <GLES/gl.h>
+/* We need to Build against <GLES/gl.h>, but link against GLES2.
 #include <GLES2/gl2.h>
 
-/* defines for GLES not in GLES2 */
 #define GL_ADD				0x0104
 #define GL_EXP				0x0800
 #define GL_EXP2				0x0801
@@ -67,7 +69,10 @@ If you have questions concerning this license or the applicable additional terms
 #define GL_NORMAL_ARRAY			0x8075
 #define GL_COLOR_ARRAY			0x8076
 #define GL_TEXTURE_COORD_ARRAY		0x8078
-/*end extra defines*/
+*/
+#define GL_CLAMP                0x812F  //GL_CLAMP_TO_EDGE
+#define GL_BACK_LEFT                    0x0402
+#define GL_BACK_RIGHT                   0x0403
 
 extern void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
 extern void noglClear(GLbitfield mask);

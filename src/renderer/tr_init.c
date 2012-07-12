@@ -760,16 +760,6 @@ void GL_SetDefaultState( void ) {
 		qglPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
 	}
 
-	if ( glConfig.anisotropicAvailable ) {
-		float maxAnisotropy;
-
-		qglGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy );
-		glConfig.maxAnisotropy = maxAnisotropy;
-
-		// set when rendering
-//	   qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glConfig.maxAnisotropy);
-	}
-
 //----(SA)	end
 }
 

@@ -374,8 +374,8 @@ static void RB_Hyperspace( void ) {
 	}
 
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
-	qglClearColor( c, c, c, 1 );
-	qglClear( GL_COLOR_BUFFER_BIT );
+	qglClearColor( 1.0f-c, c, 0.0f, 1.0f );
+	glClear( GL_COLOR_BUFFER_BIT );
 
 	backEnd.isHyperspace = qtrue;
 }

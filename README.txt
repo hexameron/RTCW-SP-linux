@@ -1,5 +1,5 @@
 /***********************************************
- Raspberry pi version: Still not rendering.
+ Raspberry pi version: No glErrors, no rendering.
  Assumes building in ChromeOS Toolchain.
  ***********************************************/
 

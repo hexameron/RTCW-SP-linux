@@ -42,7 +42,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include <bcm_host.h>
-#include <GLES2/gl2.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

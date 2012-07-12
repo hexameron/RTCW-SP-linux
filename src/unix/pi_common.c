@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../renderer/tr_local.h"
 
 /* Could use Hardware DMA here */
 
@@ -11,7 +12,6 @@ void Com_Memset( void* dest, const int val, const size_t count ) {
          memset( dest, val, count );
          }
 
-#include <GLES2/gl2.h>
 extern void etc1_compress_tex_image(
    GLenum target,
    GLint level,

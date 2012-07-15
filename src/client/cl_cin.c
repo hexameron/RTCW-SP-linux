@@ -1711,7 +1711,7 @@ void CIN_DrawCinematic( int handle ) {
 	buf = cinTable[handle].buf;
 	SCR_AdjustFrom640( &x, &y, &w, &h );
 
-
+#if 0/* Clear letterbox strips:*/
 	if ( cinTable[handle].letterBox ) {
 		float barheight;
 		float vh;
@@ -1726,7 +1726,7 @@ void CIN_DrawCinematic( int handle ) {
 		re.DrawStretchPic( 0, 0, w, barheight, 0, 0, 0, 0, cls.whiteShader );
 		re.DrawStretchPic( 0, vh - barheight - 1, w, barheight + 1, 0, 0, 0, 0, cls.whiteShader );
 	}
-
+#endif
 	if ( cinTable[handle].dirty && ( cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY ) ) {
 		int ix, iy, *buf2, *buf3, xm, ym, ll;
 

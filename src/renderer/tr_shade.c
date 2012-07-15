@@ -47,7 +47,8 @@ R_ArrayElementDiscrete
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 	qglColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
-		ri.Printf( PRINT_ALL, "FATAL: Unsupported function.\n" );
+		qglMultiTexCoord2f( 0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1] );
+		qglMultiTexCoord2f( 1, tess.svars.texcoords[ 1 ][ index ][0], tess.svars.texcoords[ 1 ][ index ][1] );
 	} else {
 		qglTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
 	}
@@ -1478,24 +1479,20 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		qglNormalPointer( GL_FLOAT, 16, input->normal );
 	}
 
+        GL_SelectTexture( 0 );
 #ifdef REPLACE_MODE
 	qglDisableClientState( GL_COLOR_ARRAY );
-	qglColor4f( 1.0f, 1.0f, 1.0f,1.0f );
+	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 	qglShadeModel( GL_FLAT );
 #else
 	qglEnableClientState( GL_COLOR_ARRAY );
 	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
+	qglShadeModel( GL_SMOOTH );
 #endif
-
-	//
-	// select base stage
-	//
-	GL_SelectTexture( 0 );
-
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
-
+	GL_TexEnv( GL_REPLACE );
 	//
 	// configure second stage
 	//

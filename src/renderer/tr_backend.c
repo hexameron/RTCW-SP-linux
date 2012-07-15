@@ -1126,7 +1126,7 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+void RE_StretchRaw( float x, float y, float w, float h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
 	int i, j;
 	int start, end;
         vec2_t          texcoords[4];
@@ -1463,7 +1463,7 @@ void RB_ShowImages( void ) {
 
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		image = tr.images[i];
-
+		glBindTexture( GL_TEXTURE_2D, image->texnum );
 		w = glConfig.vidWidth / 40;
 		h = w;
 
@@ -1530,7 +1530,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 /*
  * Do we need to wait for glFinish on every frame ?
  */
-	qglFinish();
+//	qglFinish();
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 

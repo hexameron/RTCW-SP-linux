@@ -1246,7 +1246,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 	tess.numVertexes += render_count;
 
-	pIndexes = &tess.indexes[baseIndex];
+	pIndexes = ( int* ) &tess.indexes[baseIndex];
 
 //DBG_SHOWTIME
 

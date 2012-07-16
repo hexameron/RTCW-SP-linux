@@ -93,9 +93,9 @@ static int mouseResetTime = 0;
 static cvar_t *in_mouse;
 static cvar_t *in_dgamouse;
 
-cvar_t   *in_joystick      = NULL;
-cvar_t   *in_joystickDebug = NULL;
-cvar_t   *joy_threshold    = NULL;
+static cvar_t   *in_joystick;
+static cvar_t   *in_joystickDebug;
+static cvar_t   *joy_threshold;
 
 qboolean dgamouse = qfalse;
 static int win_x, win_y;
@@ -574,29 +574,29 @@ static void HandleEvents( void ) {
 }
 */
 void IN_ActivateMouse( void ) {
-}/*
+/*
 	if ( !mouse_avail || !dpy || !win ) {
 		return;
 	}
-
+*/
 	if ( !mouse_active ) {
 		install_grabs();
 		mouse_active = qtrue;
 	}
 }
-*/
+
 void IN_DeactivateMouse( void ) {
-}/*
+/*
 	if ( !mouse_avail || !dpy || !win ) {
 		return;
 	}
-
+*/
 	if ( mouse_active ) {
 		uninstall_grabs();
 		mouse_active = qfalse;
 	}
 }
-*/
+
 static qboolean signalcaught = qfalse;;
 
 void Sys_Exit( int );
@@ -768,9 +768,9 @@ void GLimp_WakeRenderer( void *data ) {}
 
 /* Mouse/Joystick */
 void IN_Init( void ) {
-	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE );
+	in_mouse = Cvar_Get( "in_mouse", "0", CVAR_ARCHIVE );
 	in_dgamouse = 0;
-	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	in_joystick = Cvar_Get( "in_joystick", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	in_joystickDebug = Cvar_Get( "in_debugjoystick", "0", CVAR_TEMP );
 	joy_threshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE ); // FIXME: in_joythreshold
 	if ( in_mouse->value ) {
@@ -787,7 +787,7 @@ void IN_Shutdown( void ) {
 
 void IN_Frame( void ) {
 
-	IN_JoyMove(); // FIXME: disable if on desktop?
+/*	IN_JoyMove(); - moved to emulate mouse */
 	IN_ActivateMouse();
 }
 
@@ -798,5 +798,6 @@ void IN_Activate( void ) {
 }
 
 void Sys_SendKeyEvents( void ) {
+        IN_JoyMove();
 }
 

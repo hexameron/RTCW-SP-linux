@@ -79,12 +79,12 @@ void IN_StartupJoystick( void ) {
 	int i = 0;
 
 	joy_fd = -1;
-
+/* ALWAYS use joystick if present *
 	if ( !in_joystick->integer ) {
-		Com_DPrintf( "Joystick is not active.\n" );
+		Com_Printf( "Joystick is not active.\n" );
 		return;
 	}
-
+* Should be on /dev/js0 */
 	for ( i = 0; i < 4; i++ ) {
 		char filename[PATH_MAX];
 
@@ -136,15 +136,8 @@ void IN_StartupJoystick( void ) {
 	}
 
 }
-
+#define SIMMOUSEBTNS 3
 void IN_JoyMove( void ) {
-	/* Store instantaneous joystick state. Hack to get around
-	 * event model used in Linux joystick driver.
-	   */
-	static int axes_state[16];
-	/* Old bits for Quake-style input compares. */
-	static unsigned int old_axes = 0;
-	/* Our current goodies. */
 	unsigned int axes = 0;
 	int i = 0;
 
@@ -155,6 +148,7 @@ void IN_JoyMove( void ) {
 	/* Empty the queue, dispatching button presses immediately
 	   * and updating the instantaneous state for the axes.
 	   */
+	int t = Sys_Milliseconds();
 	do {
 		int n = -1;
 		struct js_event event;
@@ -167,9 +161,18 @@ void IN_JoyMove( void ) {
 		}
 
 		if ( event.type & JS_EVENT_BUTTON ) {
-			Sys_QueEvent( 0, SE_KEY, K_JOY1 + event.number, event.value, 0, NULL );
+			if ( event.number < SIMMOUSEBTNS )
+				Sys_QueEvent( 0, SE_KEY, K_MOUSE1 + event.number, event.value, 0, NULL );
+			else
+				Sys_QueEvent( 0, SE_KEY, K_JOY1 + event.number - SIMMOUSEBTNS, event.value, 0, NULL );
 		} else if ( event.type & JS_EVENT_AXIS ) {
-
+			axes = event.value  >> 10;//TODO set speed.
+			if (event.number == 0)
+				Sys_QueEvent( t, SE_MOUSE, axes, 0, 0, NULL );
+			else if (event.number == 1)
+				Sys_QueEvent( t, SE_MOUSE, 0, axes, 0, NULL );
+		}//TODO Find use for Third Axis : should set speed or field of view.
+/*
 			if ( event.number >= 16 ) {
 				continue;
 			}
@@ -178,12 +181,12 @@ void IN_JoyMove( void ) {
 		} else {
 			Com_Printf( "Unknown joystick event type\n" );
 		}
-
+*/
 	} while ( 1 );
 
 
 	/* Translate our instantaneous state to bits. */
-	for ( i = 0; i < 16; i++ ) {
+/*	for ( i = 0; i < 16; i++ ) {
 		float f = ( (float) axes_state[i] ) / 32767.0f;
 
 		if ( f < -joy_threshold->value ) {
@@ -193,9 +196,9 @@ void IN_JoyMove( void ) {
 		}
 
 	}
-
+*/
 	/* Time to update axes state based on old vs. new. */
-	for ( i = 0; i < 16; i++ ) {
+/*	for ( i = 0; i < 16; i++ ) {
 
 		if ( ( axes & ( 1 << i ) ) && !( old_axes & ( 1 << i ) ) ) {
 			Sys_QueEvent( 0, SE_KEY, joy_keys[i], qtrue, 0, NULL );
@@ -205,9 +208,9 @@ void IN_JoyMove( void ) {
 			Sys_QueEvent( 0, SE_KEY, joy_keys[i], qfalse, 0, NULL );
 		}
 	}
-
+*/
 	/* Save for future generations. */
-	old_axes = axes;
+//	old_axes = axes;
 }
 
 

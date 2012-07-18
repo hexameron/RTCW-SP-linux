@@ -1,6 +1,7 @@
 /***********************************************
- Raspberry pi version: No glErrors, no rendering.
- Assumes building in ChromeOS Toolchain.
+ Raspberry pi version: Barely rendering.
+ Joystick ONLY, Blackscreen cinematics, no audio.
+ Renders Briefing Room (mostly), crashes in-game.
  ***********************************************/
 
 Return to Castle Wolfenstein single player GPL source release

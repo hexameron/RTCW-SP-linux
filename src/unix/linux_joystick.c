@@ -63,7 +63,9 @@ int joy_keys[16] = {
 
 /* Our file descriptor for the joystick device. */
 static int joy_fd = -1;
-
+static int joy_lastx = 0;
+static int joy_lasty = 0;
+static int joy_lastz = 0;
 
 // bk001130 - from linux_glimp.c
 extern cvar_t *  in_joystick;
@@ -84,11 +86,11 @@ void IN_StartupJoystick( void ) {
 		Com_Printf( "Joystick is not active.\n" );
 		return;
 	}
-* Should be on /dev/js0 */
+/* Should be a symlink on /dev/js0 */
 	for ( i = 0; i < 4; i++ ) {
 		char filename[PATH_MAX];
 
-		snprintf( filename, PATH_MAX, "/dev/js%d", i );
+		snprintf( filename, PATH_MAX, "/dev/input/js%d", i );
 
 		joy_fd = open( filename, O_RDONLY | O_NONBLOCK );
 
@@ -156,7 +158,6 @@ void IN_JoyMove( void ) {
 		n = read( joy_fd, &event, sizeof( event ) );
 
 		if ( n == -1 ) {
-			/* No error, we're non-blocking. */
 			break;
 		}
 
@@ -166,11 +167,14 @@ void IN_JoyMove( void ) {
 			else
 				Sys_QueEvent( 0, SE_KEY, K_JOY1 + event.number - SIMMOUSEBTNS, event.value, 0, NULL );
 		} else if ( event.type & JS_EVENT_AXIS ) {
-			axes = event.value  >> 10;//TODO set speed.
-			if (event.number == 0)
-				Sys_QueEvent( t, SE_MOUSE, axes, 0, 0, NULL );
-			else if (event.number == 1)
-				Sys_QueEvent( t, SE_MOUSE, 0, axes, 0, NULL );
+			axes = event.value  >> 11;
+			    if (event.number == 0)
+				joy_lastx = axes;
+			    else if (event.number == 1)
+				joy_lasty = axes;
+			    else if (event.number == 2)
+				joy_lastz = axes;
+			Sys_QueEvent( t, SE_MOUSE, joy_lastx, joy_lasty, 0, NULL );
 		}//TODO Find use for Third Axis : should set speed or field of view.
 /*
 			if ( event.number >= 16 ) {

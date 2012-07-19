@@ -49,8 +49,8 @@ frame.
 
 static float frontlerp, backlerp;
 static float torsoFrontlerp, torsoBacklerp;
-static int             *triangles, *boneRefs, *pIndexes;
-static int indexes;
+static int indexes,	*triangles, *boneRefs;
+static glIndex_t	*pIndexes;
 static int baseIndex, baseVertex, oldIndexes;
 static int numVerts;
 static mdsVertex_t     *v;
@@ -73,7 +73,6 @@ static int render_count;
 static float lodRadius, lodScale;
 static int             *collapse_map, *pCollapseMap;
 static int collapse[ MDS_MAX_VERTS ], *pCollapse;
-static int p0, p1, p2;
 static qboolean isTorso, fullTorso;
 static vec4_t m1[4], m2[4];
 //static  vec4_t m3[4], m4[4], tmp1[4], tmp2[4]; // TTimo: unused
@@ -1174,6 +1173,7 @@ RB_SurfaceAnim
 */
 void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	int i, j, k;
+	int p0,p1,p2;
 	refEntity_t *refent;
 	int             *boneList;
 	mdsHeader_t     *header;
@@ -1239,6 +1239,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 	collapse_map   = ( int * )( ( byte * )surface + surface->ofsCollapseMap );
 	triangles = ( int * )( (byte *)surface + surface->ofsTriangles );
+//	Better to leave triangles as int, or move to short ?
 	indexes = surface->numTriangles * 3;
 	baseIndex = tess.numIndexes;
 	baseVertex = tess.numVertexes;
@@ -1246,18 +1247,23 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 	tess.numVertexes += render_count;
 
-	pIndexes = ( int* ) &tess.indexes[baseIndex];
+	pIndexes = &tess.indexes[baseIndex];
 
 //DBG_SHOWTIME
 
 	if ( render_count == surface->numVerts ) {
+/*		GLES requires short indicies, pIndexes  needs to be SHORT not INT
 		memcpy( pIndexes, triangles, sizeof( triangles[0] ) * indexes );
+ */
+		for ( j = 0; j < indexes; j++ )
+			{ pIndexes[j] = (glIndex_t)( triangles[j] + baseVertex );	}
+/*		Without the memcopy we can collape do (below) above
 		if ( baseVertex ) {
-			int *indexesEnd;
 			for ( indexesEnd = pIndexes + indexes ; pIndexes < indexesEnd ; pIndexes++ ) {
-				*pIndexes += baseVertex;
+				*pIndexes += (glIndex_t)baseVertex;
 			}
 		}
+*/
 		tess.numIndexes += indexes;
 	} else
 	{
@@ -1289,9 +1295,9 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 				continue;
 			}
 
-			*( pIndexes++ ) = baseVertex + p0;
-			*( pIndexes++ ) = baseVertex + p1;
-			*( pIndexes++ ) = baseVertex + p2;
+			*( pIndexes++ ) = (glIndex_t)(baseVertex + p0);
+			*( pIndexes++ ) = (glIndex_t)(baseVertex + p1);
+			*( pIndexes++ ) = (glIndex_t)(baseVertex + p2);
 			tess.numIndexes += 3;
 		}
 

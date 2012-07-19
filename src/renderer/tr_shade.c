@@ -513,7 +513,7 @@ static void ProjectDlightTexture( void ) {
 		// build a list of triangles that need light
 		numIndexes = 0;
 		for ( i = 0 ; i < tess.numIndexes ; i += 3 ) {
-			int a, b, c;
+			glIndex_t a, b, c;
 
 			a = tess.indexes[i];
 			b = tess.indexes[i + 1];

@@ -384,8 +384,8 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 	{
 		for ( s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++ )
 		{
-                       indicies[i++] = t*(SKY_SUBDIVISIONS+1) + s;
-                       indicies[i++] = (t+1)*(SKY_SUBDIVISIONS+1) + s;
+                       indicies[i++] = (glIndex_t)( t*(SKY_SUBDIVISIONS+1) + s );
+                       indicies[i++] = (glIndex_t)( (t+1)*(SKY_SUBDIVISIONS+1) + s );
 		}
 	}
         qglDisableClientState( GL_COLOR_ARRAY);
@@ -414,8 +414,8 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
 	{
 		for ( s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++ )
 		{
-			indicies[i++] = t*(SKY_SUBDIVISIONS+1) + s;
-			indicies[i++] = (t+1)*(SKY_SUBDIVISIONS+1) + s;
+			indicies[i++] = (glIndex_t)( t*(SKY_SUBDIVISIONS+1) + s );
+			indicies[i++] = (glIndex_t)( (t+1)*(SKY_SUBDIVISIONS+1) + s );
 		}
 	}
         qglDisableClientState( GL_COLOR_ARRAY);

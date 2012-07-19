@@ -1313,13 +1313,13 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 					v3 = v2 + lodWidth;
 					v4 = v3 + 1;
 
-					tess.indexes[numIndexes] = v2;
-					tess.indexes[numIndexes + 1] = v3;
-					tess.indexes[numIndexes + 2] = v1;
+					tess.indexes[numIndexes    ] = (glIndex_t)v2;
+					tess.indexes[numIndexes + 1] = (glIndex_t)v3;
+					tess.indexes[numIndexes + 2] = (glIndex_t)v1;
 
-					tess.indexes[numIndexes + 3] = v1;
-					tess.indexes[numIndexes + 4] = v3;
-					tess.indexes[numIndexes + 5] = v4;
+					tess.indexes[numIndexes + 3] = (glIndex_t)v1;
+					tess.indexes[numIndexes + 4] = (glIndex_t)v3;
+					tess.indexes[numIndexes + 5] = (glIndex_t)v4;
 					numIndexes += 6;
 				}
 			}

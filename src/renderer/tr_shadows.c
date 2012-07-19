@@ -132,10 +132,10 @@ void R_RenderShadowEdges( void ) {
 			// triangle, it is a sil edge
 			if ( hit[ 1 ] == 0 ) {
                                glIndex_t indicies[4];
-                               indicies[0] = i;
-                               indicies[1] = i+tess.numVertexes;
-                               indicies[2] = i2;
-                               indicies[3] = i2+tess.numVertexes;
+                               indicies[0] = (glIndex_t)i;
+                               indicies[1] = (glIndex_t)( i+tess.numVertexes );
+                               indicies[2] = (glIndex_t)i2;
+                               indicies[3] = (glIndex_t)( i2+tess.numVertexes );
                                qglVertexPointer( 3, GL_FLOAT, 16, tess.xyz );
                                qglDrawElements( GL_TRIANGLE_STRIP, 4, GL_INDEX_TYPE, indicies );
 				c_edges++;

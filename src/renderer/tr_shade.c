@@ -1440,7 +1440,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 #endif
 }
 
-#define	REPLACE_MODE
+//#define	REPLACE_MODE
 
 void RB_StageIteratorLightmappedMultitexture( void ) {
 	shaderCommands_t *input;

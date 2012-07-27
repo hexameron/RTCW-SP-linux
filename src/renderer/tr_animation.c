@@ -1257,7 +1257,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
  */
 		for ( j = 0; j < indexes; j++ )
 			{ pIndexes[j] = (glIndex_t)( triangles[j] + baseVertex );	}
-/*		Without the memcopy we can collape do (below) above
+/*		Without the memcopy we can do (below) above
 		if ( baseVertex ) {
 			for ( indexesEnd = pIndexes + indexes ; pIndexes < indexesEnd ; pIndexes++ ) {
 				*pIndexes += (glIndex_t)baseVertex;

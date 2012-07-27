@@ -184,7 +184,7 @@ void GL_TextureMode( const char *string ) {
 		return;
 	}
 */
-	i = 2 ;
+	i = 3 ;//linear mipmap nearest
 	gl_filter_min = modes[i].minimize;
 	gl_filter_max = modes[i].maximize;
 

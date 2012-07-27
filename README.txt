@@ -1,7 +1,7 @@
 /***********************************************
- Raspberry pi version: Barely rendering.
+ Raspberry pi version: Almost Playable, too slow.
  Joystick ONLY, Blackscreen cinematics, no audio.
- Renders Briefing Room (mostly), crashes in-game.
+ Crashes on cutscene, but runs from saved game
  ***********************************************/
 
 Return to Castle Wolfenstein single player GPL source release

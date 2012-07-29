@@ -104,6 +104,7 @@ idCameraDef *g_splineList = &splineList;
 idVec3 idSplineList::zero( 0,0,0 );
 
 void glLabeledPoint( idVec3 &color, idVec3 &point, float size, const char *label ) {
+}/*
 	qglColor3fv( color );
 	qglPointSize( size );
 	qglBegin( GL_POINTS );
@@ -116,9 +117,10 @@ void glLabeledPoint( idVec3 &color, idVec3 &point, float size, const char *label
 	qglRasterPos3fv( v );
 	qglCallLists( strlen( label ), GL_UNSIGNED_BYTE, label );
 }
-
+	Do we need that ? */
 
 void glBox( idVec3 &color, idVec3 &point, float size ) {
+}/*
 	idVec3 mins( point );
 	idVec3 maxs( point );
 	mins[0] -= size;
@@ -153,7 +155,7 @@ void glBox( idVec3 &color, idVec3 &point, float size ) {
 	qglEnd();
 
 }
-
+        Do we need that ? */
 void splineTest() {
 	//g_splineList->load("p:/doom/base/maps/test_base1.camera");
 }
@@ -251,6 +253,7 @@ void idSplineList::buildSpline() {
 
 
 void idSplineList::draw( bool editMode ) {
+}/*
 	int i;
 	idVec4 yellow( 1, 1, 0, 1 );
 
@@ -305,6 +308,7 @@ void idSplineList::draw( bool editMode ) {
 	}
 
 }
+        Do we need that ? */
 
 float idSplineList::totalDistance() {
 
@@ -675,7 +679,7 @@ void idCameraDef::buildCamera() {
 			waits.Append( atof( events[i]->getParam() ) );
 
 			//FIXME: this is quite hacky for Wolf E3, accel and decel needs
-			// do be parameter based etc..
+			// to be parameter based etc..
 			long startTime = events[i]->getTime() - 1000;
 			if ( startTime < 0 ) {
 				startTime = 0;

@@ -121,7 +121,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -Ofast -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/build/raspberrypi/usr/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-Ofast -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/build/raspberrypi/usr/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h

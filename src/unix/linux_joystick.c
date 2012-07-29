@@ -48,18 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 // TTimo moved joystick.h include here, conflicts in client.h with wkey_t
 #include <linux/joystick.h>
 
-/* We translate axes movement into keypresses. */
-int joy_keys[16] = {
-	K_LEFTARROW, K_RIGHTARROW,
-	K_UPARROW, K_DOWNARROW,
-	K_JOY16, K_JOY17,
-	K_JOY18, K_JOY19,
-	K_JOY20, K_JOY21,
-	K_JOY22, K_JOY23,
-
-	K_JOY24, K_JOY25,
-	K_JOY26, K_JOY27
-};
+/* We translate axes movement into mouse moves. */
 
 /* Our file descriptor for the joystick device. */
 static int joy_fd = -1;
@@ -79,14 +68,8 @@ extern cvar_t *  joy_threshold;
 // bk001130 - from cvs1.17 (mkv), removed from linux_glimp.c
 void IN_StartupJoystick( void ) {
 	int i = 0;
-
 	joy_fd = -1;
-/* ALWAYS use joystick if present *
-	if ( !in_joystick->integer ) {
-		Com_Printf( "Joystick is not active.\n" );
-		return;
-	}
-/* Should be a symlink on /dev/js0 */
+
 	for ( i = 0; i < 4; i++ ) {
 		char filename[PATH_MAX];
 
@@ -158,6 +141,7 @@ void IN_JoyMove( void ) {
 		n = read( joy_fd, &event, sizeof( event ) );
 
 		if ( n == -1 ) {
+			Sys_QueEvent( t, SE_MOUSE, joy_lastx, joy_lasty, 0, NULL );
 			break;
 		}
 
@@ -167,25 +151,14 @@ void IN_JoyMove( void ) {
 			else
 				Sys_QueEvent( 0, SE_KEY, K_JOY1 + event.number - SIMMOUSEBTNS, event.value, 0, NULL );
 		} else if ( event.type & JS_EVENT_AXIS ) {
-			axes = event.value  >> 11;
+			axes = event.value  >> 9;
 			    if (event.number == 0)
 				joy_lastx = axes;
 			    else if (event.number == 1)
 				joy_lasty = axes;
 			    else if (event.number == 2)
 				joy_lastz = axes;
-			Sys_QueEvent( t, SE_MOUSE, joy_lastx, joy_lasty, 0, NULL );
 		}//TODO Find use for Third Axis : should set speed or field of view.
-/*
-			if ( event.number >= 16 ) {
-				continue;
-			}
-
-			axes_state[event.number] = event.value;
-		} else {
-			Com_Printf( "Unknown joystick event type\n" );
-		}
-*/
 	} while ( 1 );
 
 

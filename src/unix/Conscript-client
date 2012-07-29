@@ -211,6 +211,7 @@ $SOUND_REF = \@SOUND_FILES;
   ../unix/etc1encode.c
   ../unix/pi_common.c
   ../unix/pi_glimp.c   
+  ../unix/es_input.c
   ../unix/linux_joystick.c  
   ../unix/linux_snd.c 
   );

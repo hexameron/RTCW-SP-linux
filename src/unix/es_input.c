@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../renderer/tr_local.h"
 #include "../client/client.h"
-#include "sys_local.h"
+//#include "sys_local.h"
 #include "../ui/keycodes.h"
 
 // q3rev.cpp : Defines the entry point for the application.
@@ -273,30 +273,41 @@ IN_TranslateSDLToQ3Key
 */
 static keyNum_t IN_TranslateCharToQ3Key( char c )
 {
+
+   if ( c >= 'a' && c <= 'z' ) 
+   				return ( c );
+   if ( c >= 'A' && c <= 'Z' )
+                                return ( c - 'A' + 'a' );
    switch (c) {
-   case ';':         return K_LEFTARROW;
-   case '#':         return K_RIGHTARROW;
-   case '\'':        return K_DOWNARROW;
-   case '[':         return K_UPARROW;
+   case ' ':         return K_SPACE; 
+   case 27:          return K_ESCAPE;
+   case 128:         return K_BACKSPACE;
+   case '9':         return K_COMMAND;
+//   case ';':         return K_LEFTARROW;
+//   case '#':         return K_RIGHTARROW;
+//   case '\'':        return K_DOWNARROW;
+//   case '[':         return K_UPARROW;
    case 10:          return K_ENTER;
    }
 
-   return c;
+   return 0;
 }
 
+
+void IN_ProcessEvents( void );
 /*
 ===============
 IN_ProcessEvents
 ===============
 */
-static void IN_ProcessEvents( void )
+void IN_ProcessEvents( void )
 {
 	while (kbhit()) {
 		char c = fgetc(stdin);
 
 		int key = IN_TranslateCharToQ3Key(c);
 
-		Sys_QueEvent( 0, SE_CHAR, c, 0, 0, NULL );
+		//Sys_QueEvent( 0, SE_CHAR, c, 0, 0, NULL );
 
 		if( key ) {
 			Sys_QueEvent( 0, SE_KEY, key, qtrue, 0, NULL );

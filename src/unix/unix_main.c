@@ -376,7 +376,8 @@ void Sys_ConsoleInputInit() {
 	signal( SIGTTOU, SIG_IGN );
 
 	// FIXME TTimo initialize this in Sys_Init or something?
-	ttycon = Cvar_Get( "ttycon", "1", 0 );
+	ttycon = 0;//Cvar_Get( "ttycon", "1", 0 );
+	/* ttycon disabled*/
 	if ( ttycon && ttycon->value ) {
 		if ( isatty( STDIN_FILENO ) != 1 ) {
 			Com_Printf( "stdin is not a tty, tty console mode failed\n" );
@@ -1014,6 +1015,7 @@ sysEvent_t Sys_GetEvent( void ) {
 	Sys_SendKeyEvents();
 
 	// check for console commands
+/*
 	s = Sys_ConsoleInput();
 	if ( s ) {
 		char  *b;
@@ -1024,7 +1026,7 @@ sysEvent_t Sys_GetEvent( void ) {
 		strcpy( b, s );
 		Sys_QueEvent( 0, SE_CONSOLE, 0, 0, len, b );
 	}
-
+*/
 	// check for other input devices
 	IN_Frame();
 
@@ -1276,7 +1278,6 @@ int main( int argc, char* argv[] ) {
 
 	Com_Init( cmdline );
 	NET_Init();
-
 	Sys_ConsoleInputInit();
 
 	fcntl( 0, F_SETFL, fcntl( 0, F_GETFL, 0 ) | FNDELAY );

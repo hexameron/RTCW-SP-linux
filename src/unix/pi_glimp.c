@@ -80,11 +80,12 @@ typedef enum
 
 glwstate_t glw_state;
 
-static qboolean mouse_avail;
+/*
 static qboolean mouse_active;
 static int mwx, mwy;
 static int mx = 0, my = 0;
 static int mouseResetTime = 0;
+
 #define KEY_MASK ( KeyPressMask | KeyReleaseMask )
 #define MOUSE_MASK ( ButtonPressMask | ButtonReleaseMask | \
                        PointerMotionMask | ButtonMotionMask )
@@ -97,11 +98,11 @@ static cvar_t   *in_joystick;
 static cvar_t   *in_joystickDebug;
 static cvar_t   *joy_threshold;
 
-qboolean dgamouse = qfalse;
 static int win_x, win_y;
 static int mouse_accel_numerator;
 static int mouse_accel_denominator;
 static int mouse_threshold;
+*/
 
 static const char *Q_stristr( const char *s, const char *find ) {
 	register char c, sc;
@@ -138,27 +139,9 @@ static qboolean X11_PendingInput( void ) {
 static void HandleEvents( void ) {
 }
 void IN_ActivateMouse( void ) {
-/*
-	if ( !mouse_avail || !dpy || !win ) {
-		return;
-	}
-*/
-	if ( !mouse_active ) {
-		install_grabs();
-		mouse_active = qtrue;
-	}
 }
 
 void IN_DeactivateMouse( void ) {
-/*
-	if ( !mouse_avail || !dpy || !win ) {
-		return;
-	}
-*/
-	if ( mouse_active ) {
-		uninstall_grabs();
-		mouse_active = qfalse;
-	}
 }
 
 static qboolean signalcaught = qfalse;;
@@ -332,27 +315,23 @@ void GLimp_WakeRenderer( void *data ) {}
 
 /* Mouse/Joystick */
 void IN_Init( void ) {
-	in_mouse = Cvar_Get( "in_mouse", "0", CVAR_ARCHIVE );
-	in_dgamouse = 0;
-	in_joystick = Cvar_Get( "in_joystick", "1", CVAR_ARCHIVE | CVAR_LATCH );
-	in_joystickDebug = Cvar_Get( "in_debugjoystick", "0", CVAR_TEMP );
-	joy_threshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE ); // FIXME: in_joythreshold
-	if ( in_mouse->value ) {
-		mouse_avail = qtrue;
-	} else {
-		mouse_avail = qfalse;
-	}
+
+	nonblock(1);//Q3 tty keyboard on
+
 	IN_StartupJoystick();
 }
 
 void IN_Shutdown( void ) {
-	mouse_avail = qfalse;
+
+	nonblock(0);//Q3 tty keyboard off
+
+// close joystick !
 }
 
 void IN_Frame( void ) {
 
-/*	IN_JoyMove(); - moved to emulate mouse */
-	IN_ActivateMouse();
+	IN_ProcessEvents( );//Q3 keyboard
+/*	IN_MouseMove(); */
 }
 
 void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] ) {
@@ -362,5 +341,6 @@ void IN_Activate( void ) {
 }
 
 void Sys_SendKeyEvents( void ) {
+/* IN_ProcessEvents( )*/
 }
 

@@ -94,9 +94,8 @@ void R_Fog( glfog_t *curfog ) {
 
 	// TODO: FIXME: only send changes if necessary
 
-//	TODO: Change fog mode, default is exponential
-//	qglFogf( GL_FOG_MODE, (float)GL_LINEAR);
-//		setfog.mode = curfog->mode;
+	qglFogf( GL_FOG_MODE, (float)curfog->mode);
+	setfog.mode = curfog->mode;
 
 
 //	if(curfog->color[0] != setfog.color[0] || curfog->color[1] != setfog.color[1] || curfog->color[2] != setfog.color[2] || !setfog.registered) {
@@ -1868,10 +1867,10 @@ void R_RenderView( viewParms_t *parms ) {
 	R_GenerateDrawSurfs();
 
 	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
-
+/*
 	// draw main system development information (surface outlines, etc)
 	R_FogOff();
 	R_DebugGraphics();
 	R_FogOn();
-
+*/
 }

@@ -1409,7 +1409,8 @@ typedef struct shaderCommands_s
 
 	stageVars_t svars;
 
-	color4ub_t constantColor255[SHADER_MAX_VERTEXES];
+/*	Perhaps we should use a different colour for each vertex, but we don`t here*/
+//	color4ub_t constantColor255[SHADER_MAX_VERTEXES];
 
 	shader_t    *shader;
 	float shaderTime;

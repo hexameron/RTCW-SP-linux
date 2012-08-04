@@ -310,11 +310,11 @@ void GL_CheckErrors( void ) {
 	int err;
 	char s[64];
 
-	err = qglGetError();
-	if ( err == GL_NO_ERROR ) {
-		return;
+	if ( r_ignoreGLErrors->integer ) {         
+        	return;
 	}
-	if ( r_ignoreGLErrors->integer ) {
+	err = qglGetError();	//is blocking on GLES, do not call if ignored.
+	if ( err == GL_NO_ERROR ) {
 		return;
 	}
 	switch ( err ) {
@@ -720,13 +720,13 @@ void GL_SetDefaultState( void ) {
 	GL_SelectTexture( 1 );
 	GL_TextureMode( r_textureMode->string );
 	GL_TexEnv( GL_MODULATE );
+        qglShadeModel( GL_SMOOTH );
 	qglDisable( GL_TEXTURE_2D );
+        
 	GL_SelectTexture( 0 );
-
 	qglEnable( GL_TEXTURE_2D );
 	GL_TextureMode( r_textureMode->string );
 	GL_TexEnv( GL_MODULATE );
-
 	qglShadeModel( GL_SMOOTH );
 	qglDepthFunc( GL_LEQUAL );
 
@@ -1109,7 +1109,7 @@ void R_Init( void ) {
 	if ( (int)tess.xyz & 15 ) {
 		Com_Printf( "WARNING: tess.xyz not 16 byte aligned\n" );
 	}
-	memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
+//	memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
 
 	//
 	// init function tables

@@ -1480,19 +1480,20 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	}
 
         GL_SelectTexture( 0 );
-#ifdef REPLACE_MODE
 	qglDisableClientState( GL_COLOR_ARRAY );
 	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+#ifdef REPLACE_MODE
 	qglShadeModel( GL_FLAT );
+        GL_TexEnv( GL_REPLACE );
 #else
-	qglEnableClientState( GL_COLOR_ARRAY );
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
-	qglShadeModel( GL_SMOOTH );
+//	qglEnableClientState( GL_COLOR_ARRAY );
+//	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
+	qglShadeModel( GL_FLAT );
+        GL_TexEnv( GL_MODULATE );
 #endif
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
-	GL_TexEnv( GL_REPLACE );
 	//
 	// configure second stage
 	//

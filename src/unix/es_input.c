@@ -254,6 +254,7 @@ void nonblock(int state)
 	{
 		//turn off canonical mode
 		ttystate.c_lflag &= ~ICANON;
+		ttystate.c_lflag &= ~ECHO;
 		//minimum of number input read.
 		ttystate.c_cc[VMIN] = 1;
 	}
@@ -261,6 +262,7 @@ void nonblock(int state)
 	{
 		//turn on canonical mode
 		ttystate.c_lflag |= ICANON;
+                ttystate.c_lflag |= ECHO;
 	}
 	//set the terminal attributes.
 	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
@@ -278,15 +280,18 @@ static keyNum_t IN_TranslateCharToQ3Key( char c )
    				return ( c );
    if ( c >= 'A' && c <= 'Z' )
                                 return ( c - 'A' + 'a' );
+   if ( c >= '0' && c <= '9' )
+                                return ( c );
+
    switch (c) {
    case ' ':         return K_SPACE; 
    case 27:          return K_ESCAPE;
-   case 128:         return K_BACKSPACE;
-   case '9':         return K_COMMAND;
+   case '~':         return K_COMMAND;
 //   case ';':         return K_LEFTARROW;
 //   case '#':         return K_RIGHTARROW;
 //   case '\'':        return K_DOWNARROW;
 //   case '[':         return K_UPARROW;
+   case 9:           return K_TAB;
    case 10:          return K_ENTER;
    }
 
@@ -300,8 +305,10 @@ void IN_ProcessEvents( void );
 IN_ProcessEvents
 ===============
 */
+static int lastframetimestamp=0;
 void IN_ProcessEvents( void )
 {
+        int t = Sys_Milliseconds();
 	while (kbhit()) {
 		char c = fgetc(stdin);
 
@@ -310,10 +317,11 @@ void IN_ProcessEvents( void )
 		//Sys_QueEvent( 0, SE_CHAR, c, 0, 0, NULL );
 
 		if( key ) {
-			Sys_QueEvent( 0, SE_KEY, key, qtrue, 0, NULL );
-			Sys_QueEvent( 0, SE_KEY, key, qfalse, 0, NULL );
+			Sys_QueEvent( lastframetimestamp, SE_KEY, key, qtrue, 0, NULL );
+			Sys_QueEvent( t, SE_KEY, key, qfalse, 0, NULL );
 		}
 	}
+	lastframetimestamp=t;
 }
 #endif
 #if 0

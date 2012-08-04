@@ -138,12 +138,6 @@ static qboolean X11_PendingInput( void ) {
 }
 static void HandleEvents( void ) {
 }
-void IN_ActivateMouse( void ) {
-}
-
-void IN_DeactivateMouse( void ) {
-}
-
 static qboolean signalcaught = qfalse;;
 
 void Sys_Exit( int );
@@ -173,8 +167,7 @@ static void InitSig( void ) {
 
 /* GLimp_Shutdown */
 void GLimp_Shutdown( void ) {
-	IN_DeactivateMouse();
-
+	IN_Shutdown();
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
         bcm_host_deinit();
@@ -194,11 +187,11 @@ static qboolean GLimp_StartDriver()
    /* TODO cleanup on failure... */
 	const EGLint s_configAttribs[] =
 	{
-	EGL_RED_SIZE,       5,
-	EGL_GREEN_SIZE,     6,
-	EGL_BLUE_SIZE,      5,
+	EGL_RED_SIZE,       8,
+	EGL_GREEN_SIZE,     8,
+	EGL_BLUE_SIZE,      8,
 	EGL_ALPHA_SIZE,     0,
-	EGL_DEPTH_SIZE,	   16,
+	EGL_DEPTH_SIZE,	   24,
 	EGL_STENCIL_SIZE,   0,
 	EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
 	EGL_SAMPLE_BUFFERS, 1,
@@ -289,7 +282,7 @@ void GLimp_Init( void ) {
 	glConfig.deviceSupportsGamma = qfalse;
 	glConfig.anisotropicAvailable = qfalse;
 	glConfig.stereoEnabled = qfalse;
-	glConfig.maxTextureSize = 512; //upto 2048 with unlimited ram
+	glConfig.maxTextureSize = 1024; //upto 2048 with unlimited ram
 	glConfig.maxActiveTextures=8; //Only 2 used 
 	return;
 }
@@ -330,7 +323,6 @@ void IN_Shutdown( void ) {
 
 void IN_Frame( void ) {
 
-	IN_ProcessEvents( );//Q3 keyboard
 /*	IN_MouseMove(); */
 }
 
@@ -341,6 +333,6 @@ void IN_Activate( void ) {
 }
 
 void Sys_SendKeyEvents( void ) {
-/* IN_ProcessEvents( )*/
+	IN_ProcessEvents( );//Q3 keyboard
 }
 

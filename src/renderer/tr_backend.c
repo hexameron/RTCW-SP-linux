@@ -77,11 +77,9 @@ void GL_SelectTexture( int unit ) {
 	if ( unit == 0 ) {
 		glActiveTexture( GL_TEXTURE0 );
 		glClientActiveTexture( GL_TEXTURE0 );
-	} else if ( unit == 1 )   {
-		glActiveTexture( GL_TEXTURE1 );
-		glClientActiveTexture( GL_TEXTURE1 );
-	} else {
-		ri.Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
+	} else  {
+		glActiveTexture( GL_TEXTURE0 + unit );
+		glClientActiveTexture( GL_TEXTURE0 + unit );
 	}
 
 	glState.currenttmu = unit;

@@ -887,10 +887,10 @@ typedef struct {
 
 // the renderer front end should never modify glstate_t
 typedef struct {
-	int currenttextures[2];
+	int currenttextures[8]; // 8 texture units used
 	int currenttmu;
 	qboolean finishCalled;
-	int texEnv[2];
+	int texEnv[8]; // 8 texture units used
 	int faceCulling;
 	unsigned long glStateBits;
 } glstate_t;

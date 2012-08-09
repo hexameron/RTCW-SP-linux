@@ -410,7 +410,7 @@ Perform dynamic lighting with another rendering pass
 ===================
 */
 static void ProjectDlightTexture( void ) {
-	int i, l;
+	int i, l, tmu;
 	vec3_t origin;
 	float   *texCoords;
 	byte    *colors;
@@ -551,17 +551,16 @@ static void ProjectDlightTexture( void ) {
 		{
 			shader_t *dls = dl->dlshader;
 			if ( dls ) {
-//				if (!qglActiveTextureARB || dls->numUnfoggedPasses < 2) {
-				for ( i = 0; i < dls->numUnfoggedPasses; i++ )
-				{
+				if ( dls->numUnfoggedPasses < 2) {
+				    for ( i = 0; i < dls->numUnfoggedPasses; i++ ) //can only be 0
+				    {
 					shaderStage_t *stage = dls->stages[i];
 					R_BindAnimatedImage( &dls->stages[i]->bundle[0] );
 					GL_State( stage->stateBits | GLS_DEPTHFUNC_EQUAL );
 					R_DrawElements( numIndexes, hitIndexes );
 					backEnd.pc.c_totalIndexes += numIndexes;
 					backEnd.pc.c_dlightIndexes += numIndexes;
-				}
-/*
+				    }
 				} else {	// optimize for multitexture
 
 					for(i=0;i<dls->numUnfoggedPasses;)
@@ -598,12 +597,12 @@ static void ProjectDlightTexture( void ) {
 					// return to TEXTURE0
 					GL_SelectTexture( 0 );
 				}
-*/
+
 			} else
 			{
 				R_FogOff();
 
-//				if (!dl->overdraw || !qglActiveTextureARB) {
+			     if (!dl->overdraw) {
 				GL_Bind( tr.dlightImage );
 				// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 				// where they aren't rendered
@@ -619,8 +618,8 @@ static void ProjectDlightTexture( void ) {
 					backEnd.pc.c_totalIndexes += numIndexes;
 					backEnd.pc.c_dlightIndexes += numIndexes;
 				}
-/*
-				} else {	// optimize for multitexture
+
+			     } else {	// optimize for multitexture
 
 					GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
 
@@ -666,8 +665,8 @@ static void ProjectDlightTexture( void ) {
 
 					// return to TEXTURE0
 					GL_SelectTexture( 0 );
-				}
-*/
+			     }
+
 				R_FogOn();
 			}
 		}

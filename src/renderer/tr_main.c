@@ -65,7 +65,7 @@ R_Fog (void)
 =================
 */
 void R_Fog( glfog_t *curfog ) {
-	static glfog_t setfog;
+//	static glfog_t setfog;
 
 	if ( !r_wolffog->integer ) {
 		R_FogOff();
@@ -95,7 +95,7 @@ void R_Fog( glfog_t *curfog ) {
 	// TODO: FIXME: only send changes if necessary
 
 	qglFogf( GL_FOG_MODE, (float)curfog->mode);
-	setfog.mode = curfog->mode;
+//	setfog.mode = curfog->mode;
 
 
 //	if(curfog->color[0] != setfog.color[0] || curfog->color[1] != setfog.color[1] || curfog->color[2] != setfog.color[2] || !setfog.registered) {
@@ -139,7 +139,7 @@ void R_Fog( glfog_t *curfog ) {
 
 //----(SA)	end
 
-	setfog.registered = qtrue;
+//	setfog.registered = qtrue;
 
 	qglClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
 

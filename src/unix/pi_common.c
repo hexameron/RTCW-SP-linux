@@ -75,7 +75,11 @@ void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei w
    if (internalformat == GL_RGB ) {
    	etc1_compress_tex_image(target, level, format, width, height, border, format, type, pixels);
    } else {
-   	rgba4444_convert_tex_image(target, level, format, width, height, border, format, type, pixels);
+#if 1 /* Do NOT compress alpha layers ! */
+	glTexImage2D(target, level, format, width, height, border, format, type, pixels);
+#else
+	rgba4444_convert_tex_image(target, level, format, width, height, border, format, type, pixels);
+#endif
    }
 }
 

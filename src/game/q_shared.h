@@ -104,7 +104,12 @@ If you have questions concerning this license or the applicable additional terms
 #include <ctype.h>
 #include <limits.h>
 
+#if 1 // for vfp on raspberry pi
+#define sin(f) sinf(f)
+#define cos(f) cosf(f)
 #endif
+
+#endif //Q3VM
 
 #ifdef _WIN32
 

@@ -607,7 +607,7 @@ static void Upload32(   unsigned *data,
 	GLenum internalFormat = GL_RGB;
 	static int rmse_saved = 0;
 	float rmse;
-
+/* Do not shrink textures for having low detail
 	// do the root mean square error stuff first
 	if ( r_rmse->value ) {
 		while ( R_RMSE( (byte *)data, width, height ) < r_rmse->value ) {
@@ -631,6 +631,7 @@ static void Upload32(   unsigned *data,
 			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
 		}
 	}
+*/
 	//
 	// convert to exact power of 2 sizes
 	//
@@ -638,15 +639,16 @@ static void Upload32(   unsigned *data,
 		;
 	for ( scaled_height = 1 ; scaled_height < height ; scaled_height <<= 1 )
 		;
-	if ( r_roundImagesDown->integer && scaled_width > width ) {
+
+	/* Always round down image sizes for resampling */
+	if (  scaled_width > width ) {
 		scaled_width >>= 1;
 	}
-	if ( r_roundImagesDown->integer && scaled_height > height ) {
+	if ( scaled_height > height ) {
 		scaled_height >>= 1;
 	}
 
 	if ( scaled_width != width || scaled_height != height ) {
-		//resampledBuffer = ri.Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 );
 		resampledBuffer = R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED );
 		ResampleTexture( data, width, height, resampledBuffer, scaled_width, scaled_height );
 		data = resampledBuffer;
@@ -678,8 +680,7 @@ static void Upload32(   unsigned *data,
 		scaled_height >>= 1;
 	}
 
-	rmse = R_RMSE( (byte *)data, width, height );
-
+/* Ignore low memory filters
 	if ( r_lowMemTextureSize->integer && ( scaled_width > r_lowMemTextureSize->integer || scaled_height > r_lowMemTextureSize->integer ) && rmse < r_lowMemTextureThreshold->value ) {
 		int scale;
 
@@ -702,7 +703,7 @@ static void Upload32(   unsigned *data,
 
 	}
 
-
+*/
 	//
 	// clamp to minimum size
 	//
@@ -713,109 +714,57 @@ static void Upload32(   unsigned *data,
 		scaled_height = 1;
 	}
 
-	//scaledBuffer = ri.Hunk_AllocateTempMemory( sizeof( unsigned ) * scaled_width * scaled_height );
-	scaledBuffer = R_GetImageBuffer( sizeof( unsigned ) * scaled_width * scaled_height, BUFFER_SCALED );
-
 	//
 	// scan the texture for each channel's max values
 	// and verify if the alpha channel is being used or not
 	//
 	c = width * height;
 	scan = ( (byte *)data );
-	samples = 3;
 	internalFormat = GL_RGB;
 	if ( !lightMap ) {
 		for ( i = 0; i < c; i++ )
 		{
 			if ( scan[i * 4 + 3] != 255 ) {
-				samples = 4;
 				internalFormat = GL_RGBA;
 				break;
 			}
 		}
 	}
 
-	// copy or resample data as appropriate for first MIP level
-	if ( ( scaled_width == width ) &&
-		 ( scaled_height == height ) ) {
-		if ( !mipmap ) {
-			myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
-			*pUploadWidth = scaled_width;
-			*pUploadHeight = scaled_height;
-			*format = internalFormat;
-
-			goto done;
-		}
-		memcpy( scaledBuffer, data, width * height * 4 );
-	} else
-	{
-		// use the normal mip-mapping function to go down from here
-		while ( width > scaled_width || height > scaled_height ) {
-			R_MipMap( (byte *)data, width, height );
-			width >>= 1;
-			height >>= 1;
-			if ( width < 1 ) {
-				width = 1;
-			}
-			if ( height < 1 ) {
-				height = 1;
-			}
-		}
-		memcpy( scaledBuffer, data, width * height * 4 );
+#if 1 //Unneeded Low-memory hack.
+	/*TODO: CEL Shader goes here, reduce colours, not LOD*/
+	if ( (!lightMap) && (mipmap) && (internalFormat == GL_RGB) )
+	{//only reduce solid textures
+		if ( scaled_width > 32 ) scaled_width >= 1;
+		if ( scaled_height > 32 ) scaled_height >= 1;
 	}
 
-	R_LightScaleTexture( scaledBuffer, scaled_width, scaled_height, !mipmap );
+#endif
+	// use the normal mip-mapping function to go down from here
+	while ( width > scaled_width || height > scaled_height ) {
+		R_MipMap( (byte *)data, width, height );
+		width >>= 1;
+		height >>= 1;
+		if ( width < 1 ) {
+			width = 1;
+		}
+		if ( height < 1 ) {
+			height = 1;
+		}
+	}
+
+	R_LightScaleTexture( data, scaled_width, scaled_height, !mipmap );
 
 	*pUploadWidth = scaled_width;
 	*pUploadHeight = scaled_height;
 	*format = internalFormat;
+	myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-	if ( mipmap ) {
-		int miplevel;
-	
-	        miplevel = 0;
-		myglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-		while ( scaled_width > 1 || scaled_height > 1 )
-		{
-			R_MipMap( (byte *)scaledBuffer, scaled_width, scaled_height );
-			scaled_width >>= 1;
-			scaled_height >>= 1;
-			if ( scaled_width < 1 ) {
-				scaled_width = 1;
-			}
-			if ( scaled_height < 1 ) {
-				scaled_height = 1;
-			}
-			miplevel++;
-
-			if ( r_colorMipLevels->integer ) {
-				R_BlendOverTexture( (byte *)scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel] );
-			}
-			myglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-		}
-	}else{
-		myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-	}
-done:
-
-	if ( mipmap ) {
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
-	} else
-	{
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	}
-
-	GL_CheckErrors();
-
-	//if ( scaledBuffer != 0 )
-	//	ri.Hunk_FreeTempMemory( scaledBuffer );
-	//if ( resampledBuffer != 0 )
-	//	ri.Hunk_FreeTempMemory( resampledBuffer );
+	int err = qglGetError();
+	if ( err != GL_NO_ERROR ) { ri.Printf( PRINT_ALL, "Texture Loading Error.\n" ); }
 }
-
-
 
 //----(SA)	modified
 

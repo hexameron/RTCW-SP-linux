@@ -283,7 +283,7 @@ void GLimp_Init( void ) {
 	glConfig.anisotropicAvailable = qfalse;
 	glConfig.stereoEnabled = qfalse;
 	glConfig.maxTextureSize = 1024; //upto 2048 with unlimited ram
-	glConfig.maxActiveTextures=8; //Only 2 used 
+	glConfig.maxActiveTextures=8; //No more than 8 
 	return;
 }
 
@@ -292,7 +292,7 @@ Responsible for doing a swapbuffers and possibly for other stuff
 */
 void GLimp_EndFrame( void ) {
 	eglSwapBuffers(g_EGLDisplay, g_EGLWindowSurface);
-	IN_JoyMove(); //keep joystick moving on every frame
+/*	IN_JoyMove(); // mouse emulates joystick: move on every frame */
 }
 
 /* SINGLE CPU*/
@@ -305,7 +305,7 @@ void *GLimp_RendererSleep( void ) {
 }
 void GLimp_FrontEndSleep( void ) {}
 void GLimp_WakeRenderer( void *data ) {}
-
+#if 0 //pre-SDL code hooks
 /* Mouse/Joystick */
 void IN_Init( void ) {
 
@@ -326,13 +326,14 @@ void IN_Frame( void ) {
 /*	IN_MouseMove(); */
 }
 
+void IN_Activate( void ) {
+}
+#endif
+void Sys_SendKeyEvents( void ) {
+//	IN_ProcessEvents( ); //now part of SDL_input.c
+}
+
 void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] ) {
 }
 
-void IN_Activate( void ) {
-}
-
-void Sys_SendKeyEvents( void ) {
-	IN_ProcessEvents( );//Q3 keyboard
-}
 

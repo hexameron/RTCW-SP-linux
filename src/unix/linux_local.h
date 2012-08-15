@@ -27,13 +27,15 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // linux_local.h: Linux-specific Quake3 header file
+#define ARRAY_LEN(x)        (sizeof(x) / sizeof(*(x)))
+#define Com_QueueEvent Sys_QueEvent
 
 void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
 qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message );
 void Sys_SendKeyEvents( void );
 
 // Input subsystem
-
+#if 0 //pre-SDL hooks
 void IN_Init( void );
 void IN_Frame( void );
 void IN_Shutdown( void );
@@ -41,17 +43,10 @@ void IN_Shutdown( void );
 
 void IN_JoyMove( void );
 void IN_StartupJoystick( void );
-
+#endif
 // GL subsystem
 qboolean QGL_Init();
 void QGL_EnableLogging( qboolean enable );
 void QGL_Shutdown( void );
-
-
-
-
-
-// bk001130 - win32
-// void IN_JoystickCommands (void);
 
 char *strlwr( char *s );

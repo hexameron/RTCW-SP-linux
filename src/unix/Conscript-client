@@ -132,6 +132,7 @@ $env = new cons(
   . $BUILD_DIR . '/unix/botlib.a ' . $BUILD_DIR . '/unix/jpeglib.a '
   . '$ROOTLIBS/libvcos.so $ROOTLIBS/libvchiq_arm.so '
   . '$ROOTLIBS/libEGL.so $ROOTLIBS/libbcm_host.so '
+  . '$ROOTLIBS/libSDL-1.2.so '
   . '$ROOTLIBS/libGLESv2.so -ldl -lm'
 );
 
@@ -211,9 +212,8 @@ $SOUND_REF = \@SOUND_FILES;
   ../unix/etc1encode.c
   ../unix/pi_common.c
   ../unix/pi_glimp.c   
-  ../unix/es_input.c
-  ../unix/linux_joystick.c  
-  ../unix/linux_snd.c 
+  ../unix/sdl_input.c
+  ../unix/sdl_snd.c 
   );
 $UNIX_REF = \@UNIX_FILES;
 

@@ -34,8 +34,8 @@ $cpu = 'arm';
 $OS = `uname`;
 chop ($OS);
 
-$libc = "2.11";
-chop ($libc);
+$libc = "2.2";
+#chop ($libc);
 
 if(@ARGV gt 0)
 {
@@ -121,7 +121,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-Ofast -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/build/raspberrypi/usr/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-Ofast -marm -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/build/raspberrypi/usr/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h

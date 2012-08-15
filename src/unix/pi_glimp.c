@@ -67,7 +67,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "linux_local.h"
 
 #include "unix_glw.h"
-
+//#include <SDL/SDL.h>
+#define SDL_INIT_VIDEO	0x00000020
 #define WINDOW_CLASS_NAME   "Return to Castle Wolfenstein"
 
 typedef enum
@@ -264,6 +265,14 @@ static qboolean GLimp_StartDriver()
       glConfig.stencilBits = stencil;
       }
 
+	if (!SDL_WasInit(SDL_INIT_VIDEO))
+	{
+		if (SDL_Init(SDL_INIT_VIDEO) == -1){
+		ri.Printf(PRINT_ALL, "SDL_Init_Video  FAILED (%s)\n",
+							SDL_GetError());
+		return qfalse;
+		}
+	}
 	return qtrue;
 }
 
@@ -284,6 +293,7 @@ void GLimp_Init( void ) {
 	glConfig.stereoEnabled = qfalse;
 	glConfig.maxTextureSize = 1024; //upto 2048 with unlimited ram
 	glConfig.maxActiveTextures=8; //No more than 8 
+	IN_Init();
 	return;
 }
 

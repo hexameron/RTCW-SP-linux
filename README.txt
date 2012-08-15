@@ -1,6 +1,7 @@
 /***********************************************
  Raspberry pi version: Almost Playable, too slow.
- Joystick ONLY, Blackscreen cinematics, no audio.
+ Joystick and Mouse only: no SDL audio or keyboard.
+ Opening cinematic plays at SD but not HD.
  Crashes on cutscene, but runs from saved game
  ***********************************************/
 

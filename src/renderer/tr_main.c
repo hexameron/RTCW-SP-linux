@@ -166,7 +166,6 @@ void R_FogOn( void ) {
 //	}
 
 	if ( backEnd.projection2D ) {  // no fog in 2d
-		R_FogOff();
 		return;
 	}
 
@@ -1868,7 +1867,7 @@ void R_RenderView( viewParms_t *parms ) {
 
 	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
 	// draw main system development information (surface outlines, etc)
-	R_FogOff();
+//	R_FogOff();
 //	R_DebugGraphics();
-	R_FogOn();
+//	R_FogOn();
 }

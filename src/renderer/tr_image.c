@@ -187,7 +187,7 @@ void GL_TextureMode( const char *string ) {
 	i = 3 ;//linear mipmap nearest
 	gl_filter_min = modes[i].minimize;
 	gl_filter_max = modes[i].maximize;
-
+#if 0
 	// change all the existing mipmap texture objects
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		glt = tr.images[ i ];
@@ -197,6 +197,7 @@ void GL_TextureMode( const char *string ) {
 			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 		}
 	}
+#endif
 }
 
 /*
@@ -733,7 +734,7 @@ static void Upload32(   unsigned *data,
 
 #if 1 //Unneeded Low-memory hack.
 	/*TODO: CEL Shader goes here, reduce colours, not LOD*/
-	if ( (!lightMap) && (mipmap) && (internalFormat == GL_RGB) )
+	if ( (mipmap) && (internalFormat == GL_RGB) )
 	{//only reduce solid textures
 		if ( scaled_width > 32 ) scaled_width >= 1;
 		if ( scaled_height > 32 ) scaled_height >= 1;
@@ -827,14 +828,14 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 	image->width = width;
 	image->height = height;
 	image->wrapClampMode = glWrapClampMode;
-
+#if 0
 	// lightmaps are always allocated on TMU 1
 	if ( isLightmap ) {
 		image->TMU = 1;
 	} else {
 		image->TMU = 0;
 	}
-
+#endif
 	GL_SelectTexture( image->TMU );
 
 	GL_Bind( image );
@@ -2094,7 +2095,7 @@ float   R_FogFactor( float s, float t ) {
 R_CreateFogImage
 ================
 */
-#define FOG_S   256
+#define FOG_S   32
 #define FOG_T   32
 static void R_CreateFogImage( void ) {
 	int x,y;

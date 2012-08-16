@@ -1105,6 +1105,7 @@ void    RB_SetGL2D( void ) {
 			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
 	qglDisable( GL_FOG ); //----(SA)	added
+	fogIsOn = qfalse;
 
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_CLIP_PLANE0 );

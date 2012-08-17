@@ -454,12 +454,12 @@ static void ProjectDlightTexture( void ) {
 			vec3_t dist;
 			int clip;
 			float modulate;
-
+#if 0
 			if ( 0 ) {
 				clipBits[i] = 255;  // definately not dlighted
 				continue;
 			}
-
+#endif
 			VectorSubtract( origin, tess.xyz[i], dist );
 
 //			if(!r_dlightBacks->integer) {
@@ -551,7 +551,7 @@ static void ProjectDlightTexture( void ) {
 		{
 			shader_t *dls = dl->dlshader;
 			if ( dls ) {
-				if ( dls->numUnfoggedPasses < 2) {
+//				if ( dls->numUnfoggedPasses < 2) {
 				    for ( i = 0; i < dls->numUnfoggedPasses; i++ ) //can only be 0
 				    {
 					shaderStage_t *stage = dls->stages[i];
@@ -561,6 +561,7 @@ static void ProjectDlightTexture( void ) {
 					backEnd.pc.c_totalIndexes += numIndexes;
 					backEnd.pc.c_dlightIndexes += numIndexes;
 				    }
+/*
 				} else {	// optimize for multitexture
 
 					for(i=0;i<dls->numUnfoggedPasses;)
@@ -597,7 +598,7 @@ static void ProjectDlightTexture( void ) {
 					// return to TEXTURE0
 					GL_SelectTexture( 0 );
 				}
-
+*/
 			} else
 			{
 				R_FogOff();
@@ -1478,17 +1479,12 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		qglNormalPointer( GL_FLOAT, 16, input->normal );
 	}
 
-        GL_SelectTexture( 0 );
+	GL_SelectTexture( 0 );
 	qglDisableClientState( GL_COLOR_ARRAY );
 	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 #ifdef REPLACE_MODE
 	qglShadeModel( GL_FLAT );
-        GL_TexEnv( GL_REPLACE );
-#else
-//	qglEnableClientState( GL_COLOR_ARRAY );
-//	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
-	qglShadeModel( GL_FLAT );
-        GL_TexEnv( GL_MODULATE );
+	GL_TexEnv( GL_REPLACE );
 #endif
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );

@@ -828,14 +828,13 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 	image->width = width;
 	image->height = height;
 	image->wrapClampMode = glWrapClampMode;
-#if 0
+
 	// lightmaps are always allocated on TMU 1
 	if ( isLightmap ) {
 		image->TMU = 1;
 	} else {
 		image->TMU = 0;
 	}
-#endif
 	GL_SelectTexture( image->TMU );
 
 	GL_Bind( image );

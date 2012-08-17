@@ -303,7 +303,7 @@ static void ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *
 	int i, j;
 	unsigned    *inrow, *inrow2;
 	unsigned frac, fracstep;
-	unsigned p1[1024], p2[1024];
+	unsigned p1[2048], p2[2048]; // lets hope we never need more than 1920x1080
 	byte        *pix1, *pix2, *pix3, *pix4;
 
 	fracstep = inwidth * 0x10000 / outwidth;
@@ -494,9 +494,9 @@ static void R_MipMap( byte *in, int width, int height ) {
 
 /*
 ================
-R_MipMap
+R_RMSE
 
-Operates in place, quartering the size of the texture
+Check texture for details
 ================
 */
 static float R_RMSE( byte *in, int width, int height ) {
@@ -732,12 +732,13 @@ static void Upload32(   unsigned *data,
 		}
 	}
 
-#if 1 //Unneeded Low-memory hack.
+#if 1 //Low-memory hack
+	if ( scaled_width > 32 ) scaled_width >= 1;
+	if ( scaled_height > 32 ) scaled_height >= 1;
+#else
 	/*TODO: CEL Shader goes here, reduce colours, not LOD*/
-	if ( (mipmap) && (internalFormat == GL_RGB) )
+	if ( (!lightMap) && (mipmap) && (internalFormat == GL_RGB) )
 	{//only reduce solid textures
-		if ( scaled_width > 32 ) scaled_width >= 1;
-		if ( scaled_height > 32 ) scaled_height >= 1;
 	}
 
 #endif
@@ -754,7 +755,7 @@ static void Upload32(   unsigned *data,
 		}
 	}
 
-	R_LightScaleTexture( data, scaled_width, scaled_height, !mipmap );
+	R_LightScaleTexture( data, scaled_width, scaled_height, lightMap );
 
 	*pUploadWidth = scaled_width;
 	*pUploadHeight = scaled_height;

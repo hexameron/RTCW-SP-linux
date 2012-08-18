@@ -231,6 +231,15 @@ static qboolean IN_IsConsoleKey(keyNum_t key, const unsigned char character)
 			numConsoleKeys++;
 		}
 	}
+#else
+	if (key == character)
+	{	key = 0; };
+
+	if (character == 0x60) { return qtrue; }
+
+	if (character == 0x72) { return qtrue; }
+
+	return qfalse;
 #endif
 	// If the character is the same as the key, prefer the character
 	if (key == character)
@@ -993,7 +1002,7 @@ static void IN_ProcessEvents(void)
 			break;
 
 		case SDL_KEYUP:
-			IN_TranslateSDLToQ3Key(&e.key.keysym, &key, qfalse);
+			character = IN_TranslateSDLToQ3Key(&e.key.keysym, &key, qfalse);
 
 			if (key)
 			{
@@ -1068,6 +1077,7 @@ static void IN_ProcessEvents(void)
 void IN_Frame(void)
 {
 	qboolean loading;
+	qboolean fullscreen = qtrue;
 
 	IN_JoyMove();
 	IN_ProcessEvents();
@@ -1075,12 +1085,12 @@ void IN_Frame(void)
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
 	loading = !!(cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE);
 
-	if (!Cvar_VariableIntegerValue("r_fullscreen") && (Key_GetCatcher() & KEYCATCH_CONSOLE))
+	if ( !fullscreen && (Key_GetCatcher() & KEYCATCH_CONSOLE))
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse();
 	}
-	else if (!Cvar_VariableIntegerValue("r_fullscreen") && loading)
+	else if ( !fullscreen && loading)
 	{
 		// Loading in windowed mode
 		IN_DeactivateMouse();

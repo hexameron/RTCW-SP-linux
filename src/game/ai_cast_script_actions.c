@@ -2661,6 +2661,10 @@ qboolean ScriptStartCam( cast_state_t *cs, char *params, qboolean black ) {
 	char *pString, *token;
 	gentity_t *ent;
 
+#if 1 //skip cutscenes
+	AICast_ScriptEvent( cs, "trigger", "cameraInterrupt" );
+	return qtrue;
+#endif
 	ent = &g_entities[cs->entityNum];
 
 	pString = params;

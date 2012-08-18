@@ -404,10 +404,6 @@ argv(0) god
 void Cmd_God_f( gentity_t *ent ) {
 	char    *msg;
 
-	if ( !CheatsOk( ent ) ) {
-		return;
-	}
-
 	ent->flags ^= FL_GODMODE;
 	if ( !( ent->flags & FL_GODMODE ) ) {
 		msg = "godmode OFF\n";
@@ -457,10 +453,6 @@ argv(0) notarget
 void Cmd_Notarget_f( gentity_t *ent ) {
 	char    *msg;
 
-	if ( !CheatsOk( ent ) ) {
-		return;
-	}
-
 	ent->flags ^= FL_NOTARGET;
 	if ( !( ent->flags & FL_NOTARGET ) ) {
 		msg = "notarget OFF\n";
@@ -481,10 +473,6 @@ argv(0) noclip
 */
 void Cmd_Noclip_f( gentity_t *ent ) {
 	char    *msg;
-
-	if ( !CheatsOk( ent ) ) {
-		return;
-	}
 
 	if ( ent->client->noclip ) {
 		msg = "noclip OFF\n";
@@ -1230,6 +1218,9 @@ void Cmd_StartCamera_f( gentity_t *ent ) {
 	ent->client->cameraPortal = g_camEnt;
 	ent->client->ps.eFlags |= EF_VIEWING_CAMERA;
 	ent->s.eFlags |= EF_VIEWING_CAMERA;
+#if 1 //skip cutscenes
+	AICast_ScriptEvent( AICast_GetCastState( ent->s.number ), "trigger", "cameraInterrupt" );
+#endif
 
 // (SA) trying this in client to avoid 1 frame of player drawing
 //	ent->client->ps.eFlags |= EF_NODRAW;

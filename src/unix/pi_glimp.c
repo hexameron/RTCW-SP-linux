@@ -169,6 +169,7 @@ static void InitSig( void ) {
 /* GLimp_Shutdown */
 void GLimp_Shutdown( void ) {
 	IN_Shutdown();
+	SDL_Quit();
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
         bcm_host_deinit();

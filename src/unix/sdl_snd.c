@@ -252,6 +252,9 @@ qboolean SNDDMA_Init(void)
 	else
 	{
 		// just pick a sane default.
+#if  1
+		desired.samples = 1024;
+#else
 		if (desired.freq <= 11025)
 		{
 			desired.samples = 256;
@@ -268,6 +271,7 @@ qboolean SNDDMA_Init(void)
 		{
 			desired.samples = 2048;  // (*shrug*)
 		}
+#endif
 	}
 
 	desired.channels = (int) s_sdlChannels->value;
@@ -292,7 +296,9 @@ qboolean SNDDMA_Init(void)
 	tmp = s_sdlMixSamps->value;
 	if (!tmp)
 	{
-		tmp = (obtained.samples * obtained.channels) * 10;
+//		tmp = (obtained.samples * obtained.channels) * 10;
+/* need over quarter second of buffertime for low framerates */
+		tmp = 1024*16;
 	}
 
 	if (tmp & (tmp - 1))  // not a power of two? Seems to confuse something.

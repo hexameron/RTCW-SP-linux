@@ -690,14 +690,14 @@ static void IN_InitJoystick(void)
 	}
 
 	Cvar_Get("in_availableJoysticks", buf, CVAR_ROM);
-
+#if 0
 	if (!in_joystick->integer)
 	{
 		Com_DPrintf("Joystick is not active.\n");
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 		return;
 	}
-
+#endif
 	in_joystickNo = Cvar_Get("in_joystickNo", "0", CVAR_ARCHIVE);
 	if (in_joystickNo->integer < 0 || in_joystickNo->integer >= total)
 	{

@@ -273,6 +273,10 @@ static qboolean GLimp_StartDriver()
 							SDL_GetError());
 		return qfalse;
 		}
+		if (!SDL_SetVideoMode(32, 32, 0, 0)) {
+			ri.Printf(PRINT_ALL, "SDL_SetVideoMode() failed (%s)\n", SDL_GetError());
+			return qfalse;
+		}
 	}
 	return qtrue;
 }

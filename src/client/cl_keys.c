@@ -1658,7 +1658,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		}
 	}
 
-#ifdef __linux__
+#if 0 // always fullscreen
 	if ( key == K_ENTER ) {
 		if ( down ) {
 			if ( keys[K_ALT].down ) {

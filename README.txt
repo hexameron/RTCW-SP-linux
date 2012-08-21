@@ -1,8 +1,6 @@
 /***********************************************
  Raspberry pi version: Almost Playable, too slow.
- Joystick and Mouse only: no SDL audio or keyboard.
- Opening cinematic plays at SD but not HD.
- Crashes on cutscene, but runs from saved game
+ Cutscenes disabled due to not working.
  ***********************************************/
 
 Return to Castle Wolfenstein single player GPL source release

@@ -1154,7 +1154,8 @@ void R_Init( void ) {
 	}
 
 //	backEndData[0] = ri.Hunk_Alloc( sizeof( *backEndData[0] ), h_low );
-	backEndData[0] = ri.Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low );
+	backEndData[0] = ri.Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts
+													+ sizeof( renderCommandList_t ), h_low );
 
 	if ( r_smp->integer ) {
 //		backEndData[1] = ri.Hunk_Alloc( sizeof( *backEndData[1] ), h_low );

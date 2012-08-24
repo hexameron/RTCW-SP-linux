@@ -112,7 +112,7 @@ if ($do_demo eq 1)
 }
 else
 {
-  $COMMON_CFLAGS = '-pipe -fsigned-char ';
+  $COMMON_CFLAGS = '-pipe -fsigned-char -I/opt/vc/include/interface/vcos/pthreads ';
   $BASEGAME = 'main';
 }
 

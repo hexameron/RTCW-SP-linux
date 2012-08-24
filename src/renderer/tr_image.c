@@ -811,13 +811,16 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 	// Ridah
 	image = tr.images[tr.numImages] = R_CacheImageAlloc( sizeof( image_t ) );
 
+#if 0   // wolfenstein way of numbering textures.
 	image->texnum = 1024 + tr.numImages;
 
 	// Ridah
 	if ( r_cacheShaders->integer ) {
 		R_FindFreeTexnum( image );
 	}
-	// done.
+#else   //normal way.
+	qglGenTextures(1, &image->texnum);
+#endif
 
 	tr.numImages++;
 

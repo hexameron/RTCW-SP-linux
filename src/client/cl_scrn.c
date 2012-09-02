@@ -440,7 +440,7 @@ This will be called twice if rendering in stereo mode
 */
 void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	re.BeginFrame( stereoFrame );
-
+/* Full screen, not just widescreen.
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
 	if ( cls.state != CA_ACTIVE ) {
@@ -450,7 +450,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			re.SetColor( NULL );
 		}
 	}
-
+*/
 	if ( !uivm ) {
 		Com_DPrintf( "draw screen without UI loaded\n" );
 		return;

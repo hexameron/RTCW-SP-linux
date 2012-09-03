@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+/* This file is depreciated : it exists only to queue commands for a second CPU. There should
+	be advantages to passing commands directly to the GPU. */ 
+
 #include "tr_local.h"
 
 volatile renderCommandList_t    *renderCommandList;
@@ -89,6 +92,7 @@ R_InitCommandBuffers
 */
 void R_InitCommandBuffers( void ) {
 	glConfig.smpActive = qfalse;
+#if 0 //smp not possible
 	if ( r_smp->integer ) {
 		ri.Printf( PRINT_ALL, "Trying SMP acceleration...\n" );
 		if ( GLimp_SpawnRenderThread( RB_RenderThread ) ) {
@@ -98,6 +102,7 @@ void R_InitCommandBuffers( void ) {
 			ri.Printf( PRINT_ALL, "...failed.\n" );
 		}
 	}
+#endif
 }
 
 /*
@@ -127,11 +132,11 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	cmdList = &backEndData[tr.smpFrame]->commands;
 	assert( cmdList ); // bk001205
 	// add an end-of-list command
-	*( int * )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
+	//*( int * )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
 
 	// clear it out, in case this is a sync and not a buffer flip
-	cmdList->used = 0;
-
+	//cmdList->used = 0;
+#if 0 //no smp
 	if ( glConfig.smpActive ) {
 		// if the render thread is not idle, wait for it
 		if ( renderThreadActive ) {
@@ -149,13 +154,16 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		// sleep until the renderer has completed
 		GLimp_FrontEndSleep();
 	}
+#endif
 
 	// at this point, the back end thread is idle, so it is ok
 	// to look at it's performance counters
+/*
 	if ( runPerformanceCounters ) {
 		R_PerformanceCounters();
 	}
-
+*/
+#if 0 //skip backend
 	// actually start the commands going
 	if ( !r_skipBackEnd->integer ) {
 		// let it start on the new batch
@@ -165,6 +173,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 			GLimp_WakeRenderer( cmdList );
 		}
 	}
+#endif
 }
 
 
@@ -179,6 +188,8 @@ OpenGL calls until R_IssueRenderCommands is called.
 ====================
 */
 void R_SyncRenderThread( void ) {
+}
+#if 0 // no SMP
 	if ( !tr.registered ) {
 		return;
 	}
@@ -189,7 +200,7 @@ void R_SyncRenderThread( void ) {
 	}
 	GLimp_FrontEndSleep();
 }
-
+#endif
 /*
 ============
 R_GetCommandBuffer
@@ -201,8 +212,8 @@ render thread if needed.
 void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t *cmdList;
 
-	cmdList = &backEndData[tr.smpFrame]->commands;
-
+	cmdList = &backEndData[0]->commands;
+#if 0 // always return start of command buffer
 	// always leave room for the end of list command
 	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
 		if ( bytes > MAX_RENDER_COMMANDS - 4 ) {
@@ -215,6 +226,8 @@ void *R_GetCommandBuffer( int bytes ) {
 	cmdList->used += bytes;
 
 	return cmdList->cmds + cmdList->used - bytes;
+# endif
+        return cmdList;
 }
 
 
@@ -227,10 +240,8 @@ R_AddDrawSurfCmd
 void    R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	drawSurfsCommand_t  *cmd;
 
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
-	if ( !cmd ) {
-		return;
-	}
+	cmd = (drawSurfsCommand_t *) &backEndData[0]->commands;
+	
 	cmd->commandId = RC_DRAW_SURFS;
 
 	cmd->drawSurfs = drawSurfs;
@@ -238,6 +249,8 @@ void    R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	cmd->refdef = tr.refdef;
 	cmd->viewParms = tr.viewParms;
+
+	RB_DrawSurfs(cmd);
 }
 
 
@@ -251,10 +264,8 @@ Passing NULL will set the color to white
 void    RE_SetColor( const float *rgba ) {
 	setColorCommand_t   *cmd;
 
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
-	if ( !cmd ) {
-		return;
-	}
+        cmd = (setColorCommand_t *) &backEndData[0]->commands;
+
 	cmd->commandId = RC_SET_COLOR;
 	if ( !rgba ) {
 		static float colorWhite[4] = { 1, 1, 1, 1 };
@@ -266,6 +277,8 @@ void    RE_SetColor( const float *rgba ) {
 	cmd->color[1] = rgba[1];
 	cmd->color[2] = rgba[2];
 	cmd->color[3] = rgba[3];
+
+	RB_SetColor(cmd);
 }
 
 
@@ -275,19 +288,12 @@ RE_StretchPic
 =============
 */
 
-
-/* Storing VFP Registers into an unaligned byte stream causes an Alignment Exception in the first cut scene 
-	It would be good to know WHY the Command Buffer becomes unaligned. */
-
 void RE_StretchPic( float x, float y, float w, float h,
 					float s1, float t1, float s2, float t2, qhandle_t hShader ) {
 	stretchPicCommand_t *cmd;
 
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
-	if ( !cmd ) {
-		return;
-	}
-	cmd->commandId = RC_STRETCH_PIC;
+        cmd = (stretchPicCommand_t *) &backEndData[0]->commands;
+
 	cmd->shader = R_GetShaderByHandle( hShader );
 	cmd->x = x;
 	cmd->y = y;
@@ -297,6 +303,8 @@ void RE_StretchPic( float x, float y, float w, float h,
 	cmd->t1 = t1;
 	cmd->s2 = s2;
 	cmd->t2 = t2;
+
+	RB_StretchPic(cmd);
 }
 
 
@@ -309,7 +317,7 @@ RE_StretchPicGradient
 void RE_StretchPicGradient( float x, float y, float w, float h,
 							float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType ) {
 	stretchPicCommand_t *cmd;
-
+#if 0 // Not used here.
 	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
@@ -336,6 +344,7 @@ void RE_StretchPicGradient( float x, float y, float w, float h,
 	cmd->gradientColor[2] = gradientColor[2] * 255;
 	cmd->gradientColor[3] = gradientColor[3] * 255;
 	cmd->gradientType = gradientType;
+#endif
 }
 //----(SA)	end
 
@@ -351,14 +360,13 @@ for each RE_EndFrame
 void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	drawBufferCommand_t *cmd;
 
-	if ( !tr.registered ) {
-		return;
-	}
+        cmd = (drawBufferCommand_t *) &backEndData[0]->commands;
+
 	glState.finishCalled = qfalse;
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
-
+#if 0 // not this
 	//
 	// do overdraw measurement
 	//
@@ -390,7 +398,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
-
+#endif
 	//
 	// texturemode stuff
 	//
@@ -399,7 +407,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		GL_TextureMode( r_textureMode->string );
 		r_textureMode->modified = qfalse;
 	}
-
+#if 0
 	//
 	// ATI stuff
 	//
@@ -473,7 +481,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 	}*/
 
-
+#endif
 	//
 	// gamma stuff
 	//
@@ -497,10 +505,8 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	//
 	// draw buffer stuff
 	//
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
-	if ( !cmd ) {
-		return;
-	}
+#if 0 //only used in stereo mode
+        cmd = &backEndData[0]->commands;
 	cmd->commandId = RC_DRAW_BUFFER;
 
 	if ( glConfig.stereoEnabled ) {
@@ -521,6 +527,8 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			cmd->buffer = (int)GL_BACK;
 		}
 	}
+	RB_DrawBuffer(cmd);
+#endif
 }
 
 
@@ -537,16 +545,14 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
-	if ( !cmd ) {
-		return;
-	}
+
+        cmd = (swapBuffersCommand_t *) &backEndData[0]->commands;
+
 	cmd->commandId = RC_SWAP_BUFFERS;
-
+	RB_SwapBuffers(cmd);
 	R_IssueRenderCommands( qtrue );
-
-	// use the other buffers next frame, because another CPU
-	// may still be rendering into the current ones
+	
+	// initalise counters
 	R_ToggleSmpFrame();
 
 	if ( frontEndMsec ) {

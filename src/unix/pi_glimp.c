@@ -189,11 +189,18 @@ static qboolean GLimp_StartDriver()
    /* TODO cleanup on failure... */
 	const EGLint s_configAttribs[] =
 	{
+#ifdef MY16BIT
+	EGL_RED_SIZE,       5,
+	EGL_GREEN_SIZE,     6,
+	EGL_BLUE_SIZE,      5,
+	EGL_DEPTH_SIZE,	   16,
+#else
 	EGL_RED_SIZE,       8,
 	EGL_GREEN_SIZE,     8,
 	EGL_BLUE_SIZE,      8,
+	EGL_DEPTH_SIZE,    24,
+#endif
 	EGL_ALPHA_SIZE,     0,
-	EGL_DEPTH_SIZE,	   24,
 	EGL_STENCIL_SIZE,   0,
 	EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
 	EGL_SAMPLE_BUFFERS, 1,
@@ -261,6 +268,7 @@ static qboolean GLimp_StartDriver()
       eglGetConfigAttrib(g_EGLDisplay, g_EGLConfig, EGL_STENCIL_SIZE, &stencil);
       glConfig.vidWidth = width;
       glConfig.vidHeight = height;
+      //if ( width*3 > height*4 ) glConfig.vidWidth = height * 4/3;
       glConfig.colorBits = color;
       glConfig.depthBits = depth;
       glConfig.stencilBits = stencil;

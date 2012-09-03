@@ -732,19 +732,19 @@ static void Upload32(   unsigned *data,
 		}
 	}
 
-#if 1 //Low-memory hack
-	if ( scaled_width > 32 ) scaled_width >= 1;
-	if ( scaled_height > 32 ) scaled_height >= 1;
-#else
-	/*TODO: CEL Shader goes here, reduce colours, not LOD*/
-	if ( (!lightMap) && (mipmap) && (internalFormat == GL_RGB) )
-	{//only reduce solid textures
+#if 1	/* Low-memory hack */
+	scaled_width >>= 1;
+	scaled_height >>= 1;
+#else	/* Low Budget CEL Shader, reduce both colours and LOD */
+	if ( (mipmap) && (internalFormat == GL_RGB) )
+	{
+		if ( scaled_width > 8 ) scaled_width = 8;
+		if ( scaled_height > 8 ) scaled_height = 8;
 	}
-
 #endif
 	// use the normal mip-mapping function to go down from here
 	while ( width > scaled_width || height > scaled_height ) {
-		R_MipMap( (byte *)data, width, height );
+	R_MipMap( (byte *)data, width, height );
 		width >>= 1;
 		height >>= 1;
 		if ( width < 1 ) {
@@ -760,10 +760,27 @@ static void Upload32(   unsigned *data,
 	*pUploadWidth = scaled_width;
 	*pUploadHeight = scaled_height;
 	*format = internalFormat;
+/*	if ( mipmap ) {        // Mipmaps increase texture ram by 1/3, with debatable benefits.
+		int miplevel = 0;
+		myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		while ( scaled_width > 1 || scaled_height > 1 )
+		{
+			R_MipMap( (byte *)data, scaled_width, scaled_height );
+			scaled_width >>= 1;
+			scaled_height >>= 1;
+			if ( scaled_width < 1 ) {scaled_width = 1;}
+			if ( scaled_height < 1 ) {scaled_height = 1;}
+			miplevel++;
+			myglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		}
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+	}else{
+*/
 	myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
+//	}
 	int err = qglGetError();
 	if ( err != GL_NO_ERROR ) { ri.Printf( PRINT_ALL, "Texture Loading Error.\n" ); }
 }

@@ -732,10 +732,7 @@ static void Upload32(   unsigned *data,
 		}
 	}
 
-#if 1	/* Low-memory hack */
-	scaled_width >>= 1;
-	scaled_height >>= 1;
-#else	/* Low Budget CEL Shader, reduce both colours and LOD */
+#if 0	/* Low Budget CEL Shader, reduce both colours and LOD */
 	if ( (mipmap) && (internalFormat == GL_RGB) )
 	{
 		if ( scaled_width > 8 ) scaled_width = 8;

@@ -1225,17 +1225,16 @@ RB_SetColor
 
 =============
 */
-const void  *RB_SetColor( const void *data ) {
-	const setColorCommand_t *cmd;
 
-	cmd = (const setColorCommand_t *)data;
-
-	backEnd.color2D[0] = cmd->color[0] * 255;
-	backEnd.color2D[1] = cmd->color[1] * 255;
-	backEnd.color2D[2] = cmd->color[2] * 255;
-	backEnd.color2D[3] = cmd->color[3] * 255;
-
-	return (const void *)( cmd + 1 );
+void    RE_SetColor( const float *rgba ) {
+	if ( !rgba ) {
+	static float colorWhite[4] = { 1, 1, 1, 1 };
+		rgba = colorWhite;
+	}
+	backEnd.color2D[0] = rgba[0] * 255;
+	backEnd.color2D[1] = rgba[1] * 255;
+	backEnd.color2D[2] = rgba[2] * 255;
+	backEnd.color2D[3] = rgba[3] * 255;
 }
 
 /*
@@ -1243,18 +1242,17 @@ const void  *RB_SetColor( const void *data ) {
 RB_StretchPic
 =============
 */
-const void *RB_StretchPic( const void *data ) {
-	const stretchPicCommand_t   *cmd;
+
+void RE_StretchPic( float cx, float cy, float cw, float ch,
+				float cs1, float ct1, float cs2, float ct2, qhandle_t hShader ) {
 	shader_t *shader;
 	int numVerts, numIndexes;
-
-	cmd = (const stretchPicCommand_t *)data;
 
 	if ( !backEnd.projection2D ) {
 		RB_SetGL2D();
 	}
 
-	shader = cmd->shader;
+	shader = R_GetShaderByHandle( hShader );
 	if ( shader != tess.shader ) {
 		if ( tess.numIndexes ) {
 			RB_EndSurface();
@@ -1282,38 +1280,39 @@ const void *RB_StretchPic( const void *data ) {
 			*(int *)tess.vertexColors[ numVerts + 2 ] =
 				*(int *)tess.vertexColors[ numVerts + 3 ] = *(int *)backEnd.color2D;
 
-	tess.xyz[ numVerts ][0] = cmd->x;
-	tess.xyz[ numVerts ][1] = cmd->y;
+	tess.xyz[ numVerts ][0] = cx;
+	tess.xyz[ numVerts ][1] = cy;
 	tess.xyz[ numVerts ][2] = 0;
 
-	tess.texCoords[ numVerts ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts ][0][1] = cmd->t1;
+	tess.texCoords[ numVerts ][0][0] = cs1;
+	tess.texCoords[ numVerts ][0][1] = ct1;
 
-	tess.xyz[ numVerts + 1 ][0] = cmd->x + cmd->w;
-	tess.xyz[ numVerts + 1 ][1] = cmd->y;
+	tess.xyz[ numVerts + 1 ][0] = cx + cw;
+	tess.xyz[ numVerts + 1 ][1] = cy;
 	tess.xyz[ numVerts + 1 ][2] = 0;
 
-	tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
+	tess.texCoords[ numVerts + 1 ][0][0] = cs2;
+	tess.texCoords[ numVerts + 1 ][0][1] = ct1;
 
-	tess.xyz[ numVerts + 2 ][0] = cmd->x + cmd->w;
-	tess.xyz[ numVerts + 2 ][1] = cmd->y + cmd->h;
+	tess.xyz[ numVerts + 2 ][0] = cx + cw;
+	tess.xyz[ numVerts + 2 ][1] = cy + ch;
 	tess.xyz[ numVerts + 2 ][2] = 0;
 
-	tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
+	tess.texCoords[ numVerts + 2 ][0][0] = cs2;
+	tess.texCoords[ numVerts + 2 ][0][1] = ct2;
 
-	tess.xyz[ numVerts + 3 ][0] = cmd->x;
-	tess.xyz[ numVerts + 3 ][1] = cmd->y + cmd->h;
+	tess.xyz[ numVerts + 3 ][0] = cx;
+	tess.xyz[ numVerts + 3 ][1] = cy + ch;
 	tess.xyz[ numVerts + 3 ][2] = 0;
 
-	tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
-
-	return (const void *)( cmd + 1 );
+	tess.texCoords[ numVerts + 3 ][0][0] = cs1;
+	tess.texCoords[ numVerts + 3 ][0][1] = ct2;
 }
 
-
+#if 1 // RE_StretchPicGradient not used 
+void RE_StretchPicGradient( float cx, float cy, float cw, float ch,
+			float cs1, float ct1, float cs2, float ct2, qhandle_t hShader, const float *gradientColor, int gradientType) {}
+#else
 /*
 ==============
 RB_StretchPicGradient
@@ -1394,7 +1393,7 @@ const void *RB_StretchPicGradient( const void *data ) {
 
 	return (const void *)( cmd + 1 );
 }
-
+#endif
 
 /*
 =============
@@ -1402,22 +1401,17 @@ RB_DrawSurfs
 
 =============
 */
-const void  *RB_DrawSurfs( const void *data ) {
-	const drawSurfsCommand_t    *cmd;
+void    R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	// finish any 2D drawing if needed
 	if ( tess.numIndexes ) {
 		RB_EndSurface();
 	}
 
-	cmd = (const drawSurfsCommand_t *)data;
+	backEnd.refdef = tr.refdef;
+	backEnd.viewParms = tr.viewParms;
 
-	backEnd.refdef = cmd->refdef;
-	backEnd.viewParms = cmd->viewParms;
-
-	RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
-
-	return (const void *)( cmd + 1 );
+	RB_RenderDrawSurfList( drawSurfs, numDrawSurfs );
 }
 
 
@@ -1427,13 +1421,8 @@ RB_DrawBuffer
 
 =============
 */
-const void  *RB_DrawBuffer( const void *data ) {
-	const drawBufferCommand_t   *cmd;
 
-	cmd = (const drawBufferCommand_t *)data;
-//	qglDrawBuffer( cmd->buffer );
-	return (const void *)( cmd + 1 );
-}
+
 
 /*
 ===============
@@ -1492,9 +1481,7 @@ RB_SwapBuffers
 
 =============
 */
-const void  *RB_SwapBuffers( const void *data ) {
-	const swapBuffersCommand_t  *cmd;
-
+const void  *RB_SwapBuffers() {
 	// finish any 2D drawing if needed
 	if ( tess.numIndexes ) {
 		RB_EndSurface();
@@ -1504,9 +1491,6 @@ const void  *RB_SwapBuffers( const void *data ) {
 	if ( r_showImages->integer ) {
 		RB_ShowImages();
 	}
-
-	cmd = (const swapBuffersCommand_t *)data;
-
 	// we measure overdraw by reading back the stencil buffer and
 	// counting up the number of increments that have happened
 /* do not measure overdraw:
@@ -1526,9 +1510,6 @@ const void  *RB_SwapBuffers( const void *data ) {
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
 */
-/*
- * Do we need to wait for glFinish on every frame ?
- */
 //	qglFinish();
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
@@ -1536,8 +1517,6 @@ const void  *RB_SwapBuffers( const void *data ) {
 	GLimp_EndFrame();
 
 	backEnd.projection2D = qfalse;
-
-	return (const void *)( cmd + 1 );
 }
 
 /*
@@ -1549,6 +1528,9 @@ smp extensions, or asyncronously by another thread.
 ====================
 */
 void RB_ExecuteRenderCommands( const void *data ) {
+	backEnd.pc.msec = 1;
+}
+#if 0
 	int t1, t2;
 
 	t1 = ri.Milliseconds();
@@ -1586,7 +1568,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	}
 
 }
-
+#endif
 
 /*
 ================

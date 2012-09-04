@@ -1721,7 +1721,7 @@ typedef struct {
 	trRefEntity_t entities[MAX_ENTITIES];
 	srfPoly_t polys[MAX_POLYS];
 	polyVert_t polyVerts[MAX_POLYVERTS];
-	renderCommandList_t commands;
+//	renderCommandList_t commands;
 } backEndData_t;
 
 extern int max_polys;
@@ -1729,7 +1729,7 @@ extern int max_polyverts;
 
 extern backEndData_t   *backEndData[SMP_FRAMES];    // the second one may not be allocated
 
-extern volatile renderCommandList_t    *renderCommandList;
+//extern volatile renderCommandList_t    *renderCommandList;
 
 extern volatile qboolean renderThreadActive;
 

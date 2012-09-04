@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-volatile renderCommandList_t    *renderCommandList;
+//volatile renderCommandList_t    *renderCommandList;
 
 volatile qboolean renderThreadActive;
 
@@ -127,8 +127,9 @@ int c_blockedOnRender;
 int c_blockedOnMain;
 
 void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
-	renderCommandList_t *cmdList;
-
+//	renderCommandList_t *cmdList;
+}
+#if 0 //obsolete
 	cmdList = &backEndData[tr.smpFrame]->commands;
 	assert( cmdList ); // bk001205
 	// add an end-of-list command
@@ -136,7 +137,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 
 	// clear it out, in case this is a sync and not a buffer flip
 	//cmdList->used = 0;
-#if 0 //no smp
+
 	if ( glConfig.smpActive ) {
 		// if the render thread is not idle, wait for it
 		if ( renderThreadActive ) {
@@ -154,7 +155,6 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		// sleep until the renderer has completed
 		GLimp_FrontEndSleep();
 	}
-#endif
 
 	// at this point, the back end thread is idle, so it is ok
 	// to look at it's performance counters
@@ -163,7 +163,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		R_PerformanceCounters();
 	}
 */
-#if 0 //skip backend
+
 	// actually start the commands going
 	if ( !r_skipBackEnd->integer ) {
 		// let it start on the new batch
@@ -173,9 +173,8 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 			GLimp_WakeRenderer( cmdList );
 		}
 	}
-#endif
 }
-
+#endif
 
 /*
 ====================
@@ -210,10 +209,11 @@ render thread if needed.
 ============
 */
 void *R_GetCommandBuffer( int bytes ) {
+}
+#if 0 //obsolete
 	renderCommandList_t *cmdList;
 
 	cmdList = &backEndData[0]->commands;
-#if 0 // always return start of command buffer
 	// always leave room for the end of list command
 	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
 		if ( bytes > MAX_RENDER_COMMANDS - 4 ) {
@@ -226,11 +226,10 @@ void *R_GetCommandBuffer( int bytes ) {
 	cmdList->used += bytes;
 
 	return cmdList->cmds + cmdList->used - bytes;
-# endif
         return cmdList;
 }
-
-
+#endif
+#if 0 // moved to backend.
 /*
 =============
 R_AddDrawSurfCmd
@@ -252,7 +251,6 @@ void    R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	RB_DrawSurfs(cmd);
 }
-
 
 /*
 =============
@@ -281,7 +279,6 @@ void    RE_SetColor( const float *rgba ) {
 	RB_SetColor(cmd);
 }
 
-
 /*
 =============
 RE_StretchPic
@@ -306,7 +303,6 @@ void RE_StretchPic( float x, float y, float w, float h,
 
 	RB_StretchPic(cmd);
 }
-
 
 //----(SA)	added
 /*
@@ -347,7 +343,7 @@ void RE_StretchPicGradient( float x, float y, float w, float h,
 #endif
 }
 //----(SA)	end
-
+#endif
 
 /*
 ====================
@@ -358,9 +354,9 @@ for each RE_EndFrame
 ====================
 */
 void RE_BeginFrame( stereoFrame_t stereoFrame ) {
-	drawBufferCommand_t *cmd;
+//	drawBufferCommand_t *cmd;
 
-        cmd = (drawBufferCommand_t *) &backEndData[0]->commands;
+//	cmd = (drawBufferCommand_t *) &backEndData[0]->commands;
 
 	glState.finishCalled = qfalse;
 
@@ -540,16 +536,12 @@ Returns the number of msec spent in the back end
 =============
 */
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
-	swapBuffersCommand_t    *cmd;
 
 	if ( !tr.registered ) {
 		return;
 	}
 
-        cmd = (swapBuffersCommand_t *) &backEndData[0]->commands;
-
-	cmd->commandId = RC_SWAP_BUFFERS;
-	RB_SwapBuffers(cmd);
+	RB_SwapBuffers();
 	R_IssueRenderCommands( qtrue );
 	
 	// initalise counters

@@ -57,7 +57,7 @@ R_ToggleSmpFrame
 void R_ToggleSmpFrame( void ) {
 	tr.smpFrame = 0;
 
-	backEndData[tr.smpFrame]->commands.used = 0;
+//	backEndData[tr.smpFrame]->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
 

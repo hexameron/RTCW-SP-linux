@@ -752,7 +752,7 @@ static void Upload32(   unsigned *data,
 		}
 	}
 
-	R_LightScaleTexture( data, scaled_width, scaled_height, lightMap );
+	R_LightScaleTexture( data, scaled_width, scaled_height, !mipmap );
 
 	*pUploadWidth = scaled_width;
 	*pUploadHeight = scaled_height;

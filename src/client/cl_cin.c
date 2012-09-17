@@ -53,8 +53,8 @@ If you have questions concerning this license or the applicable additional terms
 #define DEFAULT_CIN_WIDTH   512
 #define DEFAULT_CIN_HEIGHT  512
 
-#define LETTERBOX_OFFSET 105
-
+#define LETTERBOX_OFFSET 80
+// better suited to 16:9 screens than 4:3
 
 #define ROQ_QUAD            0x1000
 #define ROQ_QUAD_INFO       0x1001

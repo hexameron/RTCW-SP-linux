@@ -454,25 +454,12 @@ static void ProjectDlightTexture( void ) {
 			vec3_t dist;
 			int clip;
 			float modulate;
-#if 0
-			if ( 0 ) {
-				clipBits[i] = 255;  // definately not dlighted
-				continue;
-			}
-#endif
-			VectorSubtract( origin, tess.xyz[i], dist );
 
-//			if(!r_dlightBacks->integer) {
-//				vec3_t	dir;
-//				VectorNormalize2(dist, dir);
-//				if( DotProduct( tess.normal[i], dir) < 0) {
-//					clipBits[i] = 255;	// not lighted (backface)
-//					continue;
-//				}
-//			}
+			VectorSubtract( origin, tess.xyz[i], dist );
 
 			backEnd.pc.c_dlightVertexes++;
 
+			// needs rewriting to use vertex arrays, not texCords
 			texCoords[0] = 0.5f + dist[0] * scale;
 			texCoords[1] = 0.5f + dist[1] * scale;
 
@@ -519,17 +506,17 @@ static void ProjectDlightTexture( void ) {
 			b = tess.indexes[i + 1];
 			c = tess.indexes[i + 2];
 			if ( clipBits[a] & clipBits[b] & clipBits[c] ) {
-				continue;   // not lighted
+				continue; // not lit
 			}
 
-//			if(!r_dlightBacks->integer) {
-//				vec3_t	dir;
-//				VectorSubtract( origin, tess.xyz[a], dir );
-//				VectorNormalize(dir);
-//				if( DotProduct( tess.normal[i], dir) < 0) {
-//					continue;	// not lighted (backface)
-//				}
-//			}
+			vec3_t	va,vb,vc,vx;
+			VectorSubtract( origin, tess.xyz[a], va );
+			VectorSubtract( tess.xyz[a], tess.xyz[b], vb );
+			VectorSubtract( tess.xyz[a], tess.xyz[c], vc );
+			CrossProduct(vb,vc,vx);
+			if( DotProduct( vx, va) > 0) {
+				continue; // not facing light.
+			}
 
 			hitIndexes[numIndexes] = a;
 			hitIndexes[numIndexes + 1] = b;

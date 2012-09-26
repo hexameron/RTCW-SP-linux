@@ -1791,6 +1791,8 @@ extern vmCvar_t mp_mapTitle;
 //
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
+const char *CG_Argv2( int arg );
+const char *CG_Argv3( int arg );
 
 void QDECL CG_Printf( const char *msg, ... );
 void QDECL CG_Error( const char *msg, ... );

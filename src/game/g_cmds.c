@@ -1218,7 +1218,7 @@ void Cmd_StartCamera_f( gentity_t *ent ) {
 	ent->client->cameraPortal = g_camEnt;
 	ent->client->ps.eFlags |= EF_VIEWING_CAMERA;
 	ent->s.eFlags |= EF_VIEWING_CAMERA;
-#if 1 //skip cutscenes
+#if 0	// cutscene avoidance
 	AICast_ScriptEvent( AICast_GetCastState( ent->s.number ), "trigger", "cameraInterrupt" );
 #endif
 

@@ -1867,7 +1867,7 @@ static qboolean CollapseMultitexture( void ) {
 	if ( collapse[i].blendA == -1 ) {
 		return qfalse;
 	}
-/* We have GL_ADD, but it looks wrong either way.
+/* We have GL_ADD:
 	if ( collapse[i].multitextureEnv == GL_ADD ) {
 		return qfalse;
 	}

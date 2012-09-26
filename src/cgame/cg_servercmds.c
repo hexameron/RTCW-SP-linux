@@ -805,7 +805,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "startCam" ) ) {
-		CG_StartCamera( CG_Argv( 1 ), atoi( CG_Argv( 2 ) ) );
+		CG_StartCamera( CG_Argv( 1 ), qfalse );
 		return;
 	}
 
@@ -913,7 +913,7 @@ static void CG_ServerCommand( void ) {
 
 	if ( Q_stricmp( cmd, "remapShader" ) == 0 ) {
 		if ( trap_Argc() == 4 ) {
-			trap_R_RemapShader( CG_Argv( 1 ), CG_Argv( 2 ), CG_Argv( 3 ) );
+			trap_R_RemapShader( CG_Argv( 1 ), CG_Argv2( 2 ), CG_Argv3( 3 ) );
 		}
 	}
 
@@ -932,7 +932,7 @@ static void CG_ServerCommand( void ) {
 
 	// NERVE - SMF
 	if ( !Q_stricmp( cmd, "oid" ) ) {
-		CG_ObjectivePrint( CG_Argv( 2 ), SMALLCHAR_WIDTH, atoi( CG_Argv( 1 ) ) );
+		CG_ObjectivePrint( CG_Argv( 2 ), SMALLCHAR_WIDTH, atoi( CG_Argv2( 1 ) ) );
 		return;
 	}
 	// -NERVE - SMF
@@ -951,7 +951,7 @@ static void CG_ServerCommand( void ) {
 			fadeTime = atoi( text );
 		}
 
-		trap_S_StartBackgroundTrack( CG_Argv( 1 ), CG_Argv( 1 ), fadeTime );
+		trap_S_StartBackgroundTrack( CG_Argv( 1 ), CG_Argv2( 1 ), fadeTime );
 		return;
 	}
 	// plays once then back to whatever the loop was \/
@@ -980,12 +980,12 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "mu_fade" ) ) {
-		trap_S_FadeBackgroundTrack( atof( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ), 0 );
+		trap_S_FadeBackgroundTrack( atof( CG_Argv( 1 ) ), atoi( CG_Argv2( 2 ) ), 0 );
 		return;
 	}
 
 	if ( !strcmp( cmd, "snd_fade" ) ) {
-		trap_S_FadeAllSound( atof( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ) );
+		trap_S_FadeAllSound( atof( CG_Argv( 1 ) ), atoi( CG_Argv2( 2 ) ) );
 		return;
 	}
 

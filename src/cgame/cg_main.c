@@ -616,13 +616,24 @@ CG_Argv
 ================
 */
 const char *CG_Argv( int arg ) {
-	static char buffer[MAX_STRING_CHARS];
-
-	trap_Argv( arg, buffer, sizeof( buffer ) );
-
-	return buffer;
+	static char buffer1[MAX_STRING_CHARS];
+	trap_Argv( arg, buffer1, sizeof( buffer1 ) );
+	return buffer1;
 }
 
+/* We have been using the same static buffer in multiple places at the same time: lets not do that. */
+
+const char *CG_Argv2( int arg ) {
+	static char buffer2[MAX_STRING_CHARS];
+	trap_Argv( arg, buffer2, sizeof( buffer2 ) );
+	return buffer2;
+}
+
+const char *CG_Argv3( int arg ) {
+	static char buffer3[MAX_STRING_CHARS];
+	trap_Argv( arg, buffer3, sizeof( buffer3 ) );
+	return buffer3;
+}
 
 //========================================================================
 void CG_SetupDlightstyles( void ) {

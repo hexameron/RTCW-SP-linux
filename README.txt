@@ -1,6 +1,9 @@
 /***********************************************
  Raspberry pi version: Almost Playable, too slow.
- Cutscenes disabled due to not working.
+
+ There is no way this game needs 128Mb of texture
+ Ram to "start game". -- that is a bug.
+  (Runs in much less RAM when loading saved game.)
  ***********************************************/
 
 Return to Castle Wolfenstein single player GPL source release

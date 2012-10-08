@@ -56,104 +56,6 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 }
 
 /*
-===================
-R_DrawStripElements
-
-===================
-
-static int c_vertexes;          // for seeing how long our average strips are
-static int c_begins;
-static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )( GLint ) ) {
-	int i;
-	int last[3] = { -1, -1, -1 };
-	qboolean even;
-
-	c_begins++;
-
-	if ( numIndexes <= 0 ) {
-		return;
-	}
-
-	qglBegin( GL_TRIANGLE_STRIP );
-
-	// prime the strip
-	element( indexes[0] );
-	element( indexes[1] );
-	element( indexes[2] );
-	c_vertexes += 3;
-
-	last[0] = indexes[0];
-	last[1] = indexes[1];
-	last[2] = indexes[2];
-
-	even = qfalse;
-
-	for ( i = 3; i < numIndexes; i += 3 )
-	{
-		// odd numbered triangle in potential strip
-		if ( !even ) {
-			// check previous triangle to see if we're continuing a strip
-			if ( ( indexes[i + 0] == last[2] ) && ( indexes[i + 1] == last[1] ) ) {
-				element( indexes[i + 2] );
-				c_vertexes++;
-				assert( indexes[i + 2] < tess.numVertexes );
-				even = qtrue;
-			}
-			// otherwise we're done with this strip so finish it and start
-			// a new one
-			else
-			{
-				qglEnd();
-
-				qglBegin( GL_TRIANGLE_STRIP );
-				c_begins++;
-
-				element( indexes[i + 0] );
-				element( indexes[i + 1] );
-				element( indexes[i + 2] );
-
-				c_vertexes += 3;
-
-				even = qfalse;
-			}
-		} else
-		{
-			// check previous triangle to see if we're continuing a strip
-			if ( ( last[2] == indexes[i + 1] ) && ( last[0] == indexes[i + 0] ) ) {
-				element( indexes[i + 2] );
-				c_vertexes++;
-
-				even = qfalse;
-			}
-			// otherwise we're done with this strip so finish it and start
-			// a new one
-			else
-			{
-				qglEnd();
-
-				qglBegin( GL_TRIANGLE_STRIP );
-				c_begins++;
-
-				element( indexes[i + 0] );
-				element( indexes[i + 1] );
-				element( indexes[i + 2] );
-				c_vertexes += 3;
-
-				even = qfalse;
-			}
-		}
-
-		// cache the last three vertices
-		last[0] = indexes[i + 0];
-		last[1] = indexes[i + 1];
-		last[2] = indexes[i + 2];
-	}
-
-	qglEnd();
-}
-
-
-
 ==================
 R_DrawElements
 
@@ -162,38 +64,12 @@ instead of using the single glDrawElements call that may be inefficient
 without compiled vertex arrays.
 ==================
 */
-static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
-#if 0
-	int primitives;
+inline void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
-	primitives = r_primitives->integer;
-	// default is to use triangles if compiled vertex arrays are present
-	if ( primitives == 0 ) {
-			primitives = 2;
-	}
-
-
-	if ( primitives == 2 ) {
-#endif
 	glDrawElements( GL_TRIANGLES,
 						 numIndexes,
 						 GL_INDEX_TYPE,
 						 indexes );
-#if 0
-	return;
-	}
-
-	if ( primitives == 1 ) {
-		R_DrawStripElements( numIndexes,  indexes, qglArrayElement );
-		return;
-	}
-
-	if ( primitives == 3 ) {
-		R_DrawStripElements( numIndexes,  indexes, R_ArrayElementDiscrete );
-		return;
-	}
-#endif
-	// anything else will cause no drawing
 }
 
 
@@ -217,6 +93,7 @@ R_BindAnimatedImage
 static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 	int index;
 
+	GL_Bind( tr.whiteImage );// ie: do nothing
 	if ( bundle->isVideoMap ) {
 		ri.CIN_RunCinematic( bundle->videoMapHandle );
 		ri.CIN_UploadCinematic( bundle->videoMapHandle );
@@ -248,36 +125,6 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 		GL_Bind( bundle->image[ index ] );
 	}
 }
-
-/*
-================
-DrawTris
-
-Draws triangle outlines for debugging
-================
-*/
-static void DrawTris( shaderCommands_t *input ) {
-/* Dont need that:
-	GL_Bind( tr.whiteImage );
-        qglColor4f (1.0f,1.0f,1.0f,1.0f);
-	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
-
-	if ( r_showtris->integer == 1 ) {
-		glDepthRangef( 0, 0 );
-	}
-
-	qglDisableClientState( GL_COLOR_ARRAY );
-	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
-
-	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
-
-	R_DrawElements( input->numIndexes, input->indexes );
-
-	glDepthRangef( 0, 1 );
-*/
-}
-
-
 
 /*
 ================
@@ -415,7 +262,7 @@ static void ProjectDlightTexture( void ) {
 	float   *texCoords;
 	byte    *colors;
 	byte clipBits[SHADER_MAX_VERTEXES];
-	MAC_STATIC float texCoordsArray[SHADER_MAX_VERTEXES][2];
+	float texCoordsArray[SHADER_MAX_VERTEXES][2];
 	byte colorArray[SHADER_MAX_VERTEXES][4];
         glIndex_t hitIndexes[SHADER_MAX_INDEXES];
 	int numIndexes;
@@ -459,42 +306,45 @@ static void ProjectDlightTexture( void ) {
 
 			backEnd.pc.c_dlightVertexes++;
 
-			// needs rewriting to use vertex arrays, not texCords
 			texCoords[0] = 0.5f + dist[0] * scale;
-			texCoords[1] = 0.5f + dist[1] * scale;
-
 			clip = 0;
-			if ( texCoords[0] < 0.0f ) {
+			if ( texCoords[0] < 0.0f )
 				clip |= 1;
-			} else if ( texCoords[0] > 1.0f ) {
+			if ( texCoords[0] > 1.0f )
 				clip |= 2;
-			}
-			if ( texCoords[1] < 0.0f ) {
+			texCoords[1] = 0.5f + dist[1] * scale;
+			if ( texCoords[1] < 0.0f )
 				clip |= 4;
-			} else if ( texCoords[1] > 1.0f ) {
+			if ( texCoords[1] > 1.0f )
 				clip |= 8;
-			}
 			// modulate the strength based on the height and color
 			if ( dist[2] > radius ) {
 				clip |= 16;
-				modulate = 0.0f;
 			} else if ( dist[2] < -radius ) {
 				clip |= 32;
-				modulate = 0.0f;
 			} else {
 				dist[2] = Q_fabs( dist[2] );
+/*
 				if ( dist[2] < radius * 0.5f ) {
 					modulate = 1.0f;
 				} else {
 					modulate = 2.0f * ( radius - dist[2] ) * scale;
 				}
+*/
+				modulate = dist[2] * scale;
+				modulate = 1 - modulate * modulate;
 			}
 			clipBits[i] = clip;
 
-			colors[0] = myftol( floatColor[0] * modulate );
-			colors[1] = myftol( floatColor[1] * modulate );
-			colors[2] = myftol( floatColor[2] * modulate );
-			colors[3] = 255;
+			if (clip & 48) {
+				colors[0]=colors[1]=colors[2] = 0;
+				colors[3]=255;
+			}else{
+				colors[0] = myftol( floatColor[0] * modulate );
+				colors[1] = myftol( floatColor[1] * modulate );
+				colors[2] = myftol( floatColor[2] * modulate );
+				colors[3] = 255;
+			}
 		}
 
 		// build a list of triangles that need light
@@ -538,59 +388,17 @@ static void ProjectDlightTexture( void ) {
 		{
 			shader_t *dls = dl->dlshader;
 			if ( dls ) {
-//				if ( dls->numUnfoggedPasses < 2) {
-				    for ( i = 0; i < dls->numUnfoggedPasses; i++ ) //can only be 0
-				    {
+					i = 0;
 					shaderStage_t *stage = dls->stages[i];
 					R_BindAnimatedImage( &dls->stages[i]->bundle[0] );
 					GL_State( stage->stateBits | GLS_DEPTHFUNC_EQUAL );
 					R_DrawElements( numIndexes, hitIndexes );
 					backEnd.pc.c_totalIndexes += numIndexes;
 					backEnd.pc.c_dlightIndexes += numIndexes;
-				    }
-/*
-				} else {	// optimize for multitexture
-
-					for(i=0;i<dls->numUnfoggedPasses;)
-					{
-						shaderStage_t *stage = dls->stages[i];
-
-						GL_State(stage->stateBits | GLS_DEPTHFUNC_EQUAL);
-
-						// setup each TMU
-						for (tmu=0; tmu<glConfig.maxActiveTextures && i<dls->numUnfoggedPasses; tmu++, i++) {
-
-							GL_SelectTexture( tmu );
-
-							if (tmu) {
-								qglEnable( GL_TEXTURE_2D );
-							}
-
-							R_BindAnimatedImage( &dls->stages[i]->bundle[0] );
-						}
-
-						// draw the elements
-						R_DrawElements( numIndexes, hitIndexes );
-						backEnd.pc.c_totalIndexes += numIndexes;
-						backEnd.pc.c_dlightIndexes += numIndexes;
-					}
-
-					// turn off unused TMU's
-					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
-						// set back to default state
-						GL_SelectTexture( tmu );
-						qglDisable( GL_TEXTURE_2D );
-					}
-
-					// return to TEXTURE0
-					GL_SelectTexture( 0 );
-				}
-*/
 			} else
 			{
 				R_FogOff();
 
-			     if (!dl->overdraw) {
 				GL_Bind( tr.dlightImage );
 				// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 				// where they aren't rendered
@@ -599,65 +407,11 @@ static void ProjectDlightTexture( void ) {
 				backEnd.pc.c_totalIndexes += numIndexes;
 				backEnd.pc.c_dlightIndexes += numIndexes;
 
-				// Ridah, overdraw lights several times, rather than sending
-				//	multiple lights through
-				for ( i = 0; i < dl->overdraw; i++ ) {
-					R_DrawElements( numIndexes, hitIndexes );
-					backEnd.pc.c_totalIndexes += numIndexes;
-					backEnd.pc.c_dlightIndexes += numIndexes;
-				}
-
-			     } else {	// optimize for multitexture
-
-					GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-
-					// setup each TMU (use all available TMU's)
-					for (tmu=0; tmu<glConfig.maxActiveTextures && tmu<(dl->overdraw+1); tmu++) {
-						GL_SelectTexture( tmu );
-						if (tmu) {
-							qglEnable( GL_TEXTURE_2D );
-							GL_TexEnv( GL_ADD );
-							GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-							qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-							qglTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
-							qglEnableClientState( GL_COLOR_ARRAY );
-							qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
-						}
-						GL_Bind( tr.dlightImage );
-					}
-
-					// draw each bundle
-					for(i=0; i<(dl->overdraw+1); i+=glConfig.maxActiveTextures)
-					{
-						// make sure we dont draw with too many TMU's
-						if (i+glConfig.maxActiveTextures>(dl->overdraw+1)) {
-							for (tmu=0; tmu<glConfig.maxActiveTextures; tmu++) {
-								if (tmu+i>=(dl->overdraw+1)) {
-									GL_SelectTexture( tmu );
-									qglDisable( GL_TEXTURE_2D );
-								}
-							}
-						}
-						// draw the elements
-						R_DrawElements( numIndexes, hitIndexes );
-						backEnd.pc.c_totalIndexes += numIndexes;
-						backEnd.pc.c_dlightIndexes += numIndexes;
-					}
-
-					// turn off unused TMU's
-					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
-						// set back to default state
-						GL_SelectTexture( tmu );
-						qglDisable( GL_TEXTURE_2D );
-					}
-
-					// return to TEXTURE0
-					GL_SelectTexture( 0 );
-			     }
-
 				R_FogOn();
 			}
 		}
+		qglDisableClientState( GL_COLOR_ARRAY );
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	}
 }
 
@@ -912,6 +666,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 	case AGEN_PORTAL:
 	{
 		unsigned char alpha;
+		float inverseRange = 1.0 / tess.shader->portalRange;
 
 		for ( i = 0; i < tess.numVertexes; i++ )
 		{
@@ -921,7 +676,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 			VectorSubtract( tess.xyz[i], backEnd.viewParms.or.origin, v );
 			len = VectorLength( v );
 
-			len /= tess.shader->portalRange;
+			len *= inverseRange;
 
 			if ( len < 0 ) {
 				alpha = 0;
@@ -1427,8 +1182,6 @@ void RB_StageIteratorVertexLitTexture( void ) {
 #endif
 }
 
-//#define	REPLACE_MODE
-
 void RB_StageIteratorLightmappedMultitexture( void ) {
 	shaderCommands_t *input;
 
@@ -1469,10 +1222,6 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	GL_SelectTexture( 0 );
 	qglDisableClientState( GL_COLOR_ARRAY );
 	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-#ifdef REPLACE_MODE
-	qglShadeModel( GL_FLAT );
-	GL_TexEnv( GL_REPLACE );
-#endif
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
@@ -1506,10 +1255,6 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
 	GL_SelectTexture( 0 );
-#ifdef REPLACE_MODE
-	GL_TexEnv( GL_MODULATE );
-	qglShadeModel( GL_SMOOTH );
-#endif
 
 	//
 	// now do any dynamic lighting needed
@@ -1593,17 +1338,6 @@ void RB_EndSurface( void ) {
 	// call off to shader specific tess end function
 	//
 	tess.currentStageIteratorFunc();
-
-	//
-	// draw debugging stuff
-	//
-	if ( r_showtris->integer ) {
-		DrawTris( input );
-	}
-	if ( r_shownormals->integer ) {
-		DrawNormals( input );
-	}
-
 
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;

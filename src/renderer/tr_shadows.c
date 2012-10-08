@@ -185,7 +185,7 @@ void RB_ShadowTessEnd( void ) {
 
 	numTris = tess.numIndexes / 3;
 	for ( i = 0 ; i < numTris ; i++ ) {
-		int i1, i2, i3;
+		glIndex_t i1, i2, i3;
 		vec3_t d1, d2, normal;
 		float   *v1, *v2, *v3;
 		float d;
@@ -270,7 +270,7 @@ overlap and double darken.
 void RB_ShadowFinish( void ) {
 
         vec3_t quad[4] = {
-               {-100.0f, 100.0f, -10.0},
+               {-100.0f, 100.0f, -10.0f},
                {100.0f, 100.0f, -10.0f},
                {100.0f, -100.0f, -10.0f},
                {-100.0f, -100.0f, -10.0f}

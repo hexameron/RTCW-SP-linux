@@ -164,27 +164,18 @@ GL_TextureMode
 void GL_TextureMode( const char *string ) {
 	int i;
 	image_t *glt;
-/*
+
 	for ( i = 0 ; i < 6 ; i++ ) {
 		if ( !Q_stricmp( modes[i].name, string ) ) {
 			break;
 		}
 	}
 
-	// hack to prevent trilinear from being set on voodoo,
-	// because their driver freaks...
-	if ( i == 5 && glConfig.hardwareType == GLHW_3DFX_2D3D ) {
-		ri.Printf( PRINT_ALL, "Refusing to set trilinear on a voodoo.\n" );
-		i = 3;
-	}
-
-
 	if ( i == 6 ) {
 		ri.Printf( PRINT_ALL, "bad filter name\n" );
 		return;
 	}
-*/
-	i = 3 ;//linear mipmap nearest
+
 	gl_filter_min = modes[i].minimize;
 	gl_filter_max = modes[i].maximize;
 #if 0
@@ -456,12 +447,12 @@ static void R_MipMap( byte *in, int width, int height ) {
 	int i, j;
 	byte    *out;
 	int row;
-
+#if 0 // simple MipMaps
 	if ( !r_simpleMipMaps->integer ) {
 		R_MipMap2( (unsigned *)in, width, height );
 		return;
 	}
-
+#endif
 	if ( width == 1 && height == 1 ) {
 		return;
 	}
@@ -606,33 +597,7 @@ static void Upload32(   unsigned *data,
 	int i, c;
 	byte        *scan;
 	GLenum internalFormat = GL_RGB;
-	static int rmse_saved = 0;
-	float rmse;
-/* Do not shrink textures for having low detail
-	// do the root mean square error stuff first
-	if ( r_rmse->value ) {
-		while ( R_RMSE( (byte *)data, width, height ) < r_rmse->value ) {
-			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
-			resampledBuffer = R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED );
-			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
-			data = resampledBuffer;
-			width = width >> 1;
-			height = height >> 1;
-			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
-		}
-	} else {
-		// just do the RMSE of 1 (reduce perfect)
-		while ( R_RMSE( (byte *)data, width, height ) < 1.0 ) {
-			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
-			resampledBuffer = R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED );
-			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
-			data = resampledBuffer;
-			width = width >> 1;
-			height = height >> 1;
-			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
-		}
-	}
-*/
+
 	//
 	// convert to exact power of 2 sizes
 	//
@@ -774,7 +739,12 @@ static void Upload32(   unsigned *data,
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 	}else{
 */
-	myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+
+	if ( noCompress && ( internalFormat == GL_RGBA )) {
+		glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+	}else{
+		myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+	}
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 //	}
@@ -2218,7 +2188,7 @@ void R_CreateBuiltinImages( void ) {
 
 	for ( x = 0; x < 32; x++ ) {
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
+		tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, 8, 8, qfalse, qtrue, GL_CLAMP );
 	}
 
 	R_CreateDlightImage();
@@ -2241,11 +2211,6 @@ void R_SetColorMappings( void ) {
 	tr.overbrightBits = r_overBrightBits->integer;
 	if ( !glConfig.deviceSupportsGamma ) {
 		tr.overbrightBits = 0;      // need hardware gamma for overbright
-	}
-
-	// never overbright in windowed mode
-	if ( !glConfig.isFullscreen ) {
-		tr.overbrightBits = 0;
 	}
 
 	// allow 2 overbright bits in 24 bit, but only 1 in 16 bit

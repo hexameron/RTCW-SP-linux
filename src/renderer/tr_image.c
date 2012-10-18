@@ -722,7 +722,8 @@ static void Upload32(   unsigned *data,
 	*pUploadWidth = scaled_width;
 	*pUploadHeight = scaled_height;
 	*format = internalFormat;
-/*	if ( mipmap ) {        // Mipmaps increase texture ram by 1/3, with debatable benefits.
+
+	if ( mipmap && !noCompress ) {
 		int miplevel = 0;
 		myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		while ( scaled_width > 1 || scaled_height > 1 )
@@ -738,16 +739,15 @@ static void Upload32(   unsigned *data,
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 	}else{
-*/
 
-	if ( noCompress && ( internalFormat == GL_RGBA )) {
-		glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
-	}else{
-		myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		if ( noCompress && ( internalFormat == GL_RGBA )) {
+			glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		}else{
+			myglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+	 	}
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	}
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-//	}
 	int err = qglGetError();
 	if ( err != GL_NO_ERROR ) { ri.Printf( PRINT_ALL, "Texture Loading Error.\n" ); }
 }

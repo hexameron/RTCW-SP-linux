@@ -511,12 +511,8 @@ static void ProjectDlightTexture( void ) {
 				clip |= 32;
 				modulate = 0.0f;
 			} else {
-				dist[2] = Q_fabs( dist[2] );
-				if ( dist[2] < radius * 0.5f ) {
-					modulate = 1.0f;
-				} else {
-					modulate = 2.0f * ( radius - dist[2] ) * scale;
-				}
+				modulate = dist[2] * scale;
+				modulate = 1 - modulate * modulate;
 			}
 			clipBits[i] = clip;
 
@@ -546,6 +542,13 @@ static void ProjectDlightTexture( void ) {
 //					continue;	// not lighted (backface)
 //				}
 //			}
+
+			vec3_t  va,vb,vc,vx;
+			VectorSubtract( origin, tess.xyz[a], va );
+			VectorSubtract( tess.xyz[a], tess.xyz[b], vb );
+			VectorSubtract( tess.xyz[a], tess.xyz[c], vc );
+			CrossProduct(vb,vc,vx);
+			if (DotProduct( vx, va ) > 0) continue;
 
 			hitIndexes[numIndexes] = a;
 			hitIndexes[numIndexes + 1] = b;

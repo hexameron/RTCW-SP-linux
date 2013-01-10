@@ -2982,7 +2982,9 @@ static void ScanAndLoadShaderFiles( void ) {
 		char filename[MAX_QPATH];
 
 		Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+#ifndef NDEBUG
 		ri.Printf( PRINT_ALL, "...loading '%s'\n", filename );
+#endif 
 		sum += ri.FS_ReadFile( filename, (void **)&buffers[i] );
 		if ( !buffers[i] ) {
 			ri.Error( ERR_DROP, "Couldn't load %s", filename );

@@ -421,7 +421,9 @@ static void CG_SoundLoadSoundFiles( void ) {
 	for ( i = 0; i < numSounds; i++ )
 	{
 		Com_sprintf( filename, sizeof( filename ), "sound/scripts/%s", soundFiles[i] );
+#ifndef NDEBUG
 		CG_Printf( "...loading '%s'\n", filename );
+#endif
 		len = trap_FS_FOpenFile( filename, &f, FS_READ );
 		if ( len <= 0 ) {
 			CG_Error( "Couldn't load %s", filename );

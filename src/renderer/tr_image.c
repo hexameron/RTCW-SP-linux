@@ -629,7 +629,9 @@ static void Upload32(   unsigned *data,
 			data = resampledBuffer;
 			width = width >> 1;
 			height = height >> 1;
+#ifndef NDEBUG
 			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
+#endif
 		}
 	} else {
 		// just do the RMSE of 1 (reduce perfect)
@@ -640,7 +642,9 @@ static void Upload32(   unsigned *data,
 			data = resampledBuffer;
 			width = width >> 1;
 			height = height >> 1;
+#ifndef NDEBUG
 			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
+#endif
 		}
 	}
 	//

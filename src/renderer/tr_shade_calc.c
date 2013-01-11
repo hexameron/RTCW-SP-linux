@@ -1106,7 +1106,7 @@ void RB_CalcRotateTexCoords( float degsPerSecond, float *st ) {
 
 
 
-#if id386 && !( ( defined __linux__ || defined __FreeBSD__ ) && ( defined __i386__ ) ) // rb010123
+#if 0 // no i386 code
 
 long myftol( float f ) {
 	static int tmp;

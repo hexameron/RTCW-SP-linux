@@ -121,20 +121,18 @@ $JPEGLIB_REF = \@JPEGLIB_FILES;
   
 Library $env_jpeglib 'jpeglib', @$JPEGLIB_REF;   
 
-
 # putting it all together
 
 $env = new cons(
 	CC => $CC,
 	CXX => $CXX,
 	LINK => $LINK,
-	CFLAGS => $BASE_CFLAGS,
+  CFLAGS => $BASE_CFLAGS,
+#  LDFLAGS => '-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -ldl -lm',
   LIBS => ' ' . $BUILD_DIR . '/unix/splines.a ' 
   . $BUILD_DIR . '/unix/botlib.a ' 
   . $BUILD_DIR . '/unix/jpeglib.a '
-  . '/build/tegra2/usr/lib/libXau.so.6 /build/tegra2/usr/lib/libxcb.so.1 '
-  . '/build/tegra2/usr/lib/libXdmcp.so.6  /build/tegra2/usr/lib/libX11.so '
-  . '/build/tegra2/usr/lib/libXext.so /build/tegra2/usr/lib/libXxf86vm.so -ldl -lm'
+  . '-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -ldl -lm'
 );
 
 @RENDERER_FILES = qw(
@@ -241,7 +239,7 @@ $SERVER_REF = \@SERVER_FILES;
 $VM_REF = \@VM_FILES;
 
 # FIXME: import the CPU string to build the name of the target
-Program $env 'wolfsp.arm', '../game/q_shared.c', '../game/q_math.c',
+Program $env 'wolfsp.exe', '../game/q_shared.c', '../game/q_math.c',
   @$RENDERER_REF, @$CLIENT_REF, @$COMMON_REF, @$SOUND_REF,
-  @$UNIX_REF, @$SERVER_REF , @$VM_REF;
-Install $env '#' . $CONFIG_DIR . '/out', 'wolfsp.arm';
+  @$UNIX_REF, @$SERVER_REF, @$VM_REF;
+Install $env '#' . $CONFIG_DIR . '/out', 'wolfsp.exe';

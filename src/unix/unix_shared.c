@@ -74,8 +74,7 @@ int Sys_Milliseconds( void ) {
 }
 
 
-//#if 0 // bk001215 - see snapvector.nasm for replacement
-#if ( defined __arm__ ) // rcg010206 - using this for PPC builds...
+#if 1 // (ndef  __i386__) - use no assembler
 long fastftol( float f ) { // bk001213 - from win32/win_shared.c
 	//static int tmp;
 	//	__asm fld f

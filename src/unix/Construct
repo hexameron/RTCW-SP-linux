@@ -4,12 +4,11 @@
 #
 
 # the top directory is
-# <config>-<cpu>-<OS>-<libc version>
+# <config>-<cpu>-<OS>
 # where:
 #   <config> is "debug" or "release"
 #   <cpu> is "x86" or "ppc"
 #   <OS> is "Linux" "BSD" "IRIX" etc.
-#   <libc version> is major.minor of libc config
 
 # parse command line arguments and do the setup
 
@@ -20,21 +19,23 @@ $do_demo = 0;
 $do_info = 0;
 
 # compiler
-$ROOTFS='/build/tegra2/';
-$CROSS_COMPILE='/usr/bin/armv7a-cros-linux-gnueabi-';
-$CC='/usr/bin/armv7a-cros-linux-gnueabi-gcc ';
-$CXX='/usr/bin/armv7a-cros-linux-gnueabi-g++ ';
-$LINK='/usr/bin/armv7a-cros-linux-gnueabi-g++ ';
+$CC='gcc ';
+$CXX='g++ ';
+$LINK=$CXX;
 
-# detection of CPU type
-$cpu = 'arm';
+# detection of build kernel CPU:
+# x86-64 kernel may have i686 userspace,
+# so "x86" can be 32 or 64 bit systems.
 
+$cpu = `uname -m`;
+chop ($cpu);
+if ($cpu +~ /i?86/)
+{
+  $cpu = 'x86';
+}
 # OS
 $OS = `uname`;
 chop ($OS);
-
-$libc = "2.11";
-chop ($libc);
 
 if(@ARGV gt 0)
 {
@@ -76,7 +77,7 @@ if(@ARGV gt 0)
 }
 
 # build the config directory
-$CONFIG_DIR = $config . '-' . $cpu . '-' . $OS . '-' . $libc;
+$CONFIG_DIR = $config . '-' . $cpu . '-' . $OS;
 if ($do_demo eq 1)
 {
   $CONFIG_DIR = $CONFIG_DIR . '-demo';
@@ -120,7 +121,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -Os -march=armv6j -marm -mfpu=vfp -I/build/tegra2/usr/include/ -fomit-frame-pointer -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O3 -ffast-math -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h
@@ -130,7 +131,7 @@ $line =~ s/.*Wolf\ (.*)\"/$1/;
 $WOLF_VER = $line;
 
 print "Wolfenstein version $WOLF_VER\n";
-print 'cpu : ' . $cpu . "\nOS  : " . $OS . "\nlibc: " . $libc . "\n";
+print 'cpu : ' . $cpu . "\nOS  : " . $OS . "\n";
 print "configured for " . $config . " build\n";
 if ($do_demo eq 1)
 {

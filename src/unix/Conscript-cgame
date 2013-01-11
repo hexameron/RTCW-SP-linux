@@ -45,6 +45,5 @@ $env = new cons(
   );
 $FILESREF = \@FILES;
 
-# FIXME CPU string  
-Program $env 'cgamearm.so', @$FILESREF;
-Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'cgamearm.so';
+Program $env 'cgame-rtcw.so', @$FILESREF;
+Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'cgame-rtcw.so';

@@ -301,6 +301,10 @@ void Sys_Init( void ) {
 	Cvar_Set( "arch", "linux alpha" );
 #elif defined __sparc__
 	Cvar_Set( "arch", "linux sparc" );
+#elif defined __arm__
+        Cvar_Set( "arch", "linux arm" );
+#elif defined __x86_64__
+        Cvar_Set( "arch", "linux x64" );
 #elif defined __FreeBSD__
 
 #if defined __i386__ // FreeBSD
@@ -651,6 +655,7 @@ void *Sys_LoadDll( const char *name,
 	// bk001206 - let's have some paranoia
 	assert( name );
 
+#if 0 // libraries have fixed name.
 #if defined __i386__
 	snprintf( fname, sizeof( fname ), "%si386.so", name );
 #elif defined __powerpc__   //rcg010207 - PPC support.
@@ -664,6 +669,9 @@ void *Sys_LoadDll( const char *name,
 #else
 #error Unknown arch
 #endif
+#endif
+        snprintf( fname, sizeof( fname ), "%s-rtcw.so", name );
+
 
 // bk001129 - was RTLD_LAZY
 #define Q_RTLD    RTLD_NOW

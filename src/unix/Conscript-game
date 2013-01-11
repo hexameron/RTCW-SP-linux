@@ -99,9 +99,7 @@ Depends $env ['../game/g_funcs.h', '../game/g_func_decs.h'], '#extractfuncs';
 # generation command
 Command $env ['../game/g_funcs.h', '../game/g_func_decs.h'], "[perl] &build_funcs()";
 
-# FIXME CPU string
-# FIXME wolfgamei386.so ?
 # TODO use an ldd -r after .so build to catch unresolved symbols? (PostBuild command)
-Program $env 'qagamearm.so', @$FILESREF;
+Program $env 'qagame-rtcw.so', @$FILESREF;
 
-Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'qagamearm.so';
+Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'qagame-rtcw.so';

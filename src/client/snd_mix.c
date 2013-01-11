@@ -45,8 +45,8 @@ int     *snd_p;
 int snd_linear_count;
 short   *snd_out;
 
-#if !( defined __linux__ && defined __i386__ )
-#if !id386
+#if 1 // !( defined __linux__ && defined __i386__ )
+#if 1 // no i386 assembler
 
 /*
 ===================

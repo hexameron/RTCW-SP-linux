@@ -24,7 +24,6 @@ $env = new cons(
   );
 $FILESREF = \@FILES;
   
-# FIXME CPU string  
-Program $env 'uiarm.so', @$FILESREF;
-Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'uiarm.so';
+Program $env 'ui-rtcw.so', @$FILESREF;
+Install $env '#' . $CONFIG_DIR . '/out/' . $BASEGAME, 'ui-rtcw.so';
 

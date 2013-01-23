@@ -338,8 +338,6 @@ void Sys_Init( void ) {
 
 	Cvar_Set( "username", Sys_GetCurrentUser() );
 
-	IN_Init();
-
 }
 
 void Sys_Error( const char *error, ... ) {

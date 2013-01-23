@@ -1,45 +1,47 @@
 /*
-===========================================================================
-
-Return to Castle Wolfenstein single player GPL Source Code
-Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company. 
-
-This file is part of the Return to Castle Wolfenstein single player GPL Source Code (RTCW SP Source Code).  
-
-RTCW SP Source Code is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-RTCW SP Source Code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with RTCW SP Source Code.  If not, see <http://www.gnu.org/licenses/>.
-
-In addition, the RTCW SP Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the RTCW SP Source Code.  If not, please request a copy in writing from id Software at the address below.
-
-If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
-
-===========================================================================
-*/
+ * Wolfenstein: Enemy Territory GPL Source Code
+ * Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
+ *
+ * ET: Legacy
+ * Copyright (C) 2012 Jan Simek <mail@etlegacy.com>
+ *
+ * This file is part of ET: Legacy - http://www.etlegacy.com
+ *
+ * ET: Legacy is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ET: Legacy is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with ET: Legacy. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * In addition, Wolfenstein: Enemy Territory GPL Source Code is also
+ * subject to certain additional terms. You should have received a copy
+ * of these additional terms immediately following the terms and conditions
+ * of the GNU General Public License which accompanied the source code.
+ * If not, please request a copy in writing from id Software at the address below.
+ *
+ * id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+ *
+ * @file keycodes.h
+ * @brief key numbers that should be passed to KeyEvent
+ * normal keys should be passed as lowercased ascii
+ */
 
 #ifndef __KEYCODES_H__
 #define __KEYCODES_H__
 
-//
-// these are the key numbers that should be passed to KeyEvent
-//
-
-// normal keys should be passed as lowercased ascii
-
-typedef enum {
-	K_TAB = 9,
-	K_ENTER = 13,
+typedef enum
+{
+	K_TAB    = 9,
+	K_ENTER  = 13,
 	K_ESCAPE = 27,
-	K_SPACE = 32,
+	K_SPACE  = 32,
 
 	K_BACKSPACE = 127,
 
@@ -157,13 +159,137 @@ typedef enum {
 	K_AUX15,
 	K_AUX16,
 
-	K_LAST_KEY      // this had better be <256!
+	K_WORLD_0,
+	K_WORLD_1,
+	K_WORLD_2,
+	K_WORLD_3,
+	K_WORLD_4,
+	K_WORLD_5,
+	K_WORLD_6,
+	K_WORLD_7,
+	K_WORLD_8,
+	K_WORLD_9,
+	K_WORLD_10,
+	K_WORLD_11,
+	K_WORLD_12,
+	K_WORLD_13,
+	K_WORLD_14,
+	K_WORLD_15,
+	K_WORLD_16,
+	K_WORLD_17,
+	K_WORLD_18,
+	K_WORLD_19,
+	K_WORLD_20,
+	K_WORLD_21,
+	K_WORLD_22,
+	K_WORLD_23,
+	K_WORLD_24,
+	K_WORLD_25,
+	K_WORLD_26,
+	K_WORLD_27,
+	K_WORLD_28,
+	K_WORLD_29,
+	K_WORLD_30,
+	K_WORLD_31,
+	K_WORLD_32,
+	K_WORLD_33,
+	K_WORLD_34,
+	K_WORLD_35,
+	K_WORLD_36,
+	K_WORLD_37,
+	K_WORLD_38,
+	K_WORLD_39,
+	K_WORLD_40,
+	K_WORLD_41,
+	K_WORLD_42,
+	K_WORLD_43,
+	K_WORLD_44,
+	K_WORLD_45,
+	K_WORLD_46,
+	K_WORLD_47,
+	K_WORLD_48,
+	K_WORLD_49,
+	K_WORLD_50,
+	K_WORLD_51,
+	K_WORLD_52,
+	K_WORLD_53,
+	K_WORLD_54,
+	K_WORLD_55,
+	K_WORLD_56,
+	K_WORLD_57,
+	K_WORLD_58,
+	K_WORLD_59,
+	K_WORLD_60,
+	K_WORLD_61,
+	K_WORLD_62,
+	K_WORLD_63,
+	K_WORLD_64,
+	K_WORLD_65,
+	K_WORLD_66,
+	K_WORLD_67,
+	K_WORLD_68,
+	K_WORLD_69,
+	K_WORLD_70,
+	K_WORLD_71,
+	K_WORLD_72,
+	K_WORLD_73,
+	K_WORLD_74,
+	K_WORLD_75,
+	K_WORLD_76,
+	K_WORLD_77,
+	K_WORLD_78,
+	K_WORLD_79,
+	K_WORLD_80,
+	K_WORLD_81,
+	K_WORLD_82,
+	K_WORLD_83,
+	K_WORLD_84,
+	K_WORLD_85,
+	K_WORLD_86,
+	K_WORLD_87,
+	K_WORLD_88,
+	K_WORLD_89,
+	K_WORLD_90,
+	K_WORLD_91,
+	K_WORLD_92,
+	K_WORLD_93,
+	K_WORLD_94,
+	K_WORLD_95,
+
+	K_SUPER,
+	K_COMPOSE,
+	K_MODE,
+	K_HELP,
+	K_PRINT,
+	K_SYSREQ,
+	K_SCROLLOCK,
+	K_BREAK,
+	K_MENU,
+	K_EURO,
+	K_UNDO,
+
+	// Pseudo-key that brings the console down
+	K_CONSOLE,
+
+	MAX_KEYS
 } keyNum_t;
 
+/*
+ * @def K_LAST_KEY
+ *
+ * MAX_KEYS replaces K_LAST_KEY, however some mods may have used K_LAST_KEY
+ * in detecting binds, so we leave it defined to the old hardcoded value
+ * of maxiumum keys to prevent mods from crashing older versions of the engine
+ */
+#define K_LAST_KEY              MAX_KEYS
 
-// The menu code needs to get both key and char events, but
-// to avoid duplicating the paths, the char events are just
-// distinguished by or'ing in K_CHAR_FLAG (ugly)
+/*
+ * @def K_CHAR_FLAG
+ *
+ * The menu code needs to get both key and char events, but
+ * to avoid duplicating the paths, the char events are just
+ * distinguished by or'ing in K_CHAR_FLAG (ugly)
+ */
 #define K_CHAR_FLAG     1024
 
 #endif

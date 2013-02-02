@@ -1,6 +1,6 @@
-/***********************************************
- Assumes building in ChromeOS Chroot for Tegra 2
- ***********************************************/
+/**************************************************************
+Close to the original code, with some bugfixes,and SDL support.
+**************************************************************/
 
 Return to Castle Wolfenstein single player GPL source release
 =============================================================

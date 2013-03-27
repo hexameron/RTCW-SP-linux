@@ -27,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-
 #ifndef TR_LOCAL_H
 #define TR_LOCAL_H
 
@@ -419,7 +418,7 @@ typedef struct shader_s {
 	struct shader_s *currentShader;                     // current state if this is a state shader
 	struct shader_s *parentShader;                      // current state if this is a state shader
 	int currentState;                                   // current state index for cycle purposes
-	long expireTime;                                    // time in milliseconds this expires
+	int expireTime;                                    // time in milliseconds this expires
 
 	struct shader_s *remappedShader;                    // current shader this one is remapped too
 
@@ -897,7 +896,7 @@ typedef struct {
 	qboolean finishCalled;
 	int texEnv[2];
 	int faceCulling;
-	unsigned long glStateBits;
+	unsigned int glStateBits;
 } glstate_t;
 
 
@@ -1258,7 +1257,7 @@ void    GL_SetDefaultState( void );
 void    GL_SelectTexture( int unit );
 void    GL_TextureMode( const char *string );
 void    GL_CheckErrors( void );
-void    GL_State( unsigned long stateVector );
+void    GL_State( unsigned int stateVector );
 void    GL_TexEnv( int env );
 void    GL_Cull( int cullType );
 
@@ -1358,7 +1357,7 @@ qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image
 
 shader_t    *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage );
 shader_t    *R_GetShaderByHandle( qhandle_t hShader );
-shader_t    *R_GetShaderByState( int index, long *cycleTime );
+shader_t    *R_GetShaderByState( int index, int *cycleTime );
 shader_t *R_FindShaderByName( const char *name );
 void        R_InitShaders( void );
 void        R_ShaderList_f( void );

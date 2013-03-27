@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #define Com_Allocate malloc
 
 typedef unsigned char byte;
-typedef unsigned long dword;
+typedef unsigned int dword;
 typedef unsigned short word;
 typedef unsigned int uint;
 typedef unsigned long ulong;

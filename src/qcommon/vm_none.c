@@ -1,6 +1,6 @@
 #include "vm_local.h"
 
-int VM_CallCompiled( vm_t *vm, int *args ) {
+intptr_t VM_CallCompiled( vm_t *vm, intptr_t *args ) {
 	exit(99);
 	return 0;
 }

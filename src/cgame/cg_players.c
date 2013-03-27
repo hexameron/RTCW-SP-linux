@@ -447,7 +447,7 @@ static qboolean CG_RegisterClientHeadSkin( clientInfo_t *ci, const char *modelNa
 CG_RegisterAcc
 ==============
 */
-static qboolean CG_RegisterAcc( clientInfo_t *ci, const char *modelName, const char *skinName, int *model, int *skin ) {
+static qboolean CG_RegisterAcc( clientInfo_t *ci, const char *modelName, const char *skinName, qhandle_t *model, qhandle_t *skin ) {
 	char namefromskin[MAX_QPATH];
 	char filename[MAX_QPATH];
 

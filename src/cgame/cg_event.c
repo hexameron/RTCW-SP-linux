@@ -546,11 +546,11 @@ Also called by playerstate transition
 */
 typedef struct {
 	char *tag;
-	int refEntOfs;
+	intptr_t refEntOfs;
 	int anim;
 } painAnimForTag_t;
 
-#define PEFOFS( x ) ( (int)&( ( (playerEntity_t *)0 )->x ) )
+#define PEFOFS( x ) ( (intptr_t)&( ( (playerEntity_t *)0 )->x ) )
 
 void CG_PainEvent( centity_t *cent, int health, qboolean crouching ) {
 	char    *snd;

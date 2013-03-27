@@ -2,6 +2,10 @@
 Close to the original code, with some bugfixes,and SDL support.
 **************************************************************/
 
+```
+Mostly untested with x86_64 support.
+```
+
 Return to Castle Wolfenstein single player GPL source release
 =============================================================
 

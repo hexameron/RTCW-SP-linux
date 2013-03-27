@@ -53,7 +53,7 @@ If you have questions concerning this license or the applicable additional terms
 #define DEFAULT_CIN_WIDTH   512
 #define DEFAULT_CIN_HEIGHT  512
 
-#define LETTERBOX_OFFSET 105
+#define LETTERBOX_OFFSET 90
 
 
 #define ROQ_QUAD            0x1000
@@ -100,7 +100,7 @@ typedef struct {
 	byte file[65536];
 	short sqrTable[256];
 
-	unsigned int mcomp[256];
+	int mcomp[256];
 	byte                *qStatus[2][32768];
 
 	long oldXOff, oldYOff, oldysize, oldxsize;
@@ -1102,8 +1102,8 @@ static void readQuadInfo( byte *qData ) {
 	cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
 	cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
 
-	cinTable[currentHandle].t[0] = ( 0 - (unsigned int)cin.linbuf ) + (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta;
-	cinTable[currentHandle].t[1] = ( 0 - ( (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta ) ) + (unsigned int)cin.linbuf;
+	cinTable[currentHandle].t[0] = cinTable[currentHandle].screenDelta;
+	cinTable[currentHandle].t[1] = ( 0 - cinTable[currentHandle].screenDelta );
 
 	cinTable[currentHandle].drawX = cinTable[currentHandle].CIN_WIDTH;
 	cinTable[currentHandle].drawY = cinTable[currentHandle].CIN_HEIGHT;
@@ -1226,7 +1226,7 @@ static void RoQReset() {
 static void RoQInterrupt( void ) {
 	byte                *framedata;
 	short sbuf[32768];
-	int ssize;
+	intptr_t ssize;
 
 	if ( currentHandle < 0 ) {
 		return;

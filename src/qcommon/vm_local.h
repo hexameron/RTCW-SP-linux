@@ -118,7 +118,7 @@ typedef enum {
 
 
 
-typedef int vmptr_t;
+typedef intptr_t vmptr_t;
 
 typedef struct vmSymbol_s {
 	struct vmSymbol_s   *next;
@@ -128,13 +128,13 @@ typedef struct vmSymbol_s {
 } vmSymbol_t;
 
 #define VM_OFFSET_PROGRAM_STACK     0
-#define VM_OFFSET_SYSTEM_CALL       4
+#define VM_OFFSET_SYSTEM_CALL       sizeof(intptr_t)
 
 struct vm_s {
-	// DO NOT MOVE OR CHANGE THESE WITHOUT CHANGING THE VM_OFFSET_* DEFINES
-	// USED BY THE ASM CODE
-	int programStack;               // the vm may be recursively entered
-	int ( *systemCall )( int *parms );
+	/* DO NOT MOVE OR CHANGE THESE WITHOUT CHANGING THE VM_OFFSET_* DEFINES
+	// USED BY THE ASM CODE <--------------- see above */
+	intptr_t programStack;               // the vm may be recursively entered
+	intptr_t ( *systemCall )( intptr_t *parms );
 
 	//------------------------------------
 
@@ -142,7 +142,7 @@ struct vm_s {
 
 	// for dynamic linked modules
 	void        *dllHandle;
-	int ( QDECL *entryPoint )( int callNum, ... );
+	intptr_t ( QDECL *entryPoint )( intptr_t callNum, ... );
 
 	// for interpreted modules
 	qboolean currentlyInterpreting;
@@ -172,13 +172,13 @@ extern vm_t    *currentVM;
 extern int vm_debugLevel;
 
 void VM_Compile( vm_t *vm, vmHeader_t *header );
-int VM_CallCompiled( vm_t *vm, int *args );
+intptr_t VM_CallCompiled( vm_t *vm, intptr_t *args );
 
 void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header );
-int VM_CallInterpreted( vm_t *vm, int *args );
+intptr_t VM_CallInterpreted( vm_t *vm, intptr_t *args );
 
 vmSymbol_t *VM_ValueToFunctionSymbol( vm_t *vm, int value );
 int VM_SymbolToValue( vm_t *vm, const char *symbol );
 const char *VM_ValueToSymbol( vm_t *vm, int value );
-void VM_LogSyscalls( int *args );
+void VM_LogSyscalls( intptr_t *args );
 

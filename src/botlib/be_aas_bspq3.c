@@ -82,7 +82,7 @@ typedef struct bsp_s
 	//true when bsp file is loaded
 	int loaded;
 	//entity data
-	int entdatasize;
+	unsigned int entdatasize;
 	char *dentdata;
 	//bsp entities
 	int numentities;
@@ -385,7 +385,7 @@ void AAS_ParseBSPEntities( void ) {
 	bsp_entity_t *ent;
 	bsp_epair_t *epair;
 	byte *buffer, *buftrav;
-	int bufsize;
+	unsigned int bufsize;
 
 	// RF, modified this, so that it first gathers up memory requirements, then allocates a single chunk,
 	// and places the strings all in there

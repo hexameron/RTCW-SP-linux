@@ -192,8 +192,8 @@ void GL_TexEnv( int env ) {
 ** This routine is responsible for setting the most commonly changed state
 ** in Q3.
 */
-void GL_State( unsigned long stateBits ) {
-	unsigned long diff = stateBits ^ glState.glStateBits;
+void GL_State( unsigned int stateBits ) {
+	unsigned int diff = stateBits ^ glState.glStateBits;
 
 	if ( !diff ) {
 		return;
@@ -1537,7 +1537,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 	// counting up the number of increments that have happened
 	if ( r_measureOverdraw->integer ) {
 		int i;
-		long sum = 0;
+		int sum = 0;
 		unsigned char *stencilReadback;
 
 		stencilReadback = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );

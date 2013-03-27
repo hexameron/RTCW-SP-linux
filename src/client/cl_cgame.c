@@ -431,9 +431,9 @@ CL_CgameSystemCalls
 The cgame module is making a system call
 ====================
 */
-#define VMA( x ) VM_ArgPtr( args[x] )
-#define VMF( x )  ( (float *)args )[x]
-int CL_CgameSystemCalls( int *args ) {
+#define VMA( x ) ( (void *) args[x] )
+#define VMF( x )  ( *(float *)&args[x] )
+intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	switch ( args[0] ) {
 	case CG_PRINT:
 		Com_Printf( "%s", VMA( 1 ) );
@@ -694,11 +694,11 @@ int CL_CgameSystemCalls( int *args ) {
 
 
 	case CG_MEMSET:
-		return (int)memset( VMA( 1 ), args[2], args[3] );
+		return (intptr_t)memset( VMA( 1 ), args[2], args[3] );
 	case CG_MEMCPY:
-		return (int)memcpy( VMA( 1 ), VMA( 2 ), args[3] );
+		return (intptr_t)memcpy( VMA( 1 ), VMA( 2 ), args[3] );
 	case CG_STRNCPY:
-		return (int)strncpy( VMA( 1 ), VMA( 2 ), args[3] );
+		return (intptr_t)strncpy( VMA( 1 ), VMA( 2 ), args[3] );
 	case CG_SIN:
 		return FloatAsInt( sin( VMF( 1 ) ) );
 	case CG_COS:

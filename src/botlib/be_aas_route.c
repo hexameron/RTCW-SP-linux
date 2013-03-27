@@ -999,14 +999,15 @@ void AAS_WriteRouteCache( void ) {
 // Changes Globals:		-
 //===========================================================================
 aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
-	int i, size;
+	int i, size, disksize;
 	aas_routingcache_t *cache;
 
 	botimport.FS_Read( &size, sizeof( size ), fp );
-	size = LittleLong( size );
+	disksize = LittleLong( size );
+	size =  disksize + 3 * sizeof(char *); // extra pointers for 64bit
 	cache = (aas_routingcache_t *) AAS_RoutingGetMemory( size );
 	cache->size = size;
-	botimport.FS_Read( (unsigned char *)cache + sizeof( size ), size - sizeof( size ), fp );
+	botimport.FS_Read( (unsigned char *)cache + sizeof(size) + size - disksize, disksize - sizeof( size ), fp );
 
 	if ( 1 != LittleLong( 1 ) ) {
 		cache->time = LittleFloat( cache->time );
@@ -1024,10 +1025,11 @@ aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
 	cache->reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_t ) +
 							( ( size - sizeof( aas_routingcache_t ) ) / 3 ) * 2;
 
-	//DAJ BUGFIX for missing byteswaps for traveltimes
-	size = ( size - sizeof( aas_routingcache_t ) ) / 3 + 1;
-	for ( i = 0; i < size; i++ ) {
-		cache->traveltimes[i] = LittleShort( cache->traveltimes[i] );
+	if ( 1 != LittleLong( 1 ) ) {
+		size = ( size - sizeof( aas_routingcache_t ) + 2 ) / 3 ;
+		for ( i = 0; i < size; i++ ) {
+			cache->traveltimes[i] = LittleShort( cache->traveltimes[i] );
+		}
 	}
 	return cache;
 } //end of the function AAS_ReadCache
@@ -2030,7 +2032,7 @@ void AAS_DecompressVis( byte *in, int numareas, byte *decompressed ) {
 
 	//row = (numareas+7)>>3;
 	out = decompressed;
-	end = ( byte * )( (int)decompressed + numareas );
+	end = ( byte * )( (intptr_t)decompressed + numareas );
 
 	do
 	{

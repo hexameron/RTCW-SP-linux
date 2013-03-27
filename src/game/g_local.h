@@ -27,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-
 // g_local.h -- local definitions for game module
 
 #include "q_shared.h"
@@ -173,7 +172,7 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
 //====================================================================
 
 
-#define CFOFS( x ) ( (int)&( ( (gclient_t *)0 )->x ) )
+#define CFOFS( x ) ( (intptr_t)&( ( (gclient_t *)0 )->x ) )
 
 struct gentity_s {
 	entityState_t s;                // communicated by server to clients
@@ -796,7 +795,7 @@ int G_ModelIndex( char *name );
 int     G_SoundIndex( const char *name );
 void    G_TeamCommand( team_t team, char *cmd );
 void    G_KillBox( gentity_t *ent );
-gentity_t *G_Find( gentity_t *from, int fieldofs, const char *match );
+gentity_t *G_Find( gentity_t *from, intptr_t fieldofs, const char *match );
 gentity_t *G_PickTarget( char *targetname );
 void    G_UseTargets( gentity_t *ent, gentity_t *activator );
 void    G_SetMovedir( vec3_t angles, vec3_t movedir );
@@ -1079,7 +1078,7 @@ extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
 extern gentity_t       *g_camEnt;
 
-#define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
+#define FOFS( x ) ( (intptr_t)&( ( (gentity_t *)0 )->x ) )
 
 extern vmCvar_t g_gametype;
 
@@ -1320,10 +1319,10 @@ int     trap_BotChatLength( int chatstate );
 void    trap_BotEnterChat( int chatstate, int client, int sendto );
 void    trap_BotGetChatMessage( int chatstate, char *buf, int size );
 int     trap_StringContains( char *str1, char *str2, int casesensitive );
-int     trap_BotFindMatch( char *str, void /* struct bot_match_s */ *match, unsigned long int context );
+int     trap_BotFindMatch( char *str, void /* struct bot_match_s */ *match, unsigned int context );
 void    trap_BotMatchVariable( void /* struct bot_match_s */ *match, int variable, char *buf, int size );
 void    trap_UnifyWhiteSpaces( char *string );
-void    trap_BotReplaceSynonyms( char *string, unsigned long int context );
+void    trap_BotReplaceSynonyms( char *string, unsigned int context );
 int     trap_BotLoadChatFile( int chatstate, char *chatfile, char *chatname );
 void    trap_BotSetChatGender( int chatstate, int gender );
 void    trap_BotSetChatName( int chatstate, char *name );

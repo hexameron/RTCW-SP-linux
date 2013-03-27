@@ -626,22 +626,22 @@ extern char   *FS_BuildOSPath( const char *base, const char *game, const char *q
 // show_bug.cgi?id=411
 // use DO_LOADDLL_WRAP to wrap a cl_noprint 1 around the call to Sys_LoadDll
 // this is a quick hack to avoid complicated messages on screen
-#ifdef NDEBUG
+#if 0
 #define DO_LOADDLL_WRAP
 #endif
 
 #if defined( DO_LOADDLL_WRAP )
 void *Sys_LoadDll_Wrapped( const char *name,
-						   int( **entryPoint ) ( int, ... ),
-						   int ( *systemcalls )( int, ... ) )
+						   intptr_t ( **entryPoint )( intptr_t, ... ),
+						   intptr_t ( *systemcalls )( intptr_t, ... ) )
 #else
 void *Sys_LoadDll( const char *name,
-				   int( **entryPoint ) ( int, ... ),
-				   int ( *systemcalls )( int, ... ) )
+				   intptr_t ( **entryPoint )( intptr_t, ... ),
+				   intptr_t ( *systemcalls )( intptr_t, ... ) )
 #endif
 {
 	void *libHandle;
-	void ( *dllEntry )( int ( *syscallptr )( int, ... ) );
+	void ( *dllEntry )( intptr_t ( *syscallptr )( intptr_t, ... ) );
 	char fname[MAX_OSPATH];
 	char  *homepath;
 	char  *basepath;
@@ -781,8 +781,8 @@ void *Sys_LoadDll( const char *name,
 
 #if defined( DO_LOADDLL_WRAP )
 void *Sys_LoadDll( const char *name,
-				   int( **entryPoint ) ( int, ... ),
-				   int ( *systemcalls )( int, ... ) ) {
+				   intptr_t ( **entryPoint )( intptr_t ),
+				   intptr_t ( *systemcalls )( intptr_t ) ) {
 	void *ret;
 	Cvar_Set( "cl_noprint", "1" );
 	ret = Sys_LoadDll_Wrapped( name, entryPoint, systemcalls );

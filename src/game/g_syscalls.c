@@ -33,12 +33,12 @@ If you have questions concerning this license or the applicable additional terms
 // this file is only included when building a dll
 // g_syscalls.asm is included instead when building a qvm
 
-static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
+static intptr_t ( QDECL * syscall )( intptr_t arg, ... ) = ( intptr_t ( QDECL * )( intptr_t, ... ) ) - 1;
 
 #if defined( __MACOS__ )
 #pragma export on
 #endif
-void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
+void dllEntry( intptr_t ( QDECL *syscallptr )( intptr_t arg,... ) ) {
 #if defined( __MACOS__ )
 #pragma export off
 #endif
@@ -590,7 +590,7 @@ int trap_StringContains( char *str1, char *str2, int casesensitive ) {
 	return syscall( BOTLIB_AI_STRING_CONTAINS, str1, str2, casesensitive );
 }
 
-int trap_BotFindMatch( char *str, void /* struct bot_match_s */ *match, unsigned long int context ) {
+int trap_BotFindMatch( char *str, void /* struct bot_match_s */ *match, unsigned int context ) {
 	return syscall( BOTLIB_AI_FIND_MATCH, str, match, context );
 }
 
@@ -602,7 +602,7 @@ void trap_UnifyWhiteSpaces( char *string ) {
 	syscall( BOTLIB_AI_UNIFY_WHITE_SPACES, string );
 }
 
-void trap_BotReplaceSynonyms( char *string, unsigned long int context ) {
+void trap_BotReplaceSynonyms( char *string, unsigned int context ) {
 	syscall( BOTLIB_AI_REPLACE_SYNONYMS, string, context );
 }
 

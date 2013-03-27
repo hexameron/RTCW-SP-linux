@@ -227,7 +227,7 @@ or configs will never get loaded from disk!
 
 typedef struct fileInPack_s {
 	char                    *name;      // name of the file
-	unsigned long pos;                  // file info position in zip
+	size_t			pos;        // file info position in zip
 	struct  fileInPack_s*   next;       // next file in the hash
 } fileInPack_t;
 
@@ -1530,7 +1530,7 @@ FS_Seek
 
 =================
 */
-int FS_Seek( fileHandle_t f, long offset, int origin ) {
+int FS_Seek( fileHandle_t f, int offset, int origin ) {
 	int _origin;
 	char foo[65536];
 
@@ -2677,7 +2677,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	}
 
-	qsort( sorted, numfiles, 4, paksort );
+	qsort( sorted, numfiles, sizeof(char *), paksort );
 
 	for ( i = 0 ; i < numfiles ; i++ ) {
 

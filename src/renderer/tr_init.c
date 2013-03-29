@@ -282,7 +282,6 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 ** to the user.
 */
 static void InitOpenGL( void ) {
-	char renderer_buffer[1024];
 
 	//
 	// initialize OS specific portions of the renderer
@@ -300,9 +299,6 @@ static void InitOpenGL( void ) {
 		GLint temp;
 
 		GLimp_Init();
-
-		strcpy( renderer_buffer, glConfig.renderer_string );
-		Q_strlwr( renderer_buffer );
 
 		// OpenGL driver constants
 		qglGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );

@@ -680,8 +680,6 @@ void *Sys_LoadDll( const char *name,
 
 	pwdpath = Sys_Cwd();
 	fn = FS_BuildOSPath( pwdpath, gamedir, fname );
-	// bk001206 - verbose
-	Com_Printf( "Sys_LoadDll(%s)... ", fn );
 
 	// bk001129 - from cvs1.17 (mkv), was fname not fn
 	libHandle = dlopen( fn, Q_RTLD );
@@ -773,9 +771,7 @@ void *Sys_LoadDll( const char *name,
 		}
 		return NULL;
 	}
-	Com_Printf( "Sys_LoadDll(%s) found **vmMain** at  %p  \n", name, *entryPoint ); // bk001212
 	dllEntry( systemcalls );
-	Com_Printf( "Sys_LoadDll(%s) succeeded!\n", name );
 	return libHandle;
 }
 

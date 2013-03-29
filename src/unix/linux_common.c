@@ -51,7 +51,7 @@ void Com_Memset( void* dest, const int val, const size_t count ) {
 }
 
 #else
-
+/*
 typedef enum {
 	PRE_READ,       // prefetch assuming that buffer is used for reading only
 	PRE_WRITE,      // prefetch assuming that buffer is used for writing only
@@ -344,5 +344,5 @@ void Com_Prefetch( const void *s, const unsigned int bytes, e_prefetch type ) {
 		break;
 	}
 }
-
+*/
 #endif

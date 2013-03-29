@@ -2466,7 +2466,7 @@ static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color,
 	eptr = buff;
 	y = rect->y + 45;
 	numLines = 0;
-	while ( y < rect->y + rect->h && *eptr )
+	while ( (numLines < 63) && *eptr )
 	{
 		while ( *eptr && *eptr == ' ' )
 			*eptr++ = '\0';

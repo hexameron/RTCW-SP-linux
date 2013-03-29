@@ -227,7 +227,7 @@ or configs will never get loaded from disk!
 
 typedef struct fileInPack_s {
 	char                    *name;      // name of the file
-	size_t			pos;        // file info position in zip
+	unsigned long		pos;        // file info position in zip
 	struct  fileInPack_s*   next;       // next file in the hash
 } fileInPack_t;
 

@@ -60,13 +60,11 @@ glwstate_t glw_state;
 static SDL_Surface         *screen    = NULL;
 static const SDL_VideoInfo *videoInfo = NULL;
 
-#if 0
 void(APIENTRYP qglActiveTextureARB) (GLenum texture);
 void(APIENTRYP qglClientActiveTextureARB) (GLenum texture);
 void(APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void(APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
 void(APIENTRYP qglUnlockArraysEXT) (void);
-#endif
 
 typedef enum
 {
@@ -531,8 +529,7 @@ void GLimp_Init( void ) {
 		glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] = 0;
 	}
 	Q_strncpyz(glConfig.version_string, (char *) qglGetString(GL_VERSION), sizeof(glConfig.version_string));
-	Q_strncpyz(glConfig.extensions_string, (char *) qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
-
+	glConfig.extensions_string = (char *)qglGetString(GL_EXTENSIONS);
 	
 	GLimp_InitExtensions();
 	glConfig.stereoEnabled = qfalse;

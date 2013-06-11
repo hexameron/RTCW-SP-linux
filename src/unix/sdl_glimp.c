@@ -520,8 +520,10 @@ void GLimp_Init( void ) {
 
 	if( !GLimp_StartDriverAndSetMode( r_mode->integer, r_fullscreen->integer , qfalse) )
 		ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n" );
-	
-	glConfig.deviceSupportsGamma = SDL_SetGamma(1.0f, 1.0f, 1.0f) >= 0;
+
+	// Hardware gamma is depreciated on SDL and broken with Mesa
+	glConfig.deviceSupportsGamma = qfalse;
+
 	Q_strncpyz(glConfig.vendor_string, (char *) qglGetString(GL_VENDOR), sizeof(glConfig.vendor_string));
 	Q_strncpyz(glConfig.renderer_string, (char *) qglGetString(GL_RENDERER), sizeof(glConfig.renderer_string));
 	if (*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n')

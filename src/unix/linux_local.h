@@ -47,12 +47,6 @@ void IN_StartupJoystick( void );
 qboolean QGL_Init( const char *dllname );
 void QGL_EnableLogging( qboolean enable );
 void QGL_Shutdown( void );
-
-
-
-
-
-// bk001130 - win32
-// void IN_JoystickCommands (void);
+void GLimp_ShutdownRenderThread( void );
 
 char *strlwr( char *s );

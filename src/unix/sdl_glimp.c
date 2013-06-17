@@ -39,8 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/stat.h>
 #include <sys/vt.h>
 #include <signal.h>
-#include <pthread.h>
-#include <semaphore.h>
 
 #include <dlfcn.h>
 #include <sys/time.h>
@@ -50,15 +48,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "../renderer/tr_local.h"
 #include "../client/client.h"
 #include "linux_local.h"
-#include "unix_glw.h"
-glwstate_t glw_state;
 
-#include <SDL/SDL.h>
-#define WINDOW_CLASS_NAME   "Return to Castle Wolfenstein"
-#define WINDOW_CLASS_NAME_MIN "RtCW"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_thread.h>
 
-static SDL_Surface         *screen    = NULL;
-static const SDL_VideoInfo *videoInfo = NULL;
+static const char *WindowTitle = "RtC Wolfenstein";
+SDL_Window    *SDLvidscreen = NULL;
+SDL_GLContext GLContext     = NULL;
 
 void(APIENTRYP qglActiveTextureARB) (GLenum texture);
 void(APIENTRYP qglClientActiveTextureARB) (GLenum texture);
@@ -136,8 +133,7 @@ static void InitSig( void ) {
 void GLimp_Shutdown( void ) {
 	IN_Shutdown();
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-        screen = NULL;
-
+	SDLvidscreen = NULL;
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
 }
@@ -147,44 +143,30 @@ void GLimp_LogComment( char *comment ) {
 
 int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 {
+	SDL_DisplayMode  videoInfo;
 	int         sdlcolorbits;
 	int         colorbits, depthbits, stencilbits;
 	int         tcolorbits, tdepthbits, tstencilbits;
 	int         i          = 0;
-	SDL_Surface *vidscreen = NULL;
-	Uint32      flags      = SDL_OPENGL;
+	Uint32      flags      = SDL_WINDOW_OPENGL;
 
 	ri.Printf(PRINT_ALL, "Initializing OpenGL display\n");
-
-	if (videoInfo == NULL)
-	{
-		static SDL_VideoInfo   sVideoInfo;
-		static SDL_PixelFormat sPixelFormat;
-
-		videoInfo = SDL_GetVideoInfo();
-
-		// Take a copy of the videoInfo
-		Com_Memcpy(&sPixelFormat, videoInfo->vfmt, sizeof(SDL_PixelFormat));
-		sPixelFormat.palette = NULL; // Should already be the case
-		Com_Memcpy(&sVideoInfo, videoInfo, sizeof(SDL_VideoInfo));
-		sVideoInfo.vfmt = &sPixelFormat;
-		videoInfo       = &sVideoInfo;
-	}
 
 	if (mode == -2)
 	{
 		// use desktop video resolution
-		if (videoInfo->current_h > 0)
+		SDL_GetDesktopDisplayMode( 0, &videoInfo);
+		if ( videoInfo.w > 0)
 		{
-			glConfig.vidWidth  = videoInfo->current_w;
-			glConfig.vidHeight = videoInfo->current_h;
+			glConfig.vidWidth  = videoInfo.w;
+			glConfig.vidHeight = videoInfo.h;
 		}
 		else
 		{
-			glConfig.vidWidth  = 640;
-			glConfig.vidHeight = 480;
+			glConfig.vidWidth  = 800;
+			glConfig.vidHeight = 600;
 			ri.Printf(PRINT_ALL,
-			          "Cannot determine display resolution, assuming 640x480\n");
+			          "Cannot determine display resolution, assuming 800x600\n");
 		}
 
 		glConfig.windowAspect = (float)glConfig.vidWidth / (float)glConfig.vidHeight;
@@ -198,14 +180,14 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 
 	if (fullscreen)
 	{
-		flags                |= SDL_FULLSCREEN;
+		flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
 		glConfig.isFullscreen = qtrue;
 	}
 	else
 	{
 		if (noborder)
 		{
-			flags |= SDL_NOFRAME;
+			flags |= SDL_WINDOW_BORDERLESS;
 		}
 
 		glConfig.isFullscreen = qfalse;
@@ -226,7 +208,6 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		depthbits = r_depthbits->value;
 	}
 	stencilbits = r_stencilbits->value;
-//	samples     = r_ext_multisample->value;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -322,11 +303,9 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-
-		SDL_WM_SetCaption(WINDOW_CLASS_NAME, WINDOW_CLASS_NAME_MIN);
 		SDL_ShowCursor(0);
 
-		if (!(vidscreen = SDL_SetVideoMode(glConfig.vidWidth, glConfig.vidHeight, colorbits, flags)))
+		if (!(SDLvidscreen = SDL_CreateWindow( WindowTitle, 0, 0, glConfig.vidWidth, glConfig.vidHeight, flags )))
 			continue;
 
 		ri.Printf(PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n",
@@ -338,14 +317,14 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		break;
 	}
 
+	ri.Printf(PRINT_ALL, "Mode:\n");
 //	GLimp_DetectAvailableModes();
 
-	if (!vidscreen)
+	if (!SDLvidscreen)
 	{
 		ri.Printf(PRINT_ALL, "Couldn't get a visual\n");
 		return RSERR_INVALID_MODE;
 	}
-	screen = vidscreen;                                                                                   
 	return RSERR_OK;
 }
 	
@@ -355,7 +334,7 @@ qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean nob
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		char driverName[64];
+		const char *driverName = NULL;
 
 		if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		{
@@ -364,9 +343,12 @@ qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean nob
 			return qfalse;
 		}
 
-		SDL_VideoDriverName(driverName, sizeof(driverName) - 1);
-		ri.Printf(PRINT_ALL, "SDL using driver \"%s\"\n", driverName);
-		Cvar_Set("r_sdlDriver", driverName);
+		driverName = SDL_GetCurrentVideoDriver();
+		if ( driverName )
+		{
+			ri.Printf(PRINT_ALL, "SDL using driver \"%s\"\n", driverName);
+			Cvar_Set("r_sdlDriver", driverName);
+		}
 	}
 
 	if (fullscreen && Cvar_VariableIntegerValue("in_nograb"))
@@ -391,6 +373,11 @@ qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean nob
 		ri.Printf(PRINT_ALL, "Set video mode: (%d)\n", mode);
 		break;
 	}
+
+	GLContext = SDL_GL_CreateContext( SDLvidscreen );
+
+        if ( !qglGetString(GL_VENDOR) )
+                return qfalse;
 
 	return qtrue;
 }
@@ -490,7 +477,6 @@ static void GLimp_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_ARB_multitexture not found\n");
 	}
 
-	// GL_EXT_compiled_vertex_array
 	if (GLimp_HaveExtension("GL_EXT_compiled_vertex_array"))
 	{
 		if (r_ext_compiled_vertex_array->value)
@@ -515,13 +501,15 @@ static void GLimp_InitExtensions(void)
 
 }
 
-
 void GLimp_Init( void ) {
 
 	if( !GLimp_StartDriverAndSetMode( r_mode->integer, r_fullscreen->integer , qfalse) )
 		ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n" );
 
-	// Hardware gamma is depreciated on SDL and broken with Mesa
+	if ( SDL_SetWindowBrightness( SDLvidscreen, 1.0f ) == -1 )
+		ri.Printf(PRINT_ALL, "SDL: failed to set window brightness.\n");
+
+	// Hardware gamma is not supported in recent Linux/SDL.
 	glConfig.deviceSupportsGamma = qfalse;
 
 	Q_strncpyz(glConfig.vendor_string, (char *) qglGetString(GL_VENDOR), sizeof(glConfig.vendor_string));
@@ -532,7 +520,7 @@ void GLimp_Init( void ) {
 	}
 	Q_strncpyz(glConfig.version_string, (char *) qglGetString(GL_VERSION), sizeof(glConfig.version_string));
 	glConfig.extensions_string = (char *)qglGetString(GL_EXTENSIONS);
-	
+
 	GLimp_InitExtensions();
 	glConfig.stereoEnabled = qfalse;
 	IN_Init();
@@ -545,20 +533,172 @@ Responsible for doing a swapbuffers and possibly for other stuff
 void GLimp_EndFrame( void ) {
 	// don't flip if drawing to front buffer
 	if (Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
-	
-		SDL_GL_SwapBuffers();
+		SDL_GL_SwapWindow( SDLvidscreen );
 }
-/* SINGLE CPU*/
-void GLimp_RenderThreadWrapper( void *stub ) {}
-qboolean GLimp_SpawnRenderThread( void ( *function )( void ) ) {
-	return qfalse;
-}
-void *GLimp_RendererSleep( void ) {
-	return NULL;
-}
-void GLimp_FrontEndSleep( void ) {}
-void GLimp_WakeRenderer( void *data ) {}
 
+// Obsolete stub
 void Sys_SendKeyEvents( void ) {
-//	IN_ProcessEvents( ); //now part of SDL_input.c
+}
+
+/*
+===============
+SMP
+===============
+*/
+static const char *GLthreadname         = "rtcwSMP";
+static SDL_mutex  *smpMutex             = NULL;
+static SDL_cond   *renderCommandsEvent  = NULL;
+static SDL_cond   *renderCompletedEvent = NULL;
+static void  (*glimpRenderThread)(void) = NULL;
+static SDL_Thread *renderThread         = NULL;
+
+/*
+===============
+GLimp_ShutdownRenderThread
+===============
+*/
+void GLimp_ShutdownRenderThread(void)
+{
+	if (smpMutex != NULL)
+	{
+		SDL_DestroyMutex(smpMutex);
+		smpMutex = NULL;
+	}
+	if (renderCommandsEvent != NULL)
+	{
+		SDL_DestroyCond(renderCommandsEvent);
+		renderCommandsEvent = NULL;
+	}
+	if (renderCompletedEvent != NULL)
+	{
+		SDL_DestroyCond(renderCompletedEvent);
+		renderCompletedEvent = NULL;
+	}
+}
+
+/*
+===============
+GLimp_RenderThreadWrapper
+===============
+*/
+static int GLimp_RenderThreadWrapper(void *arg)
+{
+	Com_Printf("SMP: Render thread starting.\n");
+	glimpRenderThread();
+
+	Com_Printf("SMP: Render thread ended.\n");
+	return 0;
+}
+
+/*
+===============
+GLimp_SpawnRenderThread
+===============
+*/
+qboolean GLimp_SpawnRenderThread(void (*function)(void))
+{
+	if (renderThread != NULL)
+		return qtrue;
+
+	Com_Printf("SMP: You enable r_smp at your own risk!\n");
+
+	smpMutex = SDL_CreateMutex();
+	if (smpMutex == NULL)
+	{
+		Com_Printf("SMP: Mutex creation failed: %s\n", SDL_GetError());
+		GLimp_ShutdownRenderThread();
+		return qfalse;
+	}
+
+	renderCommandsEvent = SDL_CreateCond();
+	if (renderCommandsEvent == NULL)
+	{
+		Com_Printf("SMP: CommandEvent creation failed: %s\n", SDL_GetError());
+		GLimp_ShutdownRenderThread();
+		return qfalse;
+	}
+
+	renderCompletedEvent = SDL_CreateCond();
+	if (renderCompletedEvent == NULL)
+	{
+		Com_Printf("SMP: CompletedEvent creation failed: %s\n", SDL_GetError());
+		GLimp_ShutdownRenderThread();
+		return qfalse;
+	}
+
+	glimpRenderThread = function;
+	renderThread      = SDL_CreateThread(GLimp_RenderThreadWrapper, GLthreadname, NULL);
+	if (renderThread == NULL)
+	{
+		ri.Printf(PRINT_ALL, "SDL: CreateThread() returned %s", SDL_GetError());
+		GLimp_ShutdownRenderThread();
+		return qfalse;
+	}
+
+	//sleep(1);
+	return qtrue;
+}
+
+static volatile void     *smpData = NULL;
+static volatile qboolean smpDataReady;
+
+/*
+===============
+GLimp_RendererSleep
+===============
+*/
+void *GLimp_RendererSleep(void)
+{
+	void *data = NULL;
+
+	SDL_LockMutex(smpMutex);
+	{
+		smpData      = NULL;
+		smpDataReady = qfalse;
+
+		// after this, the front end can exit GLimp_FrontEndSleep
+		SDL_CondSignal(renderCompletedEvent);
+
+		while (!smpDataReady)
+			SDL_CondWait(renderCommandsEvent, smpMutex);
+
+		data = (void *)smpData;
+	}
+	SDL_UnlockMutex(smpMutex);
+
+	return data;
+}
+
+/*
+===============
+GLimp_FrontEndSleep
+===============
+*/
+void GLimp_FrontEndSleep(void)
+{
+	SDL_LockMutex(smpMutex);
+	{
+		while (smpData)
+			SDL_CondWait(renderCompletedEvent, smpMutex);
+	}
+	SDL_UnlockMutex(smpMutex);
+}
+
+/*
+===============
+GLimp_WakeRenderer
+===============
+*/
+void GLimp_WakeRenderer(void *data)
+{
+	SDL_LockMutex(smpMutex);
+	{
+		assert(smpData == NULL);
+		smpData      = data;
+		smpDataReady = qtrue;
+
+		// after this, the renderer can continue through GLimp_RendererSleep
+		SDL_CondSignal(renderCommandsEvent);
+	}
+	SDL_UnlockMutex(smpMutex);
 }

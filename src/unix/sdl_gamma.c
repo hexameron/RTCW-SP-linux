@@ -31,15 +31,13 @@
  * @file sdl_gamma.c
  */
 
-#ifdef BUNDLED_SDL
-#    include "SDL.h"
-#else
-#    include <SDL/SDL.h>
-#endif
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
 
 #include "../renderer/tr_local.h"
 #include "../qcommon/qcommon.h"
 
+extern SDL_Window *SDLvidscreen;
 /*
 =================
 GLimp_SetGamma
@@ -105,5 +103,5 @@ void GLimp_SetGamma(unsigned char red[256], unsigned char green[256], unsigned c
 		}
 	}
 
-	SDL_SetGammaRamp(table[0], table[1], table[2]);
+	SDL_SetWindowGammaRamp( SDLvidscreen, table[0], table[1], table[2]);
 }

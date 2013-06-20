@@ -108,7 +108,7 @@ R_ShutdownCommandBuffers
 void R_ShutdownCommandBuffers( void ) {
 	// kill the rendering thread
 	if ( glConfig.smpActive ) {
-		GLimp_WakeRenderer( NULL );
+		GLimp_WakeRenderer( (void *)0xdead );
 		glConfig.smpActive = qfalse;
 	}
 }

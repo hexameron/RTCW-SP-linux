@@ -551,6 +551,7 @@ static SDL_cond   *renderCommandsEvent  = NULL;
 static SDL_cond   *renderCompletedEvent = NULL;
 static void  (*glimpRenderThread)(void) = NULL;
 static SDL_Thread *renderThread         = NULL;
+static volatile void *smpData           = NULL;
 
 /*
 ===============
@@ -597,10 +598,11 @@ GLimp_SpawnRenderThread
 */
 qboolean GLimp_SpawnRenderThread(void (*function)(void))
 {
+	smpData == (void *)0xdead;
 	if (renderThread != NULL)
-		return qtrue;
-
-	Com_Printf("SMP: You enable r_smp at your own risk!\n");
+		Com_Printf("SMP: Restarting render thread.\n");
+	else
+		Com_Printf("SMP: You enable r_smp at your own risk!\n");
 
 	smpMutex = SDL_CreateMutex();
 	if (smpMutex == NULL)
@@ -635,12 +637,13 @@ qboolean GLimp_SpawnRenderThread(void (*function)(void))
 		return qfalse;
 	}
 
-	//sleep(1);
+	SDL_LockMutex(smpMutex);
+		while ( smpData )
+                         SDL_CondWait(renderCompletedEvent, smpMutex);
+	SDL_UnlockMutex(smpMutex);
+
 	return qtrue;
 }
-
-static volatile void     *smpData = NULL;
-static volatile qboolean smpDataReady;
 
 /*
 ===============
@@ -654,15 +657,20 @@ void *GLimp_RendererSleep(void)
 	SDL_LockMutex(smpMutex);
 	{
 		smpData      = NULL;
-		smpDataReady = qfalse;
-
 		// after this, the front end can exit GLimp_FrontEndSleep
 		SDL_CondSignal(renderCompletedEvent);
 
-		while (!smpDataReady)
+		while (!smpData)
 			SDL_CondWait(renderCommandsEvent, smpMutex);
 
 		data = (void *)smpData;
+		if (data == (void *)0xdead )
+		{
+			// Exit as if waiting
+			data	= NULL;
+			smpData = NULL;
+			SDL_CondSignal(renderCompletedEvent);
+		}
 	}
 	SDL_UnlockMutex(smpMutex);
 
@@ -693,11 +701,11 @@ void GLimp_WakeRenderer(void *data)
 {
 	SDL_LockMutex(smpMutex);
 	{
-		assert(smpData == NULL);
-		smpData      = data;
-		smpDataReady = qtrue;
+		// Should be NULL if we called GLimp_FrontEndSleep()
+		while (smpData)
+			SDL_CondWait(renderCompletedEvent, smpMutex);
 
-		// after this, the renderer can continue through GLimp_RendererSleep
+		smpData      = data;
 		SDL_CondSignal(renderCommandsEvent);
 	}
 	SDL_UnlockMutex(smpMutex);

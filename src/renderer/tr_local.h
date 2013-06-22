@@ -1298,8 +1298,12 @@ void    GL_Cull( int cullType );
 
 #define GLS_DEFAULT         GLS_DEPTHMASK_TRUE
 
-void    RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty );
-void    RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty );
+void        R_LoadTex(void);
+void        R_Init( void );
+void        R_PushInit( void );
+void        SMP_InitGL( void );
+void        RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty );
+void        RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty );
 
 void        RE_BeginFrame( stereoFrame_t stereoFrame );
 void        RE_BeginRegistration( glconfig_t *glconfig );
@@ -1318,7 +1322,6 @@ qhandle_t   RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlight
 
 model_t     *R_AllocModel( void );
 
-void        R_Init( void );
 image_t     *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
 image_t     *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean characterMip, int glWrapClampMode ); //----(SA)	added
 
@@ -1662,6 +1665,25 @@ typedef struct {
 	void    *data;
 } subImageCommand_t;
 
+//RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty )
+typedef struct {
+	int commandId;
+	int x, y, w, h;
+	int cols, rows;
+	const byte *data;
+	int client;
+	qboolean dirty;
+} stretchRaw_t;
+
+//void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty )
+typedef struct {
+	int commandId;
+	int w, h, cols, rows;
+	const byte *data;
+	int client;
+	qboolean dirty;
+} uploadCine_t;
+
 typedef struct {
 	int commandId;
 } swapBuffersCommand_t;
@@ -1698,6 +1720,10 @@ typedef enum {
 	RC_STRETCH_PIC_GRADIENT,    // (SA) added
 	RC_DRAW_SURFS,
 	RC_DRAW_BUFFER,
+	RC_UPLOAD_CINE,
+	RC_STRETCH_RAW,
+	RC_LOAD_TEX,
+	RC_INIT,
 	RC_SWAP_BUFFERS
 } renderCommand_t;
 

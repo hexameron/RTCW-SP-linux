@@ -282,7 +282,13 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 ** to the user.
 */
 static void InitOpenGL( void ) {
+	// First start SMP ...
+	R_InitCommandBuffers();
+	// and render thread runs SMP_InitGL()
+	R_PushInit();
+}
 
+void SMP_InitGL( void ) {
 	//
 	// initialize OS specific portions of the renderer
 	//
@@ -310,14 +316,15 @@ static void InitOpenGL( void ) {
 		}
 	}
 
-	// init command buffers and SMP
-	R_InitCommandBuffers();
-
 	// print info
 	GfxInfo_f();
 
 	// set default state
 	GL_SetDefaultState();
+
+	R_InitImages();
+
+	GL_CheckErrors();
 }
 
 /*
@@ -333,9 +340,11 @@ void GL_CheckErrors( void ) {
 	if ( err == GL_NO_ERROR ) {
 		return;
 	}
+
 	if ( r_ignoreGLErrors->integer ) {
 		return;
 	}
+
 	switch ( err ) {
 	case GL_INVALID_ENUM:
 		strcpy( s, "GL_INVALID_ENUM" );
@@ -1243,9 +1252,7 @@ void R_Init( void ) {
 
 	InitOpenGL();
 
-	R_InitImages();
-
-
+//	R_InitImages();
 
 	R_InitShaders();
 
@@ -1256,11 +1263,6 @@ void R_Init( void ) {
 	R_InitFreeType();
 
 	RB_ZombieFXInit();
-
-	err = qglGetError();
-	if ( err != GL_NO_ERROR ) {
-		ri.Printf( PRINT_ALL, "glGetError() = 0x%x\n", err );
-	}
 
 	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
@@ -1289,8 +1291,6 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	ri.Cmd_RemoveCommand( "cropimages" );
 	// done.
 
-	R_ShutdownCommandBuffers();
-
 	// Ridah, keep a backup of the current images if possible
 	// clean out any remaining unused media from the last backup
 	R_PurgeShaders( 9999999 );
@@ -1301,12 +1301,9 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		if ( tr.registered ) {
 			if ( destroyWindow ) {
 				R_SyncRenderThread();
-				R_ShutdownCommandBuffers();
 				R_DeleteTextures();
 			} else {
 				// backup the current media
-				R_ShutdownCommandBuffers();
-
 				R_BackupModels();
 				R_BackupShaders();
 				R_BackupImages();
@@ -1314,7 +1311,6 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		}
 	} else if ( tr.registered ) {
 		R_SyncRenderThread();
-		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
 	}
 
@@ -1322,6 +1318,9 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
+		// Close SMP thread
+		R_ShutdownCommandBuffers();
+
 		GLimp_Shutdown();
 
 		// Ridah, release the virtual memory
@@ -1344,7 +1343,7 @@ Touch all images to make sure they are resident
 void RE_EndRegistration( void ) {
 	R_SyncRenderThread();
 	if ( !Sys_LowPhysicalMemory() ) {
-		RB_ShowImages();
+		R_LoadTex(); // was RB_ShowImages();
 	}
 }
 

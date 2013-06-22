@@ -110,6 +110,7 @@ void R_ShutdownCommandBuffers( void ) {
 	if ( glConfig.smpActive ) {
 		GLimp_WakeRenderer( (void *)0xdead );
 		glConfig.smpActive = qfalse;
+		GLimp_FrontEndSleep();
 	}
 }
 
@@ -179,9 +180,7 @@ OpenGL calls until R_IssueRenderCommands is called.
 ====================
 */
 void R_SyncRenderThread( void ) {
-	if ( !tr.registered ) {
-		return;
-	}
+
 	R_IssueRenderCommands( qfalse );
 
 	if ( !glConfig.smpActive ) {
@@ -217,6 +216,69 @@ void *R_GetCommandBuffer( int bytes ) {
 	return cmdList->cmds + cmdList->used - bytes;
 }
 
+/*
+Moving GL commands to backend, for SMP
+*/
+void R_LoadTex(void) {
+	swapBuffersCommand_t    *cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd )
+		return;
+	cmd->commandId = RC_LOAD_TEX;
+	R_SyncRenderThread();
+}
+
+void R_PushInit( void ) {
+	swapBuffersCommand_t    *cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd )
+		return;
+	cmd->commandId = RC_INIT;
+	R_SyncRenderThread();
+}
+
+void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+	stretchRaw_t *cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd )
+		return;
+	cmd->commandId = RC_STRETCH_RAW;
+	cmd->x = x;
+	cmd->y = y;
+	cmd->w = w;
+	cmd->h = h;
+	cmd->cols = cols;
+	cmd->rows = rows;
+	cmd->data = data;
+	cmd->client = client;
+	cmd->dirty = dirty;
+
+	// was frontend
+	R_SyncRenderThread();
+}
+
+void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+	uploadCine_t  *cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd )
+		return;
+
+	cmd->commandId = RC_UPLOAD_CINE;
+	cmd->w = w;
+	cmd->h = h;
+	cmd->cols = cols;
+	cmd->rows = rows;
+	cmd->data = data;
+	cmd->client = client;
+	cmd->dirty = dirty;
+
+	// was frontend
+	R_SyncRenderThread();
+}
 
 /*
 =============

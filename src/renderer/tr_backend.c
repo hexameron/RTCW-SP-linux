@@ -1127,22 +1127,25 @@ void    RB_SetGL2D( void ) {
 
 
 /*
+Not GL backend : moved to tr_cmds.c
 =============
 RE_StretchRaw
 
-FIXME: not exactly backend
 Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+
+//void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+const void *RB_StretchRaw( const void *data ) {
+	const stretchRaw_t *cmd;
+	cmd = (const stretchRaw_t *)data;
+
 	int i, j;
 	int start, end;
-
-	if ( !tr.registered ) {
-		return;
-	}
-	R_SyncRenderThread();
+	int cols = cmd->cols;
+	int rows = cmd->rows;
+	int client = cmd->client;
 
 	// we definately want to sync every frame for the cinematics
 	qglFinish();
@@ -1167,16 +1170,16 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		qglTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		qglTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, cmd->data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 	} else {
-		if ( dirty ) {
+		if ( cmd->dirty ) {
 			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
 			// it and don't try and do a texture compression
-			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
+			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, cmd->data );
 		}
 	}
 
@@ -1191,37 +1194,45 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 
 	qglBegin( GL_QUADS );
 	qglTexCoord2f( 0.5f / cols,  0.5f / rows );
-	qglVertex2f( x, y );
+	qglVertex2f( cmd->x, cmd->y );
 	qglTexCoord2f( ( cols - 0.5f ) / cols,  0.5f / rows );
-	qglVertex2f( x + w, y );
+	qglVertex2f( cmd->x + cmd->w, cmd->y );
 	qglTexCoord2f( ( cols - 0.5f ) / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f( x + w, y + h );
+	qglVertex2f( cmd->x + cmd->w, cmd->y + cmd->h );
 	qglTexCoord2f( 0.5f / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f( x, y + h );
+	qglVertex2f( cmd->x, cmd->y + cmd->h );
 	qglEnd();
+
+	return (const void *)( cmd + 1 );
 }
 
 
-void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+//void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+const void *RB_UploadCine( const void *data ) {
+        const uploadCine_t *cmd;
+        cmd = (const uploadCine_t *)data;
+
+	int client = cmd->client;
 
 	GL_Bind( tr.scratchImage[client] );
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture
-	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
-		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
-		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		qglTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+	if ( cmd->cols != tr.scratchImage[client]->width || cmd->rows != tr.scratchImage[client]->height ) {
+		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cmd->cols;
+		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = cmd->rows;
+		qglTexImage2D( GL_TEXTURE_2D, 0, 3, cmd->cols, cmd->rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, cmd->data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 	} else {
-		if ( dirty ) {
+		if ( cmd->dirty ) {
 			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
 			// it and don't try and do a texture compression
-			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
+			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cmd->cols, cmd->rows, GL_RGBA, GL_UNSIGNED_BYTE, cmd->data );
 		}
 	}
+	return (const void *)( cmd + 1 );
 }
 
 
@@ -1465,6 +1476,8 @@ void RB_ShowImages( void ) {
 	float x, y, w, h;
 	int start, end;
 
+	return;
+
 	if ( !backEnd.projection2D ) {
 		RB_SetGL2D();
 	}
@@ -1511,6 +1524,14 @@ void RB_ShowImages( void ) {
 
 }
 
+// Call RB_ShowImages from front end via SMP
+const void  *RB_LoadTex( const void *data ) {
+	const swapBuffersCommand_t  *cmd;
+
+	cmd = (const swapBuffersCommand_t *)data;
+	RB_ShowImages();
+	return (const void *)( cmd + 1 );
+}
 
 /*
 =============
@@ -1551,10 +1572,8 @@ const void  *RB_SwapBuffers( const void *data ) {
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
 
-
-	if ( !glState.finishCalled || glConfig.smpActive ) {
+	if ( !glState.finishCalled )
 		qglFinish();
-	}
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
@@ -1604,7 +1623,18 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_SWAP_BUFFERS:
 			data = RB_SwapBuffers( data );
 			break;
-
+		case RC_STRETCH_RAW:
+			data = RB_StretchRaw( data );
+			break;
+		case RC_UPLOAD_CINE:
+			data = RB_UploadCine( data );
+			break;
+		case RC_LOAD_TEX:
+			data = RB_LoadTex( data );
+			break;
+		case RC_INIT:
+			SMP_InitGL();
+			return;
 		case RC_END_OF_LIST:
 		default:
 			// stop rendering on this thread

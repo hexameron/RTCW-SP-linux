@@ -587,6 +587,7 @@ static int GLimp_RenderThreadWrapper(void *arg)
 	Com_Printf("SMP: Render thread starting.\n");
 	glimpRenderThread();
 
+	renderThread = NULL;
 	Com_Printf("SMP: Render thread ended.\n");
 	return 0;
 }
@@ -598,11 +599,20 @@ GLimp_SpawnRenderThread
 */
 qboolean GLimp_SpawnRenderThread(void (*function)(void))
 {
-	smpData == (void *)0xdead;
+
+	if (renderThread == (void *)0xdead)
+	{
+		Com_Printf("SMP: Not safe restarting thread.\n");
+		return qfalse;
+	}
 	if (renderThread != NULL)
-		Com_Printf("SMP: Restarting render thread.\n");
-	else
-		Com_Printf("SMP: You enable r_smp at your own risk!\n");
+	{
+		Com_Printf("SMP: Render thread still Running.\n");
+		return qtrue;
+	}
+
+	Com_Printf("SMP: You enable r_smp at your own risk!\n");
+	smpData = (void *)0xdead;
 
 	smpMutex = SDL_CreateMutex();
 	if (smpMutex == NULL)
@@ -666,9 +676,10 @@ void *GLimp_RendererSleep(void)
 		data = (void *)smpData;
 		if (data == (void *)0xdead )
 		{
-			// Exit as if waiting
+			// Force exit
 			data	= NULL;
 			smpData = NULL;
+			renderThread = (void *)0xdead;
 			SDL_CondSignal(renderCompletedEvent);
 		}
 	}
@@ -705,7 +716,7 @@ void GLimp_WakeRenderer(void *data)
 		while (smpData)
 			SDL_CondWait(renderCompletedEvent, smpMutex);
 
-		smpData      = data;
+		smpData = data;
 		SDL_CondSignal(renderCommandsEvent);
 	}
 	SDL_UnlockMutex(smpMutex);

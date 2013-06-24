@@ -132,8 +132,17 @@ static void InitSig( void ) {
 
 void GLimp_Shutdown( void ) {
 	IN_Shutdown();
+	if ( GLContext )
+		SDL_GL_DeleteContext( GLContext );
+	GLContext = NULL;
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDLvidscreen = NULL;
+
+	if ( glConfig.smpActive )
+	{
+		GLimp_WakeRenderer( (void *)0xdead );
+		GLimp_FrontEndSleep();
+	}
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
 }
@@ -502,6 +511,8 @@ static void GLimp_InitExtensions(void)
 }
 
 void GLimp_Init( void ) {
+	if (SDLvidscreen)
+		return;
 
 	if( !GLimp_StartDriverAndSetMode( r_mode->integer, r_fullscreen->integer , qfalse) )
 		ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n" );
@@ -547,11 +558,25 @@ SMP
 */
 static const char *GLthreadname         = "rtcwSMP";
 static SDL_mutex  *smpMutex             = NULL;
+static SDL_mutex  *boneMutex            = NULL;
 static SDL_cond   *renderCommandsEvent  = NULL;
 static SDL_cond   *renderCompletedEvent = NULL;
 static void  (*glimpRenderThread)(void) = NULL;
 static SDL_Thread *renderThread         = NULL;
 static volatile void *smpData           = NULL;
+
+/* Bones are changed from frontend and backend at the same time */
+void GLimp_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones )
+{
+	if ( boneMutex )
+	{
+	SDL_LockMutex( boneMutex );
+		R_CalcBones( header, refent, boneList, numBones );
+	SDL_UnlockMutex( boneMutex );
+	} else {
+		R_CalcBones( header, refent, boneList, numBones );
+	}
+}
 
 /*
 ===============
@@ -564,6 +589,11 @@ void GLimp_ShutdownRenderThread(void)
 	{
 		SDL_DestroyMutex(smpMutex);
 		smpMutex = NULL;
+	}
+	if (boneMutex != NULL)
+	{
+		SDL_DestroyMutex(boneMutex);
+		boneMutex = NULL;
 	}
 	if (renderCommandsEvent != NULL)
 	{
@@ -603,6 +633,8 @@ qboolean GLimp_SpawnRenderThread(void (*function)(void))
 	if (renderThread == (void *)0xdead)
 	{
 		Com_Printf("SMP: Not safe restarting thread.\n");
+		//  restarting is safe on mesa, but not ati
+		renderThread = NULL;
 		return qfalse;
 	}
 	if (renderThread != NULL)
@@ -615,7 +647,8 @@ qboolean GLimp_SpawnRenderThread(void (*function)(void))
 	smpData = (void *)0xdead;
 
 	smpMutex = SDL_CreateMutex();
-	if (smpMutex == NULL)
+	boneMutex = SDL_CreateMutex();
+	if ((smpMutex == NULL) || (boneMutex == NULL))
 	{
 		Com_Printf("SMP: Mutex creation failed: %s\n", SDL_GetError());
 		GLimp_ShutdownRenderThread();

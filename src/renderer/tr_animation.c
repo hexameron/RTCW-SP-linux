@@ -1189,7 +1189,8 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	boneList = ( int * )( (byte *)surface + surface->ofsBoneReferences );
 	header = ( mdsHeader_t * )( (byte *)surface + surface->ofsHeader );
 
-	R_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences );
+
+	GLimp_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences );
 
 	DBG_SHOWTIME
 
@@ -1477,7 +1478,7 @@ int R_GetBoneTag( orientation_t *outTag, mdsHeader_t *mds, int startTagIndex, co
 
 	// calc the bones
 
-	R_CalcBones( (mdsHeader_t *)mds, refent, boneList, numBones );
+	GLimp_CalcBones( (mdsHeader_t *)mds, refent, boneList, numBones );
 
 	// now extract the orientation for the bone that represents our tag
 

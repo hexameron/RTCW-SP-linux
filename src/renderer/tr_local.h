@@ -1382,7 +1382,8 @@ qboolean GLimp_SpawnRenderThread( void ( *function )( void ) );
 void        *GLimp_RendererSleep( void );
 void        GLimp_FrontEndSleep( void );
 void        GLimp_WakeRenderer( void *data );
-
+void        R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones );
+void        GLimp_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones );
 void        GLimp_LogComment( char *comment );
 
 void GLimp_SetGamma( unsigned char red[256],

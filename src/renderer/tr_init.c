@@ -1318,10 +1318,9 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
-		// Close SMP thread
-		R_ShutdownCommandBuffers();
-
+		R_SyncRenderThread();
 		GLimp_Shutdown();
+		// Close SMP thread from GLimp_Shutdown.
 
 		// Ridah, release the virtual memory
 		R_Hunk_End();

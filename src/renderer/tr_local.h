@@ -1666,6 +1666,18 @@ typedef struct {
 	void    *data;
 } subImageCommand_t;
 
+//image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
+//				qboolean mipmap, qboolean allowPicmip, int glWrapClampMode )
+image_t *createdImage;
+typedef struct {
+	int commandId;
+	const char *name;
+	const byte *pic;
+	int width, height;
+	qboolean mipmap, allowPicmip;
+	int glWrapClampMode;
+} createImageCommand_t;
+
 //RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty )
 typedef struct {
 	int commandId;
@@ -1724,6 +1736,7 @@ typedef enum {
 	RC_UPLOAD_CINE,
 	RC_STRETCH_RAW,
 	RC_LOAD_TEX,
+	RC_CREATE_IMAGE,
 	RC_INIT,
 	RC_SWAP_BUFFERS
 } renderCommand_t;

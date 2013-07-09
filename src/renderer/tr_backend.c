@@ -1531,6 +1531,17 @@ const void  *RB_LoadTex( const void *data ) {
 	return (const void *)( cmd + 1 );
 }
 
+// Load Texture from front end via SMP
+const void  *RB_Create_Image( const void *data ){
+	const createImageCommand_t  *cmd;
+
+	cmd = (const createImageCommand_t *)data;
+
+	createdImage = R_CreateImageExt( cmd->name, cmd->pic, cmd->width, cmd->height,
+				cmd->mipmap, cmd->allowPicmip, qfalse, cmd->glWrapClampMode );
+	return (const void *)( cmd + 1 );
+}
+
 /*
 =============
 RB_SwapBuffers
@@ -1626,6 +1637,9 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			break;
 		case RC_UPLOAD_CINE:
 			data = RB_UploadCine( data );
+			break;
+		case RC_CREATE_IMAGE:
+			data = RB_Create_Image( data );
 			break;
 		case RC_LOAD_TEX:
 			data = RB_LoadTex( data );

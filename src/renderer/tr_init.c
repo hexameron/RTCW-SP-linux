@@ -322,9 +322,6 @@ void SMP_InitGL( void ) {
 	// set default state
 	GL_SetDefaultState();
 
-	R_InitImages();
-
-	GL_CheckErrors();
 }
 
 /*
@@ -1252,7 +1249,7 @@ void R_Init( void ) {
 
 	InitOpenGL();
 
-//	R_InitImages();
+	R_InitImages();
 
 	R_InitShaders();
 

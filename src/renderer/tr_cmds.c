@@ -219,6 +219,27 @@ void *R_GetCommandBuffer( int bytes ) {
 /*
 Moving GL commands to backend, for SMP
 */
+
+image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
+				qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+	createImageCommand_t    *cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd )
+		return;
+	cmd->commandId = RC_CREATE_IMAGE;
+	cmd->name = name;
+	cmd->pic = pic;
+	cmd->width = width;
+	cmd->height = height;
+	cmd->mipmap = mipmap;
+	cmd->allowPicmip = allowPicmip;
+	cmd->glWrapClampMode = glWrapClampMode;
+
+	R_SyncRenderThread();
+	return( createdImage );
+}
+
 void R_LoadTex(void) {
 	swapBuffersCommand_t    *cmd;
 

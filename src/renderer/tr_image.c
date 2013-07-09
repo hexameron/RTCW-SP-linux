@@ -867,10 +867,6 @@ done:
 	//	ri.Hunk_FreeTempMemory( resampledBuffer );
 }
 
-
-
-//----(SA)	modified
-
 /*
 ================
 R_CreateImage
@@ -974,12 +970,13 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 	return image;
 }
 
+
+/* Moved to Backend
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
 						qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
 	return R_CreateImageExt( name, pic, width, height, mipmap, allowPicmip, qfalse, glWrapClampMode );
 }
-
-//----(SA)	end
+*/
 
 /*
 =========================================================
@@ -2094,7 +2091,8 @@ image_t *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPi
 #endif
 	}
 
-	image = R_CreateImageExt( ( char * ) name, pic, width, height, mipmap, allowPicmip, characterMIP, glWrapClampMode );
+	//image = R_CreateImageExt( ( char * ) name, pic, width, height, mipmap, allowPicmip, characterMIP, glWrapClampMode );
+	image = R_CreateImage( ( char * ) name, pic, width, height, mipmap, allowPicmip, glWrapClampMode );
 	//ri.Free( pic );
 	return image;
 }
@@ -2226,15 +2224,8 @@ static void R_CreateFogImage( void ) {
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
-	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
+	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP_TO_EDGE );
 	ri.Hunk_FreeTempMemory( data );
-
-	borderColor[0] = 1.0;
-	borderColor[1] = 1.0;
-	borderColor[2] = 1.0;
-	borderColor[3] = 1;
-
-	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
 }
 
 /*

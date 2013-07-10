@@ -687,7 +687,7 @@ static void ProjectDlightTexture( void ) {
 					GL_SelectTexture( 0 );
 				}
 */
-				R_FogOn();
+				//R_FogOn();
 			}
 		}
 	}

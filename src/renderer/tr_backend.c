@@ -1114,8 +1114,7 @@ void    RB_SetGL2D( void ) {
 	GL_State( GLS_DEPTHTEST_DISABLE |
 			  GLS_SRCBLEND_SRC_ALPHA |
 			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
-
-	qglDisable( GL_FOG ); //----(SA)	added
+	R_FogOff();
 
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_CLIP_PLANE0 );

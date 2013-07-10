@@ -1312,6 +1312,7 @@ void        RE_SetWorldVisData( const byte *vis );
 qhandle_t   RE_RegisterModel( const char *name );
 qhandle_t   RE_RegisterSkin( const char *name );
 void        RE_Shutdown( qboolean destroyWindow );
+void        RE_PreShutdown( qboolean destroyWindow );
 
 qboolean    R_GetEntityToken( char *buffer, int size );
 
@@ -1737,6 +1738,8 @@ typedef enum {
 	RC_STRETCH_RAW,
 	RC_LOAD_TEX,
 	RC_CREATE_IMAGE,
+	RC_CLEAN0,
+	RC_CLEAN1,
 	RC_INIT,
 	RC_SWAP_BUFFERS
 } renderCommand_t;

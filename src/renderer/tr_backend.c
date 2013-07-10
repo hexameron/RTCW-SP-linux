@@ -1530,6 +1530,24 @@ const void  *RB_LoadTex( const void *data ) {
 	return (const void *)( cmd + 1 );
 }
 
+// Delete textures from the front end via SMP
+const void  *RB_Clean( const void *data, qboolean save ) {
+	const swapBuffersCommand_t  *cmd;
+
+	cmd = (const swapBuffersCommand_t *)data;
+	R_PurgeShaders( 9999999 );
+	R_PurgeBackupImages( 9999999 );
+	R_PurgeModels( 9999999 );
+	if ( save && r_cache->integer ){
+		R_BackupModels();
+		R_BackupShaders();
+		R_BackupImages();
+	} else {
+		R_DeleteTextures();
+	}
+	return (const void *)( cmd + 1 );
+}
+
 // Load Texture from front end via SMP
 const void  *RB_Create_Image( const void *data ){
 	const createImageCommand_t  *cmd;
@@ -1642,6 +1660,12 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			break;
 		case RC_LOAD_TEX:
 			data = RB_LoadTex( data );
+			break;
+		case RC_CLEAN0:
+			data = RB_Clean( data, qtrue );
+			break;
+		case RC_CLEAN1:
+			data = RB_Clean( data, qfalse );
 			break;
 		case RC_INIT:
 			SMP_InitGL();

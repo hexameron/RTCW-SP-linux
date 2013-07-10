@@ -260,6 +260,19 @@ void R_PushInit( void ) {
 	R_SyncRenderThread();
 }
 
+void RE_PreShutdown( qboolean destroyWindow ) {
+	swapBuffersCommand_t    *cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd )
+		return;
+	if ( destroyWindow )
+		cmd->commandId = RC_CLEAN1;
+	else
+		cmd->commandId = RC_CLEAN0;
+	R_SyncRenderThread();
+}
+
 void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
 	stretchRaw_t *cmd;
 

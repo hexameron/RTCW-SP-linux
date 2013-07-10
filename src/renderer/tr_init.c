@@ -1290,6 +1290,11 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	// Ridah, keep a backup of the current images if possible
 	// clean out any remaining unused media from the last backup
+
+	// Moved to Backend for SMP
+	if ( tr.registered )
+		RE_PreShutdown( destroyWindow );
+/*
 	R_PurgeShaders( 9999999 );
 	R_PurgeBackupImages( 9999999 );
 	R_PurgeModels( 9999999 );
@@ -1310,6 +1315,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_SyncRenderThread();
 		R_DeleteTextures();
 	}
+*/
 
 	R_DoneFreeType();
 

@@ -103,7 +103,7 @@ static void uninstall_grabs( void ) {
 }
 static void HandleEvents( void ) {
 }
-static qboolean signalcaught = qfalse;;
+static qboolean signalcaught = qfalse;
 
 void Sys_Exit( int );
 
@@ -132,17 +132,24 @@ static void InitSig( void ) {
 
 void GLimp_Shutdown( void ) {
 	IN_Shutdown();
-	if ( GLContext )
-		SDL_GL_DeleteContext( GLContext );
-	GLContext = NULL;
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-	SDLvidscreen = NULL;
 
-	if ( glConfig.smpActive )
+	if ( glConfig.smpActive && !signalcaught )
 	{
+		// may already be dead if called from signal handler
 		GLimp_WakeRenderer( (void *)0xdead );
+		// must call SDL_GL_DeleteContext() from GL thread
+		// - and wait for it to return
 		GLimp_FrontEndSleep();
-	}
+	} else if ( GLContext )
+		SDL_GL_DeleteContext( GLContext );
+	if ( SDLvidscreen )
+		SDL_VideoQuit();
+	if ( SDL_WasInit(SDL_INIT_VIDEO) )
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+
+	GLimp_ShutdownRenderThread();
+	GLContext = NULL;
+	SDLvidscreen = NULL;
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
 }
@@ -617,7 +624,16 @@ static int GLimp_RenderThreadWrapper(void *arg)
 	Com_Printf("SMP: Render thread starting.\n");
 	glimpRenderThread();
 
-	renderThread = NULL;
+	if ( GLContext )
+		SDL_GL_DeleteContext( GLContext );
+	SDL_LockMutex(smpMutex);
+	{
+		smpData = NULL;
+		renderThread = NULL;
+		SDL_CondSignal(renderCompletedEvent);
+	}
+	SDL_UnlockMutex(smpMutex);
+
 	Com_Printf("SMP: Render thread ended.\n");
 	return 0;
 }
@@ -633,7 +649,6 @@ qboolean GLimp_SpawnRenderThread(void (*function)(void))
 	if (renderThread == (void *)0xdead)
 	{
 		Com_Printf("SMP: Not safe restarting thread.\n");
-		//  restarting is safe on mesa, but not ati
 		renderThread = NULL;
 		return qfalse;
 	}
@@ -709,11 +724,8 @@ void *GLimp_RendererSleep(void)
 		data = (void *)smpData;
 		if (data == (void *)0xdead )
 		{
-			// Force exit
-			data	= NULL;
-			smpData = NULL;
 			renderThread = (void *)0xdead;
-			SDL_CondSignal(renderCompletedEvent);
+			data = NULL;
 		}
 	}
 	SDL_UnlockMutex(smpMutex);

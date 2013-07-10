@@ -1,5 +1,5 @@
 /**************************************************************
-Close to the original code; with bugfixes, SDL and 64bit fixes.
+ 64bit safe, with bugfixes and experimental SMP. Requires SDL2.
 **************************************************************/
 
 Return to Castle Wolfenstein single player GPL source release

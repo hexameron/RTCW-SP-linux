@@ -1189,8 +1189,8 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	boneList = ( int * )( (byte *)surface + surface->ofsBoneReferences );
 	header = ( mdsHeader_t * )( (byte *)surface + surface->ofsHeader );
 
-
-	GLimp_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences );
+	// moved lower down. TODO: save updated bones in frontend pass
+	//R_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences );
 
 	DBG_SHOWTIME
 
@@ -1308,6 +1308,10 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	v = ( mdsVertex_t * )( (byte *)surface + surface->ofsVerts );
 	tempVert = ( float * )( tess.xyz + baseVertex );
 	tempNormal = ( float * )( tess.normal + baseVertex );
+
+	GLimp_LockBones( qtrue );
+	R_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences );
+
 	for ( j = 0; j < render_count; j++, tempVert += 4, tempNormal += 4 ) {
 		mdsWeight_t *w;
 
@@ -1325,6 +1329,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 		v = (mdsVertex_t *)&v->weights[v->numWeights];
 	}
+	GLimp_LockBones( qfalse );
 
 	DBG_SHOWTIME
 
@@ -1474,11 +1479,12 @@ int R_GetBoneTag( orientation_t *outTag, mdsHeader_t *mds, int startTagIndex, co
 	boneInfoList = ( mdsBoneInfo_t * )( (byte *)mds + mds->ofsBones );
 	numBones = 0;
 
+	GLimp_LockBones( qtrue );
+
 	R_RecursiveBoneListAdd( pTag->boneIndex, boneList, &numBones, boneInfoList );
+	R_CalcBones( (mdsHeader_t *)mds, refent, boneList, numBones );
 
-	// calc the bones
-
-	GLimp_CalcBones( (mdsHeader_t *)mds, refent, boneList, numBones );
+	GLimp_LockBones( qfalse );
 
 	// now extract the orientation for the bone that represents our tag
 

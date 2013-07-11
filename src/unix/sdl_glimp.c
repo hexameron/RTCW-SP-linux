@@ -573,15 +573,14 @@ static SDL_Thread *renderThread         = NULL;
 static volatile void *smpData           = NULL;
 
 /* Bones are changed from frontend and backend at the same time */
-void GLimp_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones )
+void GLimp_LockBones( qboolean lock )
 {
 	if ( boneMutex )
 	{
-	SDL_LockMutex( boneMutex );
-		R_CalcBones( header, refent, boneList, numBones );
-	SDL_UnlockMutex( boneMutex );
-	} else {
-		R_CalcBones( header, refent, boneList, numBones );
+		if ( lock )
+			SDL_LockMutex( boneMutex );
+		else
+			SDL_UnlockMutex( boneMutex );
 	}
 }
 

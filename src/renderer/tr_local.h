@@ -1384,7 +1384,7 @@ void        *GLimp_RendererSleep( void );
 void        GLimp_FrontEndSleep( void );
 void        GLimp_WakeRenderer( void *data );
 void        R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones );
-void        GLimp_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones );
+void        GLimp_LockBones( qboolean lock );
 void        GLimp_LogComment( char *comment );
 
 void GLimp_SetGamma( unsigned char red[256],

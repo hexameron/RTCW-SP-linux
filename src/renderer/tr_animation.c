@@ -40,16 +40,7 @@ frame.
 
 */
 
-//#define DBG_PROFILE_BONES
-
-//-----------------------------------------------------------------------------
-// Static Vars, ugly but easiest (and fastest) means of seperating RB_SurfaceAnim
-// and R_CalcBones
-
 static mdsBoneFrame_t bones[MDS_MAX_BONES];
-static mdsBoneInfo_t   *boneInfo;
-static mdsFrame_t      *frame, *torsoFrame;
-static vec3_t torsoParentOffset;
 
 //-----------------------------------------------------------------------------
 
@@ -635,26 +626,48 @@ __inline void Matrix3Transpose( const vec3_t matrix[3], vec3_t transpose[3] ) {
 	}
 }
 
-
 /*
 ==============
-R_CalcBone
+R_CalcBones
+
+The list of bones[] should only be built and modified from within here
 ==============
 */
-void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum ) {
-	int j;
+void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones ) {
+
+	int   i, j;
+	int   *boneRefs;
+	float torsoWeight;
+	mdsBoneFrame_t  *bonePtr, *parentBone;
+	mdsFrame_t      *frame, *torsoFrame;
+	mdsBoneInfo_t   *boneInfo, *thisBoneInfo, *parentBoneInfo;
+	mdsBoneFrameCompressed_t    *cBonePtr, *cTBonePtr,  *cBoneList, *cBoneListTorso;
+	vec3_t t, torsoAxis[3], tmpAxis[3], torsoParentOffset;
+	vec4_t m1[4], m2[4];
+	int frameSize;
+
+	frameSize = (int) ( sizeof( mdsFrame_t ) + ( header->numBones - 1 ) * sizeof( mdsBoneFrameCompressed_t ) );
+	frame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->frame * frameSize );
+	torsoFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->torsoFrame * frameSize );
+
+	boneInfo = ( mdsBoneInfo_t * )( (byte *)header + header->ofsBones );
+	boneRefs = boneList;
+	Matrix3Transpose( refent->torsoAxis, torsoAxis );
+	cBoneList = frame->bones;
+	cBoneListTorso = torsoFrame->bones;
+
+	for ( i = 0; i < numBones; i++, boneRefs++ ) {
+	// R_CalcBone( header, refent, *boneRefs );
+//void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum ) {
+{
+	int     boneNum;
 	short	*sh;
 	float	*pf, diff;
 	vec3_t tangles, angles, vec, v2;
 	qboolean isTorso, fullTorso;
-	mdsBoneFrame_t  *bonePtr, *parentBone;
-	mdsBoneInfo_t   *thisBoneInfo, *parentBoneInfo;
-	mdsBoneFrameCompressed_t    *cBonePtr, *cTBonePtr,  *cBoneList, *cBoneListTorso;
 
+	boneNum = *boneRefs;
 	thisBoneInfo = &boneInfo[boneNum];
-	cBoneList = frame->bones;
-	cBoneListTorso = torsoFrame->bones;
-
 	if ( thisBoneInfo->torsoWeight ) {
 		cTBonePtr = &cBoneListTorso[boneNum];
 		isTorso = qtrue;
@@ -741,43 +754,7 @@ void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum ) {
 		VectorCopy( bonePtr->translation, torsoParentOffset );
 	}
 }
-
-/*
-==============
-R_CalcBones
-
-	The list of bones[] should only be built and modified from within here
-==============
-*/
-void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones ) {
-
-	int i;
-	int     *boneRefs;
-	float torsoWeight;
-	mdsBoneFrame_t  *bonePtr;
-	mdsBoneInfo_t	*thisBoneInfo;
-	vec3_t t, torsoAxis[3], tmpAxis[3];
-	vec4_t m1[4], m2[4];
-	int frameSize;
-
-	frameSize = (int) ( sizeof( mdsFrame_t ) + ( header->numBones - 1 ) * sizeof( mdsBoneFrameCompressed_t ) );
-
-	frame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames +
-							  refent->frame * frameSize );
-	torsoFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames +
-								   refent->torsoFrame * frameSize );
-
-	//
-	// lerp all the needed bones (torsoParent is always the first bone in the list)
-	//
-	boneInfo = ( mdsBoneInfo_t * )( (byte *)header + header->ofsBones );
-	boneRefs = boneList;
-	//
-	Matrix3Transpose( refent->torsoAxis, torsoAxis );
-
-	for ( i = 0; i < numBones; i++, boneRefs++ ) {
-		// Assume parent has lower bone number
-		R_CalcBone( header, refent, *boneRefs );
+// } void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum )
 	}
 
 	// adjust for torso rotations

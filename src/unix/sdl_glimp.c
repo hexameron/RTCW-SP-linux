@@ -565,24 +565,11 @@ SMP
 */
 static const char *GLthreadname         = "rtcwSMP";
 static SDL_mutex  *smpMutex             = NULL;
-static SDL_mutex  *boneMutex            = NULL;
 static SDL_cond   *renderCommandsEvent  = NULL;
 static SDL_cond   *renderCompletedEvent = NULL;
 static void  (*glimpRenderThread)(void) = NULL;
 static SDL_Thread *renderThread         = NULL;
 static volatile void *smpData           = NULL;
-
-/* Bones are changed from frontend and backend at the same time */
-void GLimp_LockBones( qboolean lock )
-{
-	if ( boneMutex )
-	{
-		if ( lock )
-			SDL_LockMutex( boneMutex );
-		else
-			SDL_UnlockMutex( boneMutex );
-	}
-}
 
 /*
 ===============
@@ -595,11 +582,6 @@ void GLimp_ShutdownRenderThread(void)
 	{
 		SDL_DestroyMutex(smpMutex);
 		smpMutex = NULL;
-	}
-	if (boneMutex != NULL)
-	{
-		SDL_DestroyMutex(boneMutex);
-		boneMutex = NULL;
 	}
 	if (renderCommandsEvent != NULL)
 	{
@@ -661,8 +643,7 @@ qboolean GLimp_SpawnRenderThread(void (*function)(void))
 	smpData = (void *)0xdead;
 
 	smpMutex = SDL_CreateMutex();
-	boneMutex = SDL_CreateMutex();
-	if ((smpMutex == NULL) || (boneMutex == NULL))
+	if (!smpMutex) 
 	{
 		Com_Printf("SMP: Mutex creation failed: %s\n", SDL_GetError());
 		GLimp_ShutdownRenderThread();

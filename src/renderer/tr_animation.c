@@ -40,7 +40,7 @@ frame.
 
 */
 
-static mdsBoneFrame_t bones[MDS_MAX_BONES];
+mdsBoneFrame_t smpbones[2][MDS_MAX_BONES];
 
 //-----------------------------------------------------------------------------
 
@@ -633,12 +633,12 @@ R_CalcBones
 The list of bones[] should only be built and modified from within here
 ==============
 */
-void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones ) {
+void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones, int renderend ) {
 
 	int   i, j;
 	int   *boneRefs;
 	float torsoWeight;
-	mdsBoneFrame_t  *bonePtr, *parentBone;
+	mdsBoneFrame_t  *bones, *bonePtr, *parentBone;
 	mdsFrame_t      *frame, *torsoFrame;
 	mdsBoneInfo_t   *boneInfo, *thisBoneInfo, *parentBoneInfo;
 	mdsBoneFrameCompressed_t    *cBonePtr, *cTBonePtr,  *cBoneList, *cBoneListTorso;
@@ -646,6 +646,7 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 	vec4_t m1[4], m2[4];
 	int frameSize;
 
+	bones = smpbones[renderend];
 	frameSize = (int) ( sizeof( mdsFrame_t ) + ( header->numBones - 1 ) * sizeof( mdsBoneFrameCompressed_t ) );
 	frame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->frame * frameSize );
 	torsoFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->torsoFrame * frameSize );
@@ -939,8 +940,8 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	tempVert = ( float * )( tess.xyz + baseVertex );
 	tempNormal = ( float * )( tess.normal + baseVertex );
 
-	GLimp_LockBones( qtrue );
-	R_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences );
+	//LockBones
+	R_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences, 1 );
 
 	for ( j = 0; j < render_count; j++, tempVert += 4, tempNormal += 4 ) {
 		mdsWeight_t *w;
@@ -949,17 +950,17 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 		w = v->weights;
 		for ( k = 0 ; k < v->numWeights ; k++, w++ ) {
-			bone = &bones[w->boneIndex];
+			bone = &smpbones[1][w->boneIndex];
 			LocalAddScaledMatrixTransformVectorTranslate( w->offset, w->boneWeight, bone->matrix, bone->translation, tempVert );
 		}
-		LocalMatrixTransformVector( v->normal, bones[v->weights[0].boneIndex].matrix, tempNormal );
+		LocalMatrixTransformVector( v->normal, smpbones[1][v->weights[0].boneIndex].matrix, tempNormal );
 
 		tess.texCoords[baseVertex + j][0][0] = v->texCoords[0];
 		tess.texCoords[baseVertex + j][0][1] = v->texCoords[1];
 
 		v = (mdsVertex_t *)&v->weights[v->numWeights];
 	}
-	GLimp_LockBones( qfalse );
+	//UnlockBones
 }
 
 /*
@@ -1019,17 +1020,15 @@ int R_GetBoneTag( orientation_t *outTag, mdsHeader_t *mds, int startTagIndex, co
 	boneInfoList = ( mdsBoneInfo_t * )( (byte *)mds + mds->ofsBones );
 	numBones = 0;
 
-	GLimp_LockBones( qtrue );
-
+	//LockBones
 	R_RecursiveBoneListAdd( pTag->boneIndex, boneList, &numBones, boneInfoList );
-	R_CalcBones( (mdsHeader_t *)mds, refent, boneList, numBones );
-
-	GLimp_LockBones( qfalse );
+	R_CalcBones( (mdsHeader_t *)mds, refent, boneList, numBones, 0 );
+	//UnlockBones
 
 	// now extract the orientation for the bone that represents our tag
 
-	memcpy( outTag->axis, bones[ pTag->boneIndex ].matrix, sizeof( outTag->axis ) );
-	VectorCopy( bones[ pTag->boneIndex ].translation, outTag->origin );
+	memcpy( outTag->axis, smpbones[0][ pTag->boneIndex ].matrix, sizeof( outTag->axis ) );
+	VectorCopy( smpbones[0][ pTag->boneIndex ].translation, outTag->origin );
 
 	return i;
 }

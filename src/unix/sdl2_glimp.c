@@ -49,14 +49,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "../client/client.h"
 #include "linux_local.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_video.h>
-#include <SDL/SDL_thread.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_thread.h>
 
-#define WINDOW_CLASS_NAME   "Return to Castle Wolfenstein"
-#define WINDOW_CLASS_NAME_MIN "RtCW"
-static SDL_Surface      *SDLvidscreen = NULL;
-static const SDL_VideoInfo *videoInfo = NULL;
+static const char *WindowTitle = "RtC Wolfenstein";
+SDL_Window    *SDLvidscreen = NULL;
+SDL_GLContext GLContext     = NULL;
 
 void(APIENTRYP qglActiveTextureARB) (GLenum texture);
 void(APIENTRYP qglClientActiveTextureARB) (GLenum texture);
@@ -138,15 +137,18 @@ void GLimp_Shutdown( void ) {
 	{
 		// may already be dead if called from signal handler
 		GLimp_WakeRenderer( (void *)0xdead );
+		// must call SDL_GL_DeleteContext() from GL thread
 		// - and wait for it to return
 		GLimp_FrontEndSleep();
-	}
+	} else if ( GLContext )
+		SDL_GL_DeleteContext( GLContext );
 	if ( SDLvidscreen )
 		SDL_VideoQuit();
 	if ( SDL_WasInit(SDL_INIT_VIDEO) )
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	GLimp_ShutdownRenderThread();
+	GLContext = NULL;
 	SDLvidscreen = NULL;
 	memset( &glConfig, 0, sizeof( glConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
@@ -157,38 +159,23 @@ void GLimp_LogComment( char *comment ) {
 
 int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 {
+	SDL_DisplayMode  videoInfo;
 	int         sdlcolorbits;
 	int         colorbits, depthbits, stencilbits;
 	int         tcolorbits, tdepthbits, tstencilbits;
 	int         i          = 0;
-	Uint32      flags      = SDL_OPENGL;
+	Uint32      flags      = SDL_WINDOW_OPENGL;
 
 	ri.Printf(PRINT_ALL, "Initializing OpenGL display\n");
-
-	if (videoInfo == NULL)
-	{
-		static SDL_VideoInfo   sVideoInfo;
-		static SDL_PixelFormat sPixelFormat;
-
-		videoInfo = SDL_GetVideoInfo();
-
-		// Take a copy of the videoInfo
-		Com_Memcpy(&sPixelFormat, videoInfo->vfmt, sizeof(SDL_PixelFormat));
-		sPixelFormat.palette = NULL; // Should already be the case
-		Com_Memcpy(&sVideoInfo, videoInfo, sizeof(SDL_VideoInfo));
-		sVideoInfo.vfmt = &sPixelFormat;
-		videoInfo       = &sVideoInfo;
-	}
-
-
 
 	if (mode == -2)
 	{
 		// use desktop video resolution
-		if ( videoInfo->current_w > 0)
+		SDL_GetDesktopDisplayMode( 0, &videoInfo);
+		if ( videoInfo.w > 0)
 		{
-			glConfig.vidWidth  = videoInfo->current_w;
-			glConfig.vidHeight = videoInfo->current_h;
+			glConfig.vidWidth  = videoInfo.w;
+			glConfig.vidHeight = videoInfo.h;
 		}
 		else
 		{
@@ -209,29 +196,33 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 
 	if (fullscreen)
 	{
-		flags |= SDL_FULLSCREEN;
+		flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
 		glConfig.isFullscreen = qtrue;
 	}
 	else
 	{
 		if (noborder)
-			flags |= SDL_NOFRAME;
+		{
+			flags |= SDL_WINDOW_BORDERLESS;
+		}
 
 		glConfig.isFullscreen = qfalse;
 	}
 
-	SDL_WM_SetCaption(WINDOW_CLASS_NAME, WINDOW_CLASS_NAME_MIN);
-	SDL_ShowCursor(0);
-
 	colorbits = r_colorbits->value;
 	if ((!colorbits) || (colorbits >= 32))
+	{
 		colorbits = 24;
+	}
 
 	if (!r_depthbits->value)
+	{
 		depthbits = 24;
+	}
 	else
+	{
 		depthbits = r_depthbits->value;
-
+	}
 	stencilbits = r_stencilbits->value;
 
 	for (i = 0; i < 16; i++)
@@ -247,18 +238,28 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 			{
 			case 2:
 				if (colorbits == 24)
+				{
 					colorbits = 16;
+				}
 				break;
 			case 1:
 				if (depthbits == 24)
+				{
 					depthbits = 16;
+				}
 				else if (depthbits == 16)
+				{
 					depthbits = 8;
+				}
 			case 3:
 				if (stencilbits == 24)
+				{
 					stencilbits = 16;
+				}
 				else if (stencilbits == 16)
+				{
 					stencilbits = 8;
+				}
 			}
 		}
 
@@ -269,30 +270,44 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		if ((i % 4) == 3) // reduce colorbits
 		{
 			if (tcolorbits == 24)
+			{
 				tcolorbits = 16;
+			}
 		}
 
 		if ((i % 4) == 2) // reduce depthbits
 		{
 			if (tdepthbits == 24)
+			{
 				tdepthbits = 16;
+			}
 			else if (tdepthbits == 16)
+			{
 				tdepthbits = 8;
+			}
 		}
 
 		if ((i % 4) == 1) // reduce stencilbits
 		{
 			if (tstencilbits == 24)
+			{
 				tstencilbits = 16;
+			}
 			else if (tstencilbits == 16)
+			{
 				tstencilbits = 8;
+			}
 			else
+			{
 				tstencilbits = 0;
+			}
 		}
 
 		sdlcolorbits = 4;
 		if (tcolorbits == 24)
+		{
 			sdlcolorbits = 8;
+		}
 
 		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, sdlcolorbits);
 		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, sdlcolorbits);
@@ -304,7 +319,9 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-		if (!(SDLvidscreen = SDL_SetVideoMode(glConfig.vidWidth, glConfig.vidHeight, colorbits, flags)))
+		SDL_ShowCursor(0);
+
+		if (!(SDLvidscreen = SDL_CreateWindow( WindowTitle, 0, 0, glConfig.vidWidth, glConfig.vidHeight, flags )))
 			continue;
 
 		ri.Printf(PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n",
@@ -315,6 +332,9 @@ int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		glConfig.stencilBits = tstencilbits;
 		break;
 	}
+
+	ri.Printf(PRINT_ALL, "Mode:\n");
+//	GLimp_DetectAvailableModes();
 
 	if (!SDLvidscreen)
 	{
@@ -330,7 +350,7 @@ qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean nob
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		char driverName[64];
+		const char *driverName = NULL;
 
 		if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		{
@@ -339,10 +359,12 @@ qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean nob
 			return qfalse;
 		}
 
-		SDL_VideoDriverName(driverName, sizeof(driverName) - 1);
-		ri.Printf(PRINT_ALL, "SDL using driver \"%s\"\n", driverName);
-		Cvar_Set("r_sdlDriver", driverName);
-
+		driverName = SDL_GetCurrentVideoDriver();
+		if ( driverName )
+		{
+			ri.Printf(PRINT_ALL, "SDL using driver \"%s\"\n", driverName);
+			Cvar_Set("r_sdlDriver", driverName);
+		}
 	}
 
 	if (fullscreen && Cvar_VariableIntegerValue("in_nograb"))
@@ -368,6 +390,8 @@ qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean nob
 		break;
 	}
 
+	GLContext = SDL_GL_CreateContext( SDLvidscreen );
+
         if ( !qglGetString(GL_VENDOR) )
                 return qfalse;
 
@@ -385,8 +409,7 @@ qboolean GLimp_HaveExtension( char *ext )
 	ptr += strlen(ext);
 	return ((*ptr == ' ') || (*ptr == '\0'));
 }
-
-void GLimp_InitExtensions(void)
+static void GLimp_InitExtensions(void)
 {
 	ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
 
@@ -501,6 +524,9 @@ void GLimp_Init( void ) {
 	if( !GLimp_StartDriverAndSetMode( r_mode->integer, r_fullscreen->integer , qfalse) )
 		ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n" );
 
+	if ( SDL_SetWindowBrightness( SDLvidscreen, 1.0f ) == -1 )
+		ri.Printf(PRINT_ALL, "SDL: failed to set window brightness.\n");
+
 	// Hardware gamma is not supported in recent Linux/SDL.
 	glConfig.deviceSupportsGamma = qfalse;
 
@@ -525,7 +551,7 @@ Responsible for doing a swapbuffers and possibly for other stuff
 void GLimp_EndFrame( void ) {
 	// don't flip if drawing to front buffer
 	if (Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
-		SDL_GL_SwapBuffers();
+		SDL_GL_SwapWindow( SDLvidscreen );
 }
 
 // Obsolete stub
@@ -537,7 +563,7 @@ void Sys_SendKeyEvents( void ) {
 SMP
 ===============
 */
-char   GLthreadname[16]			= "rtcwSMP";
+static const char *GLthreadname         = "rtcwSMP";
 static SDL_mutex  *smpMutex             = NULL;
 static SDL_cond   *renderCommandsEvent  = NULL;
 static SDL_cond   *renderCompletedEvent = NULL;
@@ -574,11 +600,13 @@ void GLimp_ShutdownRenderThread(void)
 GLimp_RenderThreadWrapper
 ===============
 */
-int GLimp_RenderThreadWrapper(void *arg)
+static int GLimp_RenderThreadWrapper(void *arg)
 {
 	Com_Printf("SMP: Render thread starting.\n");
 	glimpRenderThread();
 
+	if ( GLContext )
+		SDL_GL_DeleteContext( GLContext );
 	SDL_LockMutex(smpMutex);
 	{
 		smpData = NULL;
@@ -639,7 +667,7 @@ qboolean GLimp_SpawnRenderThread(void (*function)(void))
 	}
 
 	glimpRenderThread = function;
-	renderThread      = SDL_CreateThread(GLimp_RenderThreadWrapper, GLthreadname);
+	renderThread      = SDL_CreateThread(GLimp_RenderThreadWrapper, GLthreadname, NULL);
 	if (renderThread == NULL)
 	{
 		ri.Printf(PRINT_ALL, "SDL: CreateThread() returned %s", SDL_GetError());
@@ -718,4 +746,3 @@ void GLimp_WakeRenderer(void *data)
 	}
 	SDL_UnlockMutex(smpMutex);
 }
-

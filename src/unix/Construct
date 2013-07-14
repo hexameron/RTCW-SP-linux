@@ -56,9 +56,9 @@ if(@ARGV gt 0)
       $do_setup = 1;
       next;
     }
-    elsif(lc($cmdopt) eq 'demo')
+    elsif(lc($cmdopt) eq 'sdl2')
     {
-      $do_demo = 1;
+      $config = 'sdl2';
       next;
     }
     elsif(lc($cmdopt) eq 'info')
@@ -168,7 +168,14 @@ Link $BUILD_DIR => '..';
 
 Export qw( BASE_CFLAGS CONFIG_DIR BUILD_DIR CC CXX LINK );
 
+if ($config eq 'sdl2')
+{
+Build $BUILD_DIR . "/unix/Conscript-client2";
+}
+else
+{
 Build $BUILD_DIR . "/unix/Conscript-client";
+}
 
 #---------------------------------------------
 $TARGET_DIR = 'game';
@@ -223,16 +230,13 @@ if ($do_setup eq 1)
 # cons help for those that ask for it (with 'cons -h')
 Help 
 "
-Usage: cons [-h] [ -- [release|debug] [demo] [setup] [info]]
+Usage: cons [-h] [ -- [release|debug|sdl2] [setup] [info]]
 
 options:
-[release|debug]
- Default build type is Debug, specifying '-- release' on the
- command line builds a Release version.
+[release|sdl2]
+ Default build type is SDL 1.2, specifying '-- sdl2 on the
+ command line builds an SDL 2.0 version.
  
-[demo]
- This switch uses -DPRE_RELEASE_DEMO and builds for MPTest
-
 [setup]
  'cons -- setup' will build then execute the setup building scripts
    NOTE: 'cons -- setup' will default to release configuration

@@ -1,5 +1,10 @@
 /**************************************************************
- 64bit safe, with bugfixes and experimental SMP. Requires SDL2.
+ 64bit safe, with bugfixes, SDL 1.2  and experimental SMP.
+	Use "cd src/unix && ./cons"
+
+ SMP Requires SDL 2.0 for window changes on some drivers:
+	Use "cd src/unix && ./cons -- sdl2"
+
 **************************************************************/
 
 Return to Castle Wolfenstein single player GPL source release

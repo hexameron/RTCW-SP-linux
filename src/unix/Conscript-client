@@ -128,11 +128,10 @@ $env = new cons(
 	CXX => $CXX,
 	LINK => $LINK,
   CFLAGS => $BASE_CFLAGS,
-#  LDFLAGS => '-L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm -ldl -lm',
   LIBS => ' ' . $BUILD_DIR . '/unix/splines.a ' 
   . $BUILD_DIR . '/unix/botlib.a ' 
   . $BUILD_DIR . '/unix/jpeglib.a '
-  . '-lSDL2 -lGL -ldl -lm'
+  . '-lSDL -lGL -ldl -lm'
 );
 
 @RENDERER_FILES = qw(

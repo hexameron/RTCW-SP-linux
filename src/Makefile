@@ -1,3 +1,8 @@
-# nasty ugly to get build system working from Anjuta
 all:
-	cd unix && ./cons 
+	cd unix && ./cons
+
+debug:
+	cd unix && ./cons -- debug
+
+sdl2:
+	cd unix && ./cons -- sdl2

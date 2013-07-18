@@ -2,9 +2,9 @@
 ===========================================================================
 
 Return to Castle Wolfenstein single player GPL Source Code
-Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Return to Castle Wolfenstein single player GPL Source Code (RTCW SP Source Code).  
+This file is part of the Return to Castle Wolfenstein single player GPL Source Code (RTCW SP Source Code).
 
 RTCW SP Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -155,7 +155,7 @@ static int R_CullModel( mdsHeader_t *header, trRefEntity_t *ent ) {
 				if ( sphereCull == CULL_OUT ) {
 					tr.pc.c_sphere_cull_md3_out++;
 					return CULL_OUT;
-				} else if ( sphereCull == CULL_IN )   {
+				} else if ( sphereCull == CULL_IN ) {
 					tr.pc.c_sphere_cull_md3_in++;
 					return CULL_IN;
 				} else
@@ -349,7 +349,7 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 
 			if ( shader == tr.defaultShader ) {
 				ri.Printf( PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name );
-			} else if ( shader->defaultShader )     {
+			} else if ( shader->defaultShader ) {
 				ri.Printf( PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
 			}
 		} else {
@@ -635,7 +635,7 @@ The list of bones[] should only be built and modified from within here
 */
 void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones, int renderend ) {
 
-	int   i, j;
+	int i, j;
 	int   *boneRefs;
 	float torsoWeight;
 	mdsBoneFrame_t  *bones, *bonePtr, *parentBone;
@@ -658,104 +658,99 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 	cBoneListTorso = torsoFrame->bones;
 
 	for ( i = 0; i < numBones; i++, boneRefs++ ) {
-	// R_CalcBone( header, refent, *boneRefs );
-//void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum ) {
-{
-	int     boneNum;
-	short	*sh;
-	float	*pf, diff;
-	vec3_t tangles, angles, vec, v2;
-	qboolean isTorso, fullTorso;
+		// R_CalcBone( header, refent, *boneRefs );
+		int boneNum;
+		short   *sh;
+		float   *pf, diff;
+		vec3_t tangles, angles, vec, v2;
+		qboolean isTorso, fullTorso;
 
-	boneNum = *boneRefs;
-	thisBoneInfo = &boneInfo[boneNum];
-	if ( thisBoneInfo->torsoWeight ) {
-		cTBonePtr = &cBoneListTorso[boneNum];
-		isTorso = qtrue;
-		if ( thisBoneInfo->torsoWeight == 1.0f ) {
-			fullTorso = qtrue;
-		}
-	} else {
-		isTorso = qfalse;
-		fullTorso = qfalse;
-	}
-	cBonePtr = &cBoneList[boneNum];
-
-	bonePtr = &bones[ boneNum ];
-
-	// we can assume the parent has already been uncompressed for this frame + lerp
-	if ( thisBoneInfo->parent >= 0 ) {
-		parentBone = &bones[ thisBoneInfo->parent ];
-		parentBoneInfo = &boneInfo[ thisBoneInfo->parent ];
-	} else {
-		parentBone = NULL;
-		parentBoneInfo = NULL;
-	}
-
-	// rotation
-	if ( fullTorso ) {
-		sh = (short *)cTBonePtr->angles;
-		pf = angles;
-		ANGLES_SHORT_TO_FLOAT( pf, sh );
-	} else {
-		sh = (short *)cBonePtr->angles;
-		pf = angles;
-		ANGLES_SHORT_TO_FLOAT( pf, sh );
-		if ( isTorso ) {
-			sh = (short *)cTBonePtr->angles;
-			pf = tangles;
-			ANGLES_SHORT_TO_FLOAT( pf, sh );
-			// blend the angles together
-			for ( j = 0; j < 3; j++ ) {
-				diff = tangles[j] - angles[j];
-				if ( fabs( diff ) > 180 ) {
-					diff = AngleNormalize180( diff );
-				}
-				angles[j] = angles[j] + thisBoneInfo->torsoWeight * diff;
+		boneNum = *boneRefs;
+		thisBoneInfo = &boneInfo[boneNum];
+		if ( thisBoneInfo->torsoWeight ) {
+			cTBonePtr = &cBoneListTorso[boneNum];
+			isTorso = qtrue;
+			if ( thisBoneInfo->torsoWeight == 1.0f ) {
+				fullTorso = qtrue;
 			}
-		}
-	}
-	AnglesToAxis( angles, bonePtr->matrix );
-
-	// translation
-	if ( parentBone ) {
-
-		if ( fullTorso ) {
-			sh = (short *)cTBonePtr->ofsAngles; pf = angles;
-			*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
-			LocalAngleVector( angles, vec );
-			LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, vec, bonePtr->translation );
 		} else {
+			isTorso = qfalse;
+			fullTorso = qfalse;
+		}
+		cBonePtr = &cBoneList[boneNum];
 
-			sh = (short *)cBonePtr->ofsAngles; pf = angles;
-			*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
-			LocalAngleVector( angles, vec );
+		bonePtr = &bones[ boneNum ];
 
+		// we can assume the parent has already been uncompressed for this frame + lerp
+		if ( thisBoneInfo->parent >= 0 ) {
+			parentBone = &bones[ thisBoneInfo->parent ];
+			parentBoneInfo = &boneInfo[ thisBoneInfo->parent ];
+		} else {
+			parentBone = NULL;
+			parentBoneInfo = NULL;
+		}
+
+		// rotation
+		if ( fullTorso ) {
+			sh = (short *)cTBonePtr->angles;
+			pf = angles;
+			ANGLES_SHORT_TO_FLOAT( pf, sh );
+		} else {
+			sh = (short *)cBonePtr->angles;
+			pf = angles;
+			ANGLES_SHORT_TO_FLOAT( pf, sh );
 			if ( isTorso ) {
-				sh = (short *)cTBonePtr->ofsAngles;
+				sh = (short *)cTBonePtr->angles;
 				pf = tangles;
-				*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
-				LocalAngleVector( tangles, v2 );
-
+				ANGLES_SHORT_TO_FLOAT( pf, sh );
 				// blend the angles together
-				SLerp_Normal( vec, v2, thisBoneInfo->torsoWeight, vec );
-				LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, vec, bonePtr->translation );
-
-			} else {    // legs bone
-				LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, vec, bonePtr->translation );
+				for ( j = 0; j < 3; j++ ) {
+					diff = tangles[j] - angles[j];
+					if ( fabs( diff ) > 180 ) {
+						diff = AngleNormalize180( diff );
+					}
+					angles[j] = angles[j] + thisBoneInfo->torsoWeight * diff;
+				}
 			}
 		}
-	} else {    // just use the frame position
-		bonePtr->translation[0] = frame->parentOffset[0];
-		bonePtr->translation[1] = frame->parentOffset[1];
-		bonePtr->translation[2] = frame->parentOffset[2];
-	}
-	//
-	if ( boneNum == header->torsoParent ) { // this is the torsoParent
-		VectorCopy( bonePtr->translation, torsoParentOffset );
-	}
-}
-// } void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum )
+		AnglesToAxis( angles, bonePtr->matrix );
+
+		// translation
+		if ( parentBone ) {
+
+			if ( fullTorso ) {
+				sh = (short *)cTBonePtr->ofsAngles; pf = angles;
+				*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
+				LocalAngleVector( angles, vec );
+				LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, vec, bonePtr->translation );
+			} else {
+
+				sh = (short *)cBonePtr->ofsAngles; pf = angles;
+				*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
+				LocalAngleVector( angles, vec );
+
+				if ( isTorso ) {
+					sh = (short *)cTBonePtr->ofsAngles;
+					pf = tangles;
+					*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
+					LocalAngleVector( tangles, v2 );
+
+					// blend the angles together
+					SLerp_Normal( vec, v2, thisBoneInfo->torsoWeight, vec );
+					LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, vec, bonePtr->translation );
+
+				} else { // legs bone
+					LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, vec, bonePtr->translation );
+				}
+			}
+		} else { // just use the frame position
+			bonePtr->translation[0] = frame->parentOffset[0];
+			bonePtr->translation[1] = frame->parentOffset[1];
+			bonePtr->translation[2] = frame->parentOffset[2];
+		}
+		if ( boneNum == header->torsoParent ) {
+			VectorCopy( bonePtr->translation, torsoParentOffset );
+		}
 	}
 
 	// adjust for torso rotations
@@ -824,11 +819,11 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	mdsFrame_t      *backframe;
 	mdsBoneFrame_t  *bone;
 	mdsVertex_t     *v;
-	vec3_t          vec;
+	vec3_t vec;
 	float lodRadius, lodScale;
 	float *tempVert, *tempNormal;
-	int   baseIndex, baseVertex, oldIndexes, numVerts;
-	int   frameSize;
+	int baseIndex, baseVertex, oldIndexes, numVerts;
+	int frameSize;
 	int *collapse_map, *pCollapseMap;
 	int collapse[ MDS_MAX_VERTS ], *pCollapse;
 

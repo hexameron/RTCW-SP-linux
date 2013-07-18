@@ -813,53 +813,23 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	int render_count;
 	int p0, p1, p2, indexes;
 	refEntity_t     *refent;
-	int             *boneList;
-	int *triangles, *pIndexes;
+	int             *boneList, *triangles;
+	glIndex_t       *indexesEnd, *pIndexes;
 	mdsHeader_t     *header;
 	mdsFrame_t      *backframe;
 	mdsBoneFrame_t  *bone;
 	mdsVertex_t     *v;
-	vec3_t vec;
-	float lodRadius, lodScale;
 	float *tempVert, *tempNormal;
 	int baseIndex, baseVertex, oldIndexes, numVerts;
 	int frameSize;
-	int *collapse_map, *pCollapseMap;
-	int collapse[ MDS_MAX_VERTS ], *pCollapse;
 
 	refent = &backEnd.currentEntity->e;
 	boneList = ( int * )( (byte *)surface + surface->ofsBoneReferences );
 	header = ( mdsHeader_t * )( (byte *)surface + surface->ofsHeader );
 	frameSize = (int) ( sizeof( mdsFrame_t ) + ( header->numBones - 1 ) * sizeof( mdsBoneFrameCompressed_t ) );
 	backframe = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->frame * frameSize );
-	//
-	// calculate LOD
-	//
-	// TODO: lerp the radius and origin
-	VectorAdd( refent->origin, backframe->localOrigin, vec );
-	lodRadius = backframe->radius;
-	lodScale = R_CalcMDSLod( refent, vec, lodRadius, header->lodBias, header->lodScale );
 
-//----(SA)	modification to allow dead skeletal bodies to go below minlod (experiment)
-	if ( refent->reFlags & REFLAG_DEAD_LOD ) {
-		if ( lodScale < 0.35 ) {   // allow dead to lod down to 35% (even if below surf->minLod) (%35 is arbitrary and probably not good generally.  worked for the blackguard/infantry as a test though)
-			lodScale = 0.35;
-		}
-		render_count = (int)( (float) surface->numVerts * lodScale );
-
-	} else {
-		render_count = (int)( (float) surface->numVerts * lodScale );
-		if ( render_count < surface->minLod ) {
-			if ( !( refent->reFlags & REFLAG_DEAD_LOD ) ) {
-				render_count = surface->minLod;
-			}
-		}
-	}
-//----(SA)	end
-
-	if ( render_count > surface->numVerts ) {
-		render_count = surface->numVerts;
-	}
+	render_count = surface->numVerts;
 
 	RB_CheckOverflow( render_count, surface->numTriangles );
 
@@ -868,7 +838,6 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	//
 	RB_CheckOverflow( surface->numVerts, surface->numTriangles * 3 );
 
-	collapse_map   = ( int * )( ( byte * )surface + surface->ofsCollapseMap );
 	triangles = ( int * )( (byte *)surface + surface->ofsTriangles );
 	indexes = surface->numTriangles * 3;
 	baseIndex = tess.numIndexes;
@@ -879,53 +848,12 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 	pIndexes = &tess.indexes[baseIndex];
 
-	if ( render_count == surface->numVerts ) {
-		memcpy( pIndexes, triangles, sizeof( triangles[0] ) * indexes );
-		if ( baseVertex ) {
-			int *indexesEnd;
-			for ( indexesEnd = pIndexes + indexes ; pIndexes < indexesEnd ; pIndexes++ ) {
-				*pIndexes += baseVertex;
-			}
-		}
-		tess.numIndexes += indexes;
-	} else
-	{
-		int *collapseEnd;
-
-		pCollapse = collapse;
-		for ( j = 0; j < render_count; pCollapse++, j++ )
-		{
-			*pCollapse = j;
-		}
-
-		pCollapseMap = &collapse_map[render_count];
-		for ( collapseEnd = collapse + surface->numVerts ; pCollapse < collapseEnd; pCollapse++, pCollapseMap++ )
-		{
-			*pCollapse = collapse[ *pCollapseMap ];
-		}
-
-		for ( j = 0 ; j < indexes ; j += 3 )
-		{
-			p0 = collapse[ *( triangles++ ) ];
-			p1 = collapse[ *( triangles++ ) ];
-			p2 = collapse[ *( triangles++ ) ];
-
-			// FIXME
-			// note:  serious optimization opportunity here,
-			//  by sorting the triangles the following "continue"
-			//  could have been made into a "break" statement.
-			if ( p0 == p1 || p1 == p2 || p2 == p0 ) {
-				continue;
-			}
-
-			*( pIndexes++ ) = baseVertex + p0;
-			*( pIndexes++ ) = baseVertex + p1;
-			*( pIndexes++ ) = baseVertex + p2;
-			tess.numIndexes += 3;
-		}
-
-		baseIndex = tess.numIndexes;
+	//memcpy( pIndexes, triangles, sizeof( triangles[0] ) * indexes );
+	for ( i = 0 ; i < indexes ; i++ ) {
+		*pIndexes++ = baseVertex + *triangles++;
 	}
+
+	tess.numIndexes += indexes;
 
 	//
 	// deform the vertexes by the lerped bones

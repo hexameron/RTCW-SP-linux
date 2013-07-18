@@ -36,8 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_public.h"
 #include "qgl.h"
 
-#define GL_INDEX_TYPE       GL_UNSIGNED_INT
-typedef unsigned int glIndex_t;
+#define GL_INDEX_TYPE       GL_UNSIGNED_SHORT
+typedef unsigned short glIndex_t;
 
 // fast float to int conversion
 #if 0 // no i386 code 

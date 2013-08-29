@@ -112,7 +112,7 @@ if ($do_demo eq 1)
 }
 else
 {
-  $COMMON_CFLAGS = '-pipe -fsigned-char -I/opt/vc/include/interface/vcos/pthreads ';
+  $COMMON_CFLAGS = '-pipe -fsigned-char -DNDEBUG -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/interface/vcos/pthreads ';
   $BASEGAME = 'main';
 }
 
@@ -130,7 +130,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-Ofast -marm -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -I/opt/vc/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-O3 -march=armv6k -mtune=arm1176jzf-s -I/opt/vc/include/ -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce ';
 }
 
 # extract the wolf version from q_shared.h

@@ -1,3 +1,10 @@
+I am sure this was working six months ago ....
+
+1) Broadcom have broken the header files. Again.
+2) Now fails to load menudata ... perhaps broken by compiler changes.
+3) Use the supplied "./cons" because the debian version "cons" fails to install "extractfiles":
+	"cd src/unix && ./cons"
+
 /***********************************************
  Raspberry pi version: Almost Playable, too slow.
 

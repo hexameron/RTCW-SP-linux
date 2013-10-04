@@ -238,7 +238,7 @@ static void IN_GobbleMotionEvents(void)
 	// Gobble any mouse motion events
 	SDL_PumpEvents();
 	while (SDL_PeepEvents(dummy, 1, SDL_GETEVENT,
-				SDL_MOUSEMOTION,SDL_INPUTMOTION ))
+				SDL_MOUSEMOTION, SDL_MOUSEMOTION))
 	{
 	}
 }
@@ -724,8 +724,7 @@ static void IN_ProcessEvents(void)
 			               (e.type == SDL_MOUSEBUTTONDOWN ? qtrue : qfalse), 0, NULL);
 			break;
 
-                case SDL_MOUSEWHEEL:
-		case SDL_INPUTWHEEL:
+        case SDL_MOUSEWHEEL:
 			if (e.wheel.y > 0)
 				scrollwheel = K_MWHEELUP;
 			else
@@ -767,8 +766,6 @@ static void IN_ProcessEvents(void)
 
 		case SDL_TEXTEDITING:
 		case SDL_TEXTINPUT:
-		case SDL_INPUTBUTTONDOWN:
-		case SDL_INPUTBUTTONUP:
 		default:
 			break;
 		}

@@ -3682,7 +3682,7 @@ void R_LoadCacheImages( void ) {
 	byte *buf;
 	char    *token, *pString;
 	char name[MAX_QPATH];
-	int parms[3], i;
+	int parms[4], i;
 
 	if ( numBackupImages ) {
 		return;

@@ -658,7 +658,7 @@ typedef struct {
 	int teamVoteTime[2];                // level.time vote was called
 	int teamVoteYes[2];
 	int teamVoteNo[2];
-	int numteamVotingClients[2];        // set by CalculateRanks
+	int numteamVotingClients[TEAM_NUM_TEAMS];   // set by CalculateRanks
 
 	// spawn variables
 	qboolean spawning;                  // the G_Spawn*() functions are valid

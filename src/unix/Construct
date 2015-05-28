@@ -121,7 +121,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O3 -ffast-math -fno-strict-aliasing -fstrength-reduce ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O3 -ffast-math -fno-strict-aliasing -fstrength-reduce -Wno-write-strings ';
 }
 
 # extract the wolf version from q_shared.h

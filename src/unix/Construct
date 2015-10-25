@@ -24,15 +24,9 @@ $CXX='g++ ';
 $LINK=$CXX;
 
 # detection of build kernel CPU:
-# x86-64 kernel may have i686 userspace,
-# so "x86" can be 32 or 64 bit systems.
-
 $cpu = `uname -m`;
 chop ($cpu);
-if ($cpu +~ /i?86/)
-{
-  $cpu = 'x86';
-}
+
 # OS
 $OS = `uname`;
 chop ($OS);

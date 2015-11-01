@@ -193,8 +193,7 @@ void R_SyncRenderThread( void ) {
 ============
 R_GetCommandBuffer
 
-make sure there is enough command space, waiting on the
-render thread if needed.
+Cycle current buffer to Render Thread ASAP
 ============
 */
 void *R_GetCommandBuffer( int bytes ) {
@@ -202,11 +201,17 @@ void *R_GetCommandBuffer( int bytes ) {
 
 	cmdList = &backEndData[tr.smpFrame]->commands;
 
+	// restart render thread as soon as it is idle
+	if (glConfig.smpActive && !renderThreadActive && (cmdList->used > 0)) {
+		*( int * )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
+		GLimp_WakeRenderer( cmdList );
+		cmdList->used = 0;
+		tr.smpFrame ^= 1;
+		cmdList = &backEndData[tr.smpFrame]->commands;
+	}
+
 	// always leave room for the end of list command
 	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
-		if ( bytes > MAX_RENDER_COMMANDS - 4 ) {
-			ri.Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
-		}
 		// if we run out of room, just start dropping commands
 		return NULL;
 	}

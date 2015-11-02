@@ -2328,6 +2328,13 @@ void CL_StartHunkUsers( void ) {
 	}
 }
 
+/* Avoid profiling calls in release builds */
+#ifdef NDEBUG
+static	int cl_faketime = 0;
+int CL_FakeMilliseconds( void ) {
+	return ++cl_faketime;
+}
+#endif
 
 int CL_ScaledMilliseconds( void ) {
 	return Sys_Milliseconds() * com_timescale->value;
@@ -2351,7 +2358,11 @@ void CL_InitRef( void ) {
 	ri.Cmd_ExecuteText = Cbuf_ExecuteText;
 	ri.Printf = CL_RefPrintf;
 	ri.Error = Com_Error;
+#ifdef NDEBUG
+	ri.Milliseconds = CL_FakeMilliseconds;
+#else
 	ri.Milliseconds = CL_ScaledMilliseconds;
+#endif
 	ri.Hunk_Clear = Hunk_ClearToMark;
 #ifdef HUNK_DEBUG
 	ri.Hunk_AllocDebug = Hunk_AllocDebug;

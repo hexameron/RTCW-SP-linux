@@ -874,8 +874,6 @@ void RB_ZombieFX( int part, drawSurf_t *drawSurf, int oldNumVerts, int oldNumInd
 }
 
 
-#define MAC_EVENT_PUMP_MSEC     5
-
 /*
 ==================
 RB_RenderDrawSurfList
@@ -894,15 +892,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int oldNumVerts, oldNumIndex;
 //GR - tessellation flag
 	int atiTess = 0, oldAtiTess;
-#ifdef __MACOS__
-	int macEventTime;
-
-	Sys_PumpEvents();       // crutch up the mac's limited buffer queue size
-
-	// we don't want to pump the event loop too often and waste time, so
-	// we are going to check every shader change
-	macEventTime = ri.Milliseconds() + MAC_EVENT_PUMP_MSEC;
-#endif
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
@@ -955,15 +944,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			 || ( atiTess != oldAtiTess )
 			 || ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
 			if ( oldShader != NULL ) {
-#ifdef __MACOS__    // crutch up the mac's limited buffer queue size
-				int t;
-
-				t = ri.Milliseconds();
-				if ( t > macEventTime ) {
-					macEventTime = t + MAC_EVENT_PUMP_MSEC;
-					Sys_PumpEvents();
-				}
-#endif
 // GR - pass tessellation flag to the shader command
 //		make sure to use oldAtiTess!!!
 				tess.ATI_tess = ( oldAtiTess == ATI_TESS_TRUFORM );

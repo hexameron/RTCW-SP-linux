@@ -1,9 +1,9 @@
 /**************************************************************
- 64bit safe, with bugfixes, SDL 1.2  and experimental SMP.
-	Use "cd src/unix && ./cons"
+ 64bit safe, with bugfixes, SDL 1.2 or 2.0 and SMP support.
+	Build with "cd src/unix && ./cons"
 
  SMP Requires SDL 2.0 for window changes on some drivers:
-	Use "cd src/unix && ./cons -- sdl2"
+	Build with "cd src/unix && ./cons -- sdl2"
 
 **************************************************************/
 

@@ -610,8 +610,6 @@ qboolean GLimp_SpawnRenderThread(void (*function)(void))
 		Com_Printf("SMP: Render thread still Running.\n");
 		return qtrue;
 	}
-
-	Com_Printf("SMP: You enable r_smp at your own risk!\n");
 	smpData = (void *)0xdead;
 
 	smpMutex = SDL_CreateMutex();

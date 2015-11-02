@@ -133,21 +133,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	// clear it out, in case this is a sync and not a buffer flip
 	cmdList->used = 0;
 
-	if ( glConfig.smpActive ) {
-		// if the render thread is not idle, wait for it
-		if ( renderThreadActive ) {
-			c_blockedOnRender++;
-			if ( r_showSmp->integer ) {
-				ri.Printf( PRINT_ALL, "R" );
-			}
-		} else {
-			c_blockedOnMain++;
-			if ( r_showSmp->integer ) {
-				ri.Printf( PRINT_ALL, "." );
-			}
-		}
-
-		// sleep until the renderer has completed
+	if ( glConfig.smpActive && renderThreadActive) {
 		GLimp_FrontEndSleep();
 	}
 
@@ -163,7 +149,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		if ( !glConfig.smpActive ) {
 			RB_ExecuteRenderCommands( cmdList->cmds );
 		} else {
-			GLimp_WakeRenderer( cmdList );
+			GLimp_WakeRenderer( cmdList->cmds );
 		}
 	}
 }
@@ -183,10 +169,9 @@ void R_SyncRenderThread( void ) {
 
 	R_IssueRenderCommands( qfalse );
 
-	if ( !glConfig.smpActive ) {
-		return;
+	if ( glConfig.smpActive ) {
+		GLimp_FrontEndSleep();
 	}
-	GLimp_FrontEndSleep();
 }
 
 /*
@@ -202,16 +187,16 @@ void *R_GetCommandBuffer( int bytes ) {
 	cmdList = &backEndData[tr.smpFrame]->commands;
 
 	// restart render thread as soon as it is idle
-	if (glConfig.smpActive && !renderThreadActive && (cmdList->used > 0)) {
+	if (glConfig.smpActive && !renderThreadActive && (cmdList->used > 200)) {
 		*( int * )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
-		GLimp_WakeRenderer( cmdList );
+		GLimp_WakeRenderer( cmdList->cmds );
 		cmdList->used = 0;
 		tr.smpFrame ^= 1;
 		cmdList = &backEndData[tr.smpFrame]->commands;
 	}
 
 	// always leave room for the end of list command
-	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
+	if ( cmdList->used + bytes + sizeof(int) > MAX_RENDER_COMMANDS ) {
 		// if we run out of room, just start dropping commands
 		return NULL;
 	}

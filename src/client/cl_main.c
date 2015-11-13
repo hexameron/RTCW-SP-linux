@@ -2652,10 +2652,7 @@ void CL_Shutdown( void ) {
 	recursive = qtrue;
 
 	CL_Disconnect( qtrue );
-
-	S_Shutdown();
 	CL_ShutdownRef();
-
 	CL_ShutdownUI();
 
 	Cmd_RemoveCommand( "cmd" );
@@ -2688,6 +2685,7 @@ void CL_Shutdown( void ) {
 	Cmd_RemoveCommand( "updatehunkusage" );
 	// done.
 
+	S_Shutdown();
 	Cvar_Set( "cl_running", "0" );
 
 	recursive = qfalse;

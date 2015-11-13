@@ -338,8 +338,11 @@ SNDDMA_Shutdown
 */
 void SNDDMA_Shutdown(void)
 {
+	if ( !snd_inited ) {
+		Com_Printf("SDL audio device not started\n");
+		return;
+	}
 	Com_Printf("Closing SDL audio device...\n");
-	SDL_PauseAudio(1);
 	SDL_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	free(dma.buffer);

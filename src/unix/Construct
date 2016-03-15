@@ -112,7 +112,7 @@ if ($do_demo eq 1)
 }
 else
 {
-  $COMMON_CFLAGS = '-pipe -fsigned-char -DNDEBUG -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/interface/vcos/pthreads ';
+  $COMMON_CFLAGS = '-pipe -fsigned-char -DNDEBUG ';
   $BASEGAME = 'main';
 }
 

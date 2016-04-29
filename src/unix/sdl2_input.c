@@ -419,7 +419,7 @@ static void IN_ShutdownJoystick(void)
 	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
-static void IN_JoyMove(void)
+void IN_JoyMove(void)
 {
 	qboolean     joy_pressed[ARRAY_LEN(joy_keys)];
 	unsigned int axes  = 0;

@@ -216,7 +216,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 
 	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
 	if ( !cmd )
-		return;
+		return NULL;
 	cmd->commandId = RC_CREATE_IMAGE;
 	cmd->name = name;
 	cmd->pic = pic;

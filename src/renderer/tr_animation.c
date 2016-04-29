@@ -414,13 +414,11 @@ __inline void LocalAddScaledMatrixTransformVector( vec3_t in, float s, vec3_t ma
 	out[ 2 ] += s * ( in[ 0 ] * mat[ 2 ][ 0 ] + in[ 1 ] * mat[ 2 ][ 1 ] + in[ 2 ] * mat[ 2 ][ 2 ] );
 }
 
-static float LAVangle;
-//static float		sr; // TTimo: unused
-static float sp, sy;
-//static float    cr; // TTimo: unused
-static float cp, cy;
-
 __inline void LocalAngleVector( vec3_t angles, vec3_t forward ) {
+	float LAVangle;
+	float sp, sy;
+	float cp, cy;
+
 	LAVangle = angles[YAW] * ( M_PI * 2 / 360 );
 	sy = sin( LAVangle );
 	cy = cos( LAVangle );

@@ -35,13 +35,13 @@ void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptr
 qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message );
 
 // Input subsystem
-#if 0 //not for  SDL
 void IN_Init( void );
 void IN_Frame( void );
 void IN_Shutdown( void );
 void IN_JoyMove( void );
-void IN_StartupJoystick( void );
-#endif
+void Sys_SendKeyEvents();
+
+// void IN_StartupJoystick( void );
 
 // GL subsystem
 qboolean QGL_Init( const char *dllname );

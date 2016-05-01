@@ -152,12 +152,13 @@ void tty_FlushIn() {
 //   (there may be a way to find out if '\b' alone would work though)
 void tty_Back() {
 	char key;
+	size_t retval = 0;
 	key = '\b';
-	write( 1, &key, 1 );
+	retval += write( 1, &key, 1 );
 	key = ' ';
-	write( 1, &key, 1 );
+	retval += write( 1, &key, 1 );
 	key = '\b';
-	write( 1, &key, 1 );
+	retval += write( 1, &key, 1 );
 }
 
 // clear the display of the line currently edited
@@ -187,9 +188,10 @@ void tty_Show() {
 	ttycon_hide--;
 	if ( ttycon_hide == 0 ) {
 		if ( tty_con.cursor ) {
+			size_t retval = 0;
 			for ( i = 0; i < tty_con.cursor; i++ )
 			{
-				write( 1, tty_con.buffer + i, 1 );
+				retval += write( 1, tty_con.buffer + i, 1 );
 			}
 		}
 	}
@@ -454,6 +456,7 @@ char *Sys_ConsoleInput( void ) {
 	int i;
 	int avail;
 	char key;
+	size_t retval = 0;
 	field_t *history;
 
 	if ( ttycon && ttycon->value ) {
@@ -478,7 +481,7 @@ char *Sys_ConsoleInput( void ) {
 					strcpy( text, tty_con.buffer );
 					Field_Clear( &tty_con );
 					key = '\n';
-					write( 1, &key, 1 );
+					retval += write( 1, &key, 1 );
 					return text;
 				}
 				if ( key == '\t' ) {
@@ -547,7 +550,7 @@ char *Sys_ConsoleInput( void ) {
 			tty_con.buffer[tty_con.cursor] = key;
 			tty_con.cursor++;
 			// print the current line (this is differential)
-			write( 1, &key, 1 );
+			retval += write( 1, &key, 1 );
 		}
 		return NULL;
 	} else
@@ -1182,14 +1185,12 @@ UGLY HACK:
 void Sys_DoStartProcess( char *cmdline ) {
 	switch ( fork() )
 	{
-	case - 1:
-		// main thread
+	case -1:// error
 		break;
-	case 0:
+	case 0: // child
 		if ( strchr( cmdline, ' ' ) ) {
-			system( cmdline );
-		} else
-		{
+			int retval = system( cmdline );
+		} else {
 			execl( cmdline, cmdline, NULL );
 		}
 		_exit( 0 );
@@ -1286,12 +1287,13 @@ extern clientStatic_t cls;
 int main( int argc, char* argv[] ) {
 	// int  oldtime, newtime; // bk001204 - unused
 	int len, i;
+	int retval;
 	char  *cmdline;
 	void Sys_SetDefaultCDPath( const char *path );
 
 	// go back to real user for config loads
 	saved_euid = geteuid();
-	seteuid( getuid() );
+	retval = seteuid( getuid() );
 
 	Sys_ParseArgs( argc, argv ); // bk010104 - added this for support
 

@@ -1128,15 +1128,16 @@ static int unzlocal_getByte(FILE *fin,int *pi)
 */
 
 /* ===========================================================================
-   Reads a long in LSB order from the given gz_stream. Sets 
+   Reads a short in LSB order from the given gz_stream.
 */
 static int unzlocal_getShort (FILE* fin, uLong *pX)
 {
 	short	v;
 
-	fread( &v, sizeof(v), 1, fin );
-
-	*pX = LittleShort( v);
+	if ( fread( &v, sizeof(v), 1, fin ) < sizeof(v) )
+		*pX = 0;
+	else
+		*pX = LittleShort( v );
 	return UNZ_OK;
 
 /*
@@ -1161,11 +1162,12 @@ static int unzlocal_getShort (FILE* fin, uLong *pX)
 
 static int unzlocal_getLong (FILE *fin, uLong *pX)
 {
-	int		v;
+	int	v; // int32, int64, long, ulong ??
 
-	fread( &v, sizeof(v), 1, fin );
-
-	*pX = LittleLong( v);
+	if ( fread( &v, sizeof(v), 1, fin ) < sizeof(v) )
+		*pX = 0;
+	else
+		*pX = LittleLong( v);
 	return UNZ_OK;
 
 /*

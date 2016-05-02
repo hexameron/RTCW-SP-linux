@@ -19,6 +19,7 @@ $do_demo = 0;
 $do_info = 0;
 
 # compiler
+#$CC='clang ';
 $CC='gcc ';
 $CXX='g++ ';
 $LINK=$CXX;
@@ -115,7 +116,7 @@ if ($config eq 'debug')
 }
 else
 {
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O3 -ffast-math -fno-strict-aliasing -fstrength-reduce -Wno-write-strings ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-DNDEBUG -O3 -ffast-math -fno-strict-aliasing -Wno-write-strings ';
 }
 
 # extract the wolf version from q_shared.h

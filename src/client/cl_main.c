@@ -2840,10 +2840,10 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	cls.localServers[i].netType = from.type;
 	cls.localServers[i].allowAnonymous = 0;
 
-	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
+	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING - 1 );
 	if ( strlen( info ) ) {
 		if ( info[strlen( info ) - 1] != '\n' ) {
-			strncat( info, "\n", sizeof( info ) );
+			strncat( info, "\n", 1 );
 		}
 		Com_Printf( "%s: %s", NET_AdrToString( from ), info );
 	}

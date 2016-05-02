@@ -995,7 +995,7 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 				BG_AnimParseError( "BG_ParseCommands: exceeded maximum number of animations (%i)", MAX_ANIMSCRIPT_ANIMCOMMANDS );
 			}
 			command = &scriptItem->commands[scriptItem->numCommands++];
-			memset( command, 0, sizeof( command ) );
+			memset( command, 0, sizeof( animScriptCommand_t ) );
 		}
 
 		command->bodyPart[partIndex] = BG_IndexForString( token, animBodyPartsStr, qtrue );

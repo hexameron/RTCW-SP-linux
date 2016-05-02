@@ -759,9 +759,9 @@ void Cvar_Restart_f( void ) {
 			if ( var->resetString ) {
 				Z_Free( var->resetString );
 			}
-			// clear the var completely, since we
+			// don`t clear the var completely, since we
 			// can't remove the index from the list
-			memset( var, 0, sizeof( var ) );
+			memset( var, 0, 4 * sizeof( char * ) );
 			continue;
 		}
 

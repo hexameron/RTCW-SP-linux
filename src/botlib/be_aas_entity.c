@@ -352,8 +352,8 @@ int AAS_NearestEntity( vec3_t origin, int modelindex ) {
 			continue;
 		}
 		VectorSubtract( ent->i.origin, origin, dir );
-		if ( abs( dir[0] ) < 40 ) {
-			if ( abs( dir[1] ) < 40 ) {
+		if ( fabsf( dir[0] ) < 40 ) {
+			if ( fabsf( dir[1] ) < 40 ) {
 				dist = VectorLength( dir );
 				if ( dist < bestdist ) {
 					bestdist = dist;
@@ -467,7 +467,7 @@ void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking )
 	int numareas, i, w;
 	//
 	// check for resetting AAS blocking
-	if ( VectorCompare( absmin, absmax ) && blocking < 0 ) {
+	if ( VectorCompare( absmin, absmax ) && ( blocking == qreset ) ) {
 		for ( w = 0; w < MAX_AAS_WORLDS; w++ ) {
 			AAS_SetCurrentWorld( w );
 			//

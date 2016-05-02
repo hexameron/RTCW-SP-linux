@@ -222,11 +222,7 @@ void Sys_PumpEvents( void );
 
 
 typedef unsigned char byte;
-
-typedef enum {qfalse, qtrue}    qboolean;
-#if defined( __MACOS__ )
-#define qboolean int    //DAJ
-#endif
+typedef enum {qfalse=0, qtrue=1, qactive=2, qreset=-1}    qboolean;
 
 typedef int qhandle_t;
 typedef int sfxHandle_t;

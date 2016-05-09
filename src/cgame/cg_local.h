@@ -810,7 +810,7 @@ typedef struct {
 
 
 	// information screen text during loading
-	unsigned char infoScreenText[MAX_STRING_CHARS];
+	char infoScreenText[MAX_STRING_CHARS];
 
 	// scoreboard
 	int scoresRequestTime;
@@ -840,7 +840,7 @@ typedef struct {
 	int centerPrintTime;
 	int centerPrintCharWidth;
 	int centerPrintY;
-	unsigned char centerPrint[1024];
+	char centerPrint[1024];
 	int centerPrintLines;
 
 	// fade in/out

@@ -1934,7 +1934,7 @@ for a few moments
 ==============
 */
 void CG_CenterPrint( const char *str, int y, int charWidth ) {
-	unsigned char   *s;
+	char   *s;
 
 //----(SA)	added translation lookup
 	Q_strncpyz( cg.centerPrint, CG_translateString( (char*)str ), sizeof( cg.centerPrint ) );

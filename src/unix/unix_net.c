@@ -157,7 +157,7 @@ qboolean    Sys_StringToAdr( const char *s, netadr_t *a ) {
 qboolean    Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
 	int ret;
 	struct sockaddr_in from;
-	int fromlen;
+	socklen_t fromlen;
 	int net_socket;
 	int protocol;
 	int err;

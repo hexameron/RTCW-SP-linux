@@ -2118,7 +2118,7 @@ int BotEntityToActivate( int entitynum ) {
 		return 0;
 	}
 	trap_AAS_ValueForBSPEpairKey( ent, "classname", classname, sizeof( classname ) );
-	if ( !classname ) {
+	if ( !(classname[0]) ) {
 		BotAI_Print( PRT_ERROR, "BotEntityToActivate: entity with model %s has no classname\n", model );
 		return 0;
 	}

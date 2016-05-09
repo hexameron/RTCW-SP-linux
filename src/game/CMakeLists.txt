@@ -1,0 +1,57 @@
+add_definitions(-DGAMEDLL)
+
+add_library(game SHARED
+	../botai/ai_chat.c
+	../botai/ai_cmd.c
+	../botai/ai_dmnet.c
+	../botai/ai_dmq3.c
+	../botai/ai_main.c
+	../botai/ai_team.c 
+	ai_cast.c
+	ai_cast_characters.c
+	ai_cast_debug.c
+	ai_cast_events.c
+	ai_cast_fight.c
+	ai_cast_func_attack.c
+	ai_cast_func_boss1.c
+	ai_cast_funcs.c
+	ai_cast_script.c
+	ai_cast_script_actions.c
+	ai_cast_script_ents.c
+	ai_cast_sight.c
+	ai_cast_think.c
+	bg_animation.c
+	bg_misc.c
+	bg_pmove.c
+	bg_slidemove.c
+	g_active.c
+	g_alarm.c
+	g_bot.c
+	g_client.c
+	g_cmds.c
+	g_combat.c
+	g_items.c
+	g_main.c
+	g_mem.c
+	g_misc.c
+	g_missile.c
+	g_mover.c
+	g_props.c
+	g_save.c
+	g_script.c
+	g_script_actions.c
+	g_session.c
+	g_spawn.c
+	g_svcmds.c
+	g_syscalls.c
+	g_target.c
+	g_team.c
+	g_tramcar.c
+	g_trigger.c
+	g_utils.c
+	g_weapon.c
+	q_math.c
+	q_shared.c
+)
+target_link_libraries(game m)
+set_target_properties(game PROPERTIES PREFIX "" OUTPUT_NAME "qagame-rtcw")

@@ -141,7 +141,7 @@ static const char *IN_TranslateSDLToQ3Key(SDL_Keysym *keysym,
 		{
 			if (keysym->sym >= 'a' && 'z' >= keysym->sym)
 				buf[0] -= 0x20;
-			else if (keysym->sym = 0x2d)
+			else if (keysym->sym == 0x2d)
 				buf[0] = 0x5f; // "-" to "_"
 		}
 	}

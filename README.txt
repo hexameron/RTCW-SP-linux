@@ -5,6 +5,8 @@
  SMP Requires SDL 2.0 for window changes on some drivers:
 	Build with "cd src/unix && ./cons -- sdl2"
 
+ Building with Cmake selects SDL2
+
 **************************************************************/
 
 Return to Castle Wolfenstein single player GPL source release

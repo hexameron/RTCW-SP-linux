@@ -944,7 +944,7 @@ static float CG_DrawSnapshot( float y ) {
 CG_DrawFPS
 ==================
 */
-#define FPS_FRAMES  4
+#define FPS_FRAMES  8
 static float CG_DrawFPS( float y ) {
 	char        *s;
 	int w;
@@ -3349,9 +3349,8 @@ static void CG_Draw2D( void ) {
 		return;
 	}
 
-	if ( cg.cameraMode ) { //----(SA)	no 2d when in camera view
+	if ( cg.cameraMode ) {
 		CG_DrawFlashBlend();    // (for fades)
-		return;
 	}
 
 	if ( cg_draw2D.integer == 0 ) {
@@ -3398,12 +3397,8 @@ static void CG_Draw2D( void ) {
 	}
 
 	CG_DrawVote();
-
 	CG_DrawLagometer();
-
-	if ( !cg_paused.integer ) {
-		CG_DrawUpperRight();
-	}
+	CG_DrawUpperRight();
 
 //	CG_DrawLowerRight();
 	if ( !CG_DrawFollow() ) {
@@ -3413,7 +3408,6 @@ static void CG_Draw2D( void ) {
 	// don't draw center string if scoreboard is up
 	if ( !CG_DrawScoreboard() ) {
 		CG_DrawCenterString();
-
 		CG_DrawObjectiveInfo();     // NERVE - SMF
 	}
 

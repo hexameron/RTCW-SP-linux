@@ -663,6 +663,7 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 		vec3_t tangles, angles, vec, v2;
 		qboolean isTorso, fullTorso;
 
+		fullTorso = qfalse;
 		boneNum = *boneRefs;
 		thisBoneInfo = &boneInfo[boneNum];
 		if ( thisBoneInfo->torsoWeight ) {
@@ -673,7 +674,6 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 			}
 		} else {
 			isTorso = qfalse;
-			fullTorso = qfalse;
 		}
 		cBonePtr = &cBoneList[boneNum];
 

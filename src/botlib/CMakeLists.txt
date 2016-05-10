@@ -9,7 +9,8 @@ list(SORT C_SOURCES)
 add_definitions(-DBOTLIB)
 
 # Set the compiler to use
-set_source_files_properties(${C_SOURCES} PROPERTIES LANGUAGE C COMPILE_FLAGS "-g")
+# Set_source_files_properties(${C_SOURCES} PROPERTIES LANGUAGE C COMPILE_FLAGS "-g")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
 
 # Add to our library.
 add_library(botlib.a STATIC ${C_SOURCES})

@@ -42,28 +42,6 @@ If you have questions concerning this license or the applicable additional terms
 #define ALIGN_ON
 #define ALIGN_OFF
 
-#ifdef _WIN32
-
-#pragma warning(disable : 4018) // signed/unsigned mismatch
-#pragma warning(disable : 4032)
-#pragma warning(disable : 4051)
-#pragma warning(disable : 4057) // slightly different base types
-#pragma warning(disable : 4100) // unreferenced formal parameter
-#pragma warning(disable : 4115)
-#pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
-#pragma warning(disable : 4127) // conditional expression is constant
-#pragma warning(disable : 4136)
-#pragma warning(disable : 4201)
-#pragma warning(disable : 4214)
-#pragma warning(disable : 4244)
-#pragma warning(disable : 4305) // truncation from const double to float
-#pragma warning(disable : 4310) // cast truncates constant value
-#pragma warning(disable : 4514)
-#pragma warning(disable : 4711) // selected for automatic inline expansion
-#pragma warning(disable : 4220) // varargs matches remaining parameters
-
-#endif
-
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -73,48 +51,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <time.h>
 #include <ctype.h>
 #include <malloc.h>          // for _alloca()
-#pragma intrinsic( memset, memcpy )
-
-
-// this is the define for determining if we have an asm version of a C function
-#if 0 // never use i386 specifics
-#define id386   1
-#else
-#define id386   0
-#endif
-
-// for windows fastcall option
 
 #define QDECL
-
-//======================= WIN32 DEFINES =================================
-
-#ifdef WIN32
-
-#define MAC_STATIC
-
-#undef QDECL
-#define QDECL   __cdecl
-
-// buildstring will be incorporated into the version string
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP"
-#endif
-#else
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86-debug"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP-debug"
-#endif
-#endif
-
-
-#define PATH_SEP '\\'
-
-#endif
 
 //======================= MAC OS X SERVER DEFINES =====================
 

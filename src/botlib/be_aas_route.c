@@ -106,11 +106,6 @@ void AAS_RoutingFreeMemory( void *ptr ) {
 // done.
 
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 #ifdef ROUTING_DEBUG
 void AAS_RoutingInfo( void ) {
 	botimport.Print( PRT_MESSAGE, "%d area cache updates\n", numareacacheupdates );
@@ -121,12 +116,8 @@ void AAS_RoutingInfo( void ) {
 //===========================================================================
 // returns the number of the area in the cluster
 // assumes the given area is in the given cluster or a portal of the cluster
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
-__inline int AAS_ClusterAreaNum( int cluster, int areanum ) {
+int AAS_ClusterAreaNum( int cluster, int areanum ) {
 	int side, areacluster;
 
 	areacluster = ( *aasworld ).areasettings[areanum].cluster;
@@ -146,11 +137,6 @@ __inline int AAS_ClusterAreaNum( int cluster, int areanum ) {
 		return ( *aasworld ).portals[-areacluster].clusterareanum[side];
 	} //end else
 } //end of the function AAS_ClusterAreaNum
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
 //===========================================================================
 void AAS_InitTravelFlagFromType( void ) {
 	int i;
@@ -180,11 +166,6 @@ void AAS_InitTravelFlagFromType( void ) {
 	( *aasworld ).travelflagfortype[TRAVEL_FUNCBOB] = TFL_FUNCBOB;
 } //end of the function AAS_InitTravelFlagFromType
 //===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_TravelFlagForType( int traveltype ) {
 	if ( traveltype < 0 || traveltype >= MAX_TRAVELTYPES ) {
 		return TFL_INVALID;
@@ -192,29 +173,12 @@ int AAS_TravelFlagForType( int traveltype ) {
 	return ( *aasworld ).travelflagfortype[traveltype];
 } //end of the function AAS_TravelFlagForType
 //===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-__inline float AAS_RoutingTime( void ) {
-	return AAS_Time();
-} //end of the function AAS_RoutingTime
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
+#define AAS_RoutingTime AAS_Time
 //===========================================================================
 void AAS_FreeRoutingCache( aas_routingcache_t *cache ) {
 	routingcachesize -= cache->size;
 	AAS_RoutingFreeMemory( cache );
 } //end of the function AAS_FreeRoutingCache
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 void AAS_RemoveRoutingCacheInCluster( int clusternum ) {
 	int i;
@@ -235,11 +199,6 @@ void AAS_RemoveRoutingCacheInCluster( int clusternum ) {
 		( *aasworld ).clusterareacache[clusternum][i] = NULL;
 	} //end for
 } //end of the function AAS_RemoveRoutingCacheInCluster
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 void AAS_RemoveRoutingCacheUsingArea( int areanum ) {
 	int i, clusternum;
@@ -271,11 +230,6 @@ void AAS_RemoveRoutingCacheUsingArea( int areanum ) {
 	}
 } //end of the function AAS_RemoveRoutingCacheUsingArea
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 int AAS_EnableRoutingArea( int areanum, int enable ) {
 	int flags;
 
@@ -302,11 +256,6 @@ int AAS_EnableRoutingArea( int areanum, int enable ) {
 	} //end if
 	return !flags;
 } //end of the function AAS_EnableRoutingArea
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
 //===========================================================================
 void AAS_CreateReversedReachability( void ) {
 	int i, n;
@@ -356,19 +305,9 @@ void AAS_CreateReversedReachability( void ) {
 #endif //DEBUG
 } //end of the function AAS_CreateReversedReachability
 //===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 float AAS_AreaGroundSteepnessScale( int areanum ) {
 	return ( 1.0 + ( *aasworld ).areasettings[areanum].groundsteepness * (float)( GROUNDSTEEPNESS_TIMESCALE - 1 ) );
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
 //===========================================================================
 unsigned short int AAS_AreaTravelTime( int areanum, vec3_t start, vec3_t end ) {
 	int intdist;
@@ -398,11 +337,6 @@ unsigned short int AAS_AreaTravelTime( int areanum, vec3_t start, vec3_t end ) {
 	}
 	return intdist;
 } //end of the function AAS_AreaTravelTime
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
 //===========================================================================
 void AAS_CalculateAreaTravelTimes( void ) {
 	int i, l, n, size;
@@ -466,11 +400,6 @@ void AAS_CalculateAreaTravelTimes( void ) {
 #endif //DEBUG
 } //end of the function AAS_CalculateAreaTravelTimes
 //===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_PortalMaxTravelTime( int portalnum ) {
 	int l, n, t, maxt;
 	aas_portal_t *portal;
@@ -498,11 +427,6 @@ int AAS_PortalMaxTravelTime( int portalnum ) {
 	return maxt;
 } //end of the function AAS_PortalMaxTravelTime
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 void AAS_InitPortalMaxTravelTimes( void ) {
 	int i;
 
@@ -520,11 +444,6 @@ void AAS_InitPortalMaxTravelTimes( void ) {
 } //end of the function AAS_InitPortalMaxTravelTimes
 /*
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 void AAS_UnlinkCache(aas_routingcache_t *cache)
 {
 	if (cache->time_next) cache->time_next->time_prev = cache->time_prev;
@@ -534,11 +453,6 @@ void AAS_UnlinkCache(aas_routingcache_t *cache)
 	cache->time_next = NULL;
 	cache->time_prev = NULL;
 } //end of the function AAS_UnlinkCache
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 void AAS_LinkCache(aas_routingcache_t *cache)
 {
@@ -555,11 +469,6 @@ void AAS_LinkCache(aas_routingcache_t *cache)
 	cache->time_next = NULL;
 	newestcache = cache;
 } //end of the function AAS_LinkCache*/
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 int AAS_FreeOldestCache( void ) {
 	int i, j, bestcluster, bestarea, freed;
@@ -632,11 +541,6 @@ int AAS_FreeOldestCache( void ) {
 	return freed;
 } //end of the function AAS_FreeOldestCache
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 aas_routingcache_t *AAS_AllocRoutingCache( int numtraveltimes ) {
 	aas_routingcache_t *cache;
 	int size;
@@ -654,11 +558,6 @@ aas_routingcache_t *AAS_AllocRoutingCache( int numtraveltimes ) {
 	cache->size = size;
 	return cache;
 } //end of the function AAS_AllocRoutingCache
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 void AAS_FreeAllClusterAreaCache( void ) {
 	int i, j;
@@ -688,11 +587,6 @@ void AAS_FreeAllClusterAreaCache( void ) {
 	( *aasworld ).clusterareacache = NULL;
 } //end of the function AAS_FreeAllClusterAreaCache
 //===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_InitClusterAreaCache( void ) {
 	int i, size;
 	char *ptr;
@@ -716,11 +610,6 @@ void AAS_InitClusterAreaCache( void ) {
 	} //end for
 } //end of the function AAS_InitClusterAreaCache
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 void AAS_FreeAllPortalCache( void ) {
 	int i;
 	aas_routingcache_t *cache, *nextcache;
@@ -743,22 +632,12 @@ void AAS_FreeAllPortalCache( void ) {
 	( *aasworld ).portalcache = NULL;
 } //end of the function AAS_FreeAllPortalCache
 //===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_InitPortalCache( void ) {
 	//
 	( *aasworld ).portalcache = (aas_routingcache_t **) AAS_RoutingGetMemory(
 		( *aasworld ).numareas * sizeof( aas_routingcache_t * ) );
 } //end of the function AAS_InitPortalCache
 //
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
 //===========================================================================
 void AAS_FreeAreaVisibility( void ) {
 	int i;
@@ -780,11 +659,6 @@ void AAS_FreeAreaVisibility( void ) {
 	}
 	( *aasworld ).decompressedvis = NULL;
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
 //===========================================================================
 void AAS_InitRoutingUpdate( void ) {
 //	int i, maxreachabilityareas;
@@ -818,11 +692,6 @@ void AAS_InitRoutingUpdate( void ) {
 	( *aasworld ).portalupdate = (aas_routingupdate_t *) AAS_RoutingGetMemory(
 		( ( *aasworld ).numportals + 1 ) * sizeof( aas_routingupdate_t ) );
 } //end of the function AAS_InitRoutingUpdate
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 
 void AAS_CreateAllRoutingCache( void ) {
@@ -874,11 +743,6 @@ void AAS_CreateAllRoutingCache( void ) {
 		} //end for
 	} //end for
 } //end of the function AAS_CreateAllRoutingCache
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 unsigned short CRC_ProcessString( unsigned char *data, int length );
 
@@ -993,11 +857,6 @@ void AAS_WriteRouteCache( void ) {
 	botimport.Print( PRT_MESSAGE, "\nroute cache written to %s\n", filename );
 } //end of the function AAS_WriteRouteCache
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
 	int i, size, disksize;
 	aas_routingcache_t *cache;
@@ -1033,11 +892,6 @@ aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
 	}
 	return cache;
 } //end of the function AAS_ReadCache
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 int AAS_ReadRouteCache( void ) {
 	int i, clusterareanum, size;
@@ -1086,26 +940,6 @@ int AAS_ReadRouteCache( void ) {
 		//AAS_Error("route cache dump has wrong number of clusters\n");
 		return qfalse;
 	} //end if
-#ifdef _WIN32                           // crc code is only good on intel machines
-	if ( routecacheheader.areacrc !=
-		 CRC_ProcessString( (unsigned char *)( *aasworld ).areas, sizeof( aas_area_t ) * ( *aasworld ).numareas ) ) {
-		botimport.FS_FCloseFile( fp );
-		//AAS_Error("route cache dump area CRC incorrect\n");
-		return qfalse;
-	} //end if
-	if ( routecacheheader.clustercrc !=
-		 CRC_ProcessString( (unsigned char *)( *aasworld ).clusters, sizeof( aas_cluster_t ) * ( *aasworld ).numclusters ) ) {
-		botimport.FS_FCloseFile( fp );
-		//AAS_Error("route cache dump cluster CRC incorrect\n");
-		return qfalse;
-	} //end if
-	if ( routecacheheader.reachcrc !=
-		 CRC_ProcessString( (unsigned char *)( *aasworld ).reachability, sizeof( aas_reachability_t ) * ( *aasworld ).reachabilitysize ) ) {
-		botimport.FS_FCloseFile( fp );
-		//AAS_Error("route cache dump reachability CRC incorrect\n");
-		return qfalse;
-	} //end if
-#endif
 	//read all the portal cache
 	for ( i = 0; i < routecacheheader.numportalcache; i++ )
 	{
@@ -1156,11 +990,6 @@ int AAS_ReadRouteCache( void ) {
 	return qtrue;
 } //end of the function AAS_ReadRouteCache
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 void AAS_CreateVisibility( void );
 void AAS_InitRouting( void ) {
 	AAS_InitTravelFlagFromType();
@@ -1196,11 +1025,6 @@ void AAS_InitRouting( void ) {
 	}
 	// done.
 } //end of the function AAS_InitRouting
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 void AAS_FreeRoutingCaches( void ) {
 	// free all the existing cluster area cache
@@ -1240,6 +1064,7 @@ void AAS_FreeRoutingCaches( void ) {
 	( *aasworld ).areawaypoints = NULL;
 } //end of the function AAS_FreeRoutingCaches
 //===========================================================================
+// TODO:
 // this function could be replaced by a bubble sort or for even faster
 // routing by a B+ tree
 //
@@ -1247,7 +1072,7 @@ void AAS_FreeRoutingCaches( void ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-__inline void AAS_AddUpdateToList( aas_routingupdate_t **updateliststart,
+void AAS_AddUpdateToList( aas_routingupdate_t **updateliststart,
 								   aas_routingupdate_t **updatelistend,
 								   aas_routingupdate_t *update ) {
 	if ( !update->inlist ) {
@@ -1260,11 +1085,6 @@ __inline void AAS_AddUpdateToList( aas_routingupdate_t **updateliststart,
 		update->inlist = qtrue;
 	} //end if
 } //end of the function AAS_AddUpdateToList
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
 //===========================================================================
 int AAS_AreaContentsTravelFlag( int areanum ) {
 	int contents, tfl;
@@ -1408,11 +1228,6 @@ void AAS_UpdateAreaRoutingCache( aas_routingcache_t *areacache ) {
 	} //end while
 } //end of the function AAS_UpdateAreaRoutingCache
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 aas_routingcache_t *AAS_GetAreaRoutingCache( int clusternum, int areanum, int travelflags, qboolean forceUpdate ) {
 	int clusterareanum;
 	aas_routingcache_t *cache, *clustercache;
@@ -1454,11 +1269,6 @@ aas_routingcache_t *AAS_GetAreaRoutingCache( int clusternum, int areanum, int tr
 	cache->time = AAS_RoutingTime();
 	return cache;
 } //end of the function AAS_GetAreaRoutingCache
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 void AAS_UpdatePortalRoutingCache( aas_routingcache_t *portalcache ) {
 	int i, portalnum, clusterareanum, clusternum;
@@ -1554,11 +1364,6 @@ void AAS_UpdatePortalRoutingCache( aas_routingcache_t *portalcache ) {
 	} //end while
 } //end of the function AAS_UpdatePortalRoutingCache
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 aas_routingcache_t *AAS_GetPortalRoutingCache( int clusternum, int areanum, int travelflags ) {
 	aas_routingcache_t *cache;
 
@@ -1591,11 +1396,6 @@ aas_routingcache_t *AAS_GetPortalRoutingCache( int clusternum, int areanum, int 
 	cache->time = AAS_RoutingTime();
 	return cache;
 } //end of the function AAS_GetPortalRoutingCache
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 int AAS_AreaRouteToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags, int *traveltime, int *reachnum ) {
 	int clusternum, goalclusternum, portalnum, i, clusterareanum, bestreachnum;
@@ -1646,9 +1446,6 @@ int AAS_AreaRouteToGoalArea( int areanum, vec3_t origin, int goalareanum, int tr
 	  /*
 	  if ((*aasworld).frameroutingupdates > MAX_FRAMEROUTINGUPDATES)
 	  {
-  #ifdef DEBUG
-		  //Log_Write("WARNING: AAS_AreaTravelTimeToGoalArea: frame routing updates overflowed");
-  #endif
 		  return 0;
 	  } //end if
 	  */
@@ -1796,11 +1593,6 @@ int AAS_AreaRouteToGoalArea( int areanum, vec3_t origin, int goalareanum, int tr
 	return qtrue;
 } //end of the function AAS_AreaRouteToGoalArea
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags ) {
 	int traveltime, reachnum;
 
@@ -1809,11 +1601,6 @@ int AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, i
 	}
 	return 0;
 } //end of the function AAS_AreaTravelTimeToGoalArea
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 int AAS_AreaTravelTimeToGoalAreaCheckLoop( int areanum, vec3_t origin, int goalareanum, int travelflags, int loopareanum ) {
 	int traveltime, reachnum;
@@ -1829,11 +1616,6 @@ int AAS_AreaTravelTimeToGoalAreaCheckLoop( int areanum, vec3_t origin, int goala
 	return 0;
 } //end of the function AAS_AreaTravelTimeToGoalArea
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 int AAS_AreaReachabilityToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags ) {
 	int traveltime, reachnum;
 
@@ -1842,11 +1624,6 @@ int AAS_AreaReachabilityToGoalArea( int areanum, vec3_t origin, int goalareanum,
 	}
 	return 0;
 } //end of the function AAS_AreaReachabilityToGoalArea
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 void AAS_ReachabilityFromNum( int num, struct aas_reachability_s *reach ) {
 	if ( !( *aasworld ).initialized ) {
@@ -1859,11 +1636,6 @@ void AAS_ReachabilityFromNum( int num, struct aas_reachability_s *reach ) {
 	} //end if
 	memcpy( reach, &( *aasworld ).reachability[num], sizeof( aas_reachability_t ) );;
 } //end of the function AAS_ReachabilityFromNum
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 int AAS_NextAreaReachability( int areanum, int reachnum ) {
 	aas_areasettings_t *settings;
@@ -1892,11 +1664,6 @@ int AAS_NextAreaReachability( int areanum, int reachnum ) {
 	return reachnum;
 } //end of the function AAS_NextAreaReachability
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 int AAS_NextModelReachability( int num, int modelnum ) {
 	int i;
 
@@ -1921,11 +1688,6 @@ int AAS_NextModelReachability( int num, int modelnum ) {
 	} //end for
 	return 0;
 } //end of the function AAS_NextModelReachability
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 int AAS_RandomGoalArea( int areanum, int travelflags, int *goalareanum, vec3_t goalorigin ) {
 	int i, n, t;
@@ -2016,11 +1778,6 @@ int AAS_CompressVis( byte *vis, int numareas, byte *dest ) {
 	return dest_p - dest;
 } //end of the function AAS_CompressVis
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 void AAS_DecompressVis( byte *in, int numareas, byte *decompressed ) {
 	byte c;
 	byte    *out;
@@ -2062,11 +1819,6 @@ void AAS_DecompressVis( byte *in, int numareas, byte *decompressed ) {
 		out += c;
 	} while ( out < end );
 } //end of the function AAS_DecompressVis
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 int AAS_AreaVisible( int srcarea, int destarea ) {
 	if ( srcarea != ( *aasworld ).decompressedvisarea ) {
@@ -2177,11 +1929,6 @@ void AAS_CreateVisibility( void ) {
 	}
 	botimport.Print( PRT_MESSAGE, "AAS_CreateVisibility: compressed vis size = %i\n", totalsize );
 } //end of the function AAS_CreateVisibility
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 float VectorDistance( vec3_t v1, vec3_t v2 );
 extern void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj ) ;
@@ -2401,11 +2148,6 @@ int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, v
 } //end of the function AAS_NearestHideArea
 
 //===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
 int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos ) {
 	int i, nextareanum, badtravelflags, numreach, bestarea;
 	unsigned short int t, besttraveltime, enemytraveltime;
@@ -2573,11 +2315,6 @@ int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float
 	return bestarea;
 } //end of the function AAS_NearestHideArea
 
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
 //===========================================================================
 qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos ) {
 	int srcarea, destarea, travarea;

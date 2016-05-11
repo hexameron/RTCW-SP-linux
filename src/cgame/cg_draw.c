@@ -3351,6 +3351,8 @@ static void CG_Draw2D( void ) {
 
 	if ( cg.cameraMode ) {
 		CG_DrawFlashBlend();    // (for fades)
+		CG_DrawUpperRight();	// cutscene FPS
+		return;
 	}
 
 	if ( cg_draw2D.integer == 0 ) {

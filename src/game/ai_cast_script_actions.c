@@ -1657,7 +1657,7 @@ qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	for ( i = 0; i < 2; i++ ) {
 		diff = fabsf( AngleDifference( cs->bs->cur_ps.viewangles[i], cs->ideal_viewangles[i] ) );
 		if ( VectorCompare( vec3_origin, ent->s.pos.trDelta ) ) {
-			if ( diff ) {
+			if ( diff > 1.0 ) { // float used as boolean
 				return qfalse;  // not facing yet
 			}
 		} else {

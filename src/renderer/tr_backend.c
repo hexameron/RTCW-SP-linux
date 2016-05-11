@@ -32,7 +32,7 @@ backEndData_t   *backEndData[SMP_FRAMES];
 backEndState_t backEnd;
 
 
-static float s_flipMatrix[16] = {
+const float s_flipMatrix[16] = {
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
 	0, 0, -1, 0,
@@ -582,7 +582,7 @@ extern vec_t VectorLengthSquared( const vec3_t v );
 #define ZOMBIEFX_PERHIT_TAKEALPHA       150
 #define ZOMBIEFX_MAX_HITS_PER_VERT      2
 
-static char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
+const char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
 
 // this stores each of the flesh hits for each of the zombies in the game
 typedef struct {

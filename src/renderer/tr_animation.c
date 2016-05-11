@@ -414,7 +414,9 @@ void LocalAddScaledMatrixTransformVector( vec3_t in, float s, vec3_t mat[ 3 ], v
 	out[ 2 ] += s * ( in[ 0 ] * mat[ 2 ][ 0 ] + in[ 1 ] * mat[ 2 ][ 1 ] + in[ 2 ] * mat[ 2 ][ 2 ] );
 }
 
-inline void LocalAngleVector( vec3_t angles, vec3_t forward ) {
+
+// inline is mostly ignored by compilers.
+static inline void LocalAngleVector( vec3_t angles, vec3_t forward ) {
 	float LAVangle;
 	float sp, sy;
 	float cp, cy;
@@ -431,7 +433,7 @@ inline void LocalAngleVector( vec3_t angles, vec3_t forward ) {
 	forward[2] = -sp;
 }
 
-inline void LocalVectorMA( vec3_t org, float dist, vec3_t vec, vec3_t out ) {
+static inline void LocalVectorMA( vec3_t org, float dist, vec3_t vec, vec3_t out ) {
 	out[0] = org[0] + dist * vec[0];
 	out[1] = org[1] + dist * vec[1];
 	out[2] = org[2] + dist * vec[2];
@@ -629,6 +631,8 @@ void Matrix3Transpose( const vec3_t matrix[3], vec3_t transpose[3] ) {
 R_CalcBones
 
 The list of bones[] should only be built and modified from within here
+
+Not SMP safe.
 ==============
 */
 void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList, int numBones, int renderend ) {

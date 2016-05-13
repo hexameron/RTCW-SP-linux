@@ -505,7 +505,7 @@ typedef struct {
 
 typedef struct {
 	char name[MAX_QPATH];           // name of bone
-	int parent;                     // not sure if this is required, no harm throwing it in
+	int parent;
 	float torsoWeight;              // scale torso rotation about torsoParent by this
 	float parentDist;
 	int flags;

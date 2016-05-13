@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 backEndData_t   *backEndData[SMP_FRAMES];
 backEndState_t backEnd;
 
-
 const float s_flipMatrix[16] = {
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
@@ -582,7 +581,7 @@ extern vec_t VectorLengthSquared( const vec3_t v );
 #define ZOMBIEFX_PERHIT_TAKEALPHA       150
 #define ZOMBIEFX_MAX_HITS_PER_VERT      2
 
-const char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
+static char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
 
 // this stores each of the flesh hits for each of the zombies in the game
 typedef struct {
@@ -1602,12 +1601,8 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	int t1, t2;
 
 	t1 = ri.Milliseconds();
-
-	if ( !r_smp->integer || data == backEndData[0]->commands.cmds ) {
-		backEnd.smpFrame = 0;
-	} else {
-		backEnd.smpFrame = 1;
-	}
+	if ( r_smp->integer )
+		R_ToggleSmpFrame();
 
 	while ( 1 ) {
 		switch ( *(const int *)data ) {

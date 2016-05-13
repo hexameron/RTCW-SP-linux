@@ -66,20 +66,21 @@ void R_ToggleSmpFrame( void ) {
 	backEndData[tr.smpFrame]->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
-
 	r_numdlights = 0;
 	r_firstSceneDlight = 0;
-
 	r_numcoronas = 0;
 	r_firstSceneCorona = 0;
-
 	r_numentities = 0;
 	r_firstSceneEntity = 0;
-
 	r_numpolys = 0;
 	r_firstScenePoly = 0;
-
 	r_numpolyverts = 0;
+
+	tr.refdef.drawSurfs = backEndData[tr.smpFrame]->drawSurfs;
+	tr.refdef.entities = backEndData[tr.smpFrame]->entities;
+	tr.refdef.dlights = backEndData[tr.smpFrame]->dlights;
+	tr.refdef.coronas = backEndData[tr.smpFrame]->coronas;
+	tr.refdef.polys = backEndData[tr.smpFrame]->polys;
 }
 
 

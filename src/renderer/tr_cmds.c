@@ -191,7 +191,7 @@ void *R_GetCommandBuffer( int bytes ) {
 		*( int * )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
 		GLimp_WakeRenderer( cmdList->cmds );
 		cmdList->used = 0;
-		tr.smpFrame ^= 1;
+		R_ToggleSmpFrame();
 		cmdList = &backEndData[tr.smpFrame]->commands;
 	}
 

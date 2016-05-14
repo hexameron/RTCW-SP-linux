@@ -619,7 +619,7 @@ typedef struct srfGridMesh_s {
 	surfaceType_t surfaceType;
 
 	// dynamic lighting information
-	int dlightBits[SMP_FRAMES];
+	int dlightBits;
 
 	// culling information
 	vec3_t meshBounds[2];
@@ -649,7 +649,7 @@ typedef struct {
 	cplane_t plane;
 
 	// dynamic lighting information
-	int dlightBits[SMP_FRAMES];
+	int dlightBits;
 
 	// triangle definitions (no normals at points)
 	int numPoints;
@@ -665,7 +665,7 @@ typedef struct {
 	surfaceType_t surfaceType;
 
 	// dynamic lighting information
-	int dlightBits[SMP_FRAMES];
+	int dlightBits;
 
 	// culling information (FIXME: use this!)
 	vec3_t bounds[2];
@@ -917,7 +917,6 @@ typedef struct {
 // all state modified by the back end is seperated
 // from the front end state
 typedef struct {
-	int smpFrame;
 	trRefdef_t refdef;
 	viewParms_t viewParms;
 	orientationr_t  or;
@@ -1765,16 +1764,14 @@ typedef struct {
 	trRefEntity_t entities[MAX_ENTITIES];
 	srfPoly_t polys[MAX_POLYS];
 	polyVert_t polyVerts[MAX_POLYVERTS];
-	renderCommandList_t commands;
+	renderCommandList_t commands[SMP_FRAMES];
 } backEndData_t;
 
 extern int max_polys;
 extern int max_polyverts;
 
-extern backEndData_t   *backEndData[SMP_FRAMES];    // the second one may not be allocated
-
+extern backEndData_t   *backEndData;
 extern volatile renderCommandList_t    *renderCommandList;
-
 extern volatile qboolean renderThreadActive;
 
 

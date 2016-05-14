@@ -125,7 +125,7 @@ int c_blockedOnMain;
 void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	renderCommandList_t *cmdList;
 
-	cmdList = &backEndData[tr.smpFrame]->commands;
+	cmdList = &backEndData->commands[tr.smpFrame];
 	assert( cmdList ); // bk001205
 	// add an end-of-list command
 	*( int * )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
@@ -184,7 +184,7 @@ Cycle current buffer to Render Thread ASAP
 void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t *cmdList;
 
-	cmdList = &backEndData[tr.smpFrame]->commands;
+	cmdList = &backEndData->commands[tr.smpFrame];
 
 	// restart render thread as soon as it is idle
 	if (glConfig.smpActive && !renderThreadActive && (cmdList->used > 200)) {
@@ -192,7 +192,7 @@ void *R_GetCommandBuffer( int bytes ) {
 		GLimp_WakeRenderer( cmdList->cmds );
 		cmdList->used = 0;
 		R_ToggleSmpFrame();
-		cmdList = &backEndData[tr.smpFrame]->commands;
+		cmdList = &backEndData->commands[tr.smpFrame];
 	}
 
 	// always leave room for the end of list command
@@ -626,10 +626,11 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	}
 	cmd->commandId = RC_SWAP_BUFFERS;
 
+	// Need backend to finish before restarting frontend
 	R_IssueRenderCommands( qtrue );
-
-	// use the other buffers next frame, because another CPU
-	// may still be rendering into the current ones
+	if ( glConfig.smpActive ) {
+                GLimp_FrontEndSleep();
+	}
 	R_ToggleSmpFrame();
 
 	if ( frontEndMsec ) {

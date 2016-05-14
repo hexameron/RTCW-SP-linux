@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-backEndData_t   *backEndData[SMP_FRAMES];
+backEndData_t *backEndData;
 backEndState_t backEnd;
 
 const float s_flipMatrix[16] = {
@@ -1601,9 +1601,6 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	int t1, t2;
 
 	t1 = ri.Milliseconds();
-	if ( r_smp->integer )
-		R_ToggleSmpFrame();
-
 	while ( 1 ) {
 		switch ( *(const int *)data ) {
 		case RC_SET_COLOR:

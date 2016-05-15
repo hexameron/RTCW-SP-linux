@@ -166,6 +166,12 @@ OpenGL calls until R_IssueRenderCommands is called.
 ====================
 */
 void R_SyncRenderThread( void ) {
+	// Not used globally since SMP redux.
+}
+
+// Sync Threads locally so front end can use Global results from Backend functions.
+// TODO: check how many of these are needed.
+void LocalSyncThread( void ) {
 
 	R_IssueRenderCommands( qfalse );
 
@@ -190,9 +196,9 @@ void *R_GetCommandBuffer( int bytes ) {
 	if (glConfig.smpActive && !renderThreadActive && (cmdList->used > 200)) {
 		*( int * )( cmdList->cmds + cmdList->used ) = RC_END_OF_LIST;
 		GLimp_WakeRenderer( cmdList->cmds );
-		cmdList->used = 0;
-		R_ToggleSmpFrame();
+		tr.smpFrame ^= 1;
 		cmdList = &backEndData->commands[tr.smpFrame];
+		cmdList->used = 0;
 	}
 
 	// always leave room for the end of list command
@@ -226,7 +232,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	cmd->allowPicmip = allowPicmip;
 	cmd->glWrapClampMode = glWrapClampMode;
 
-	R_SyncRenderThread();
+	LocalSyncThread();
 	return( createdImage );
 }
 
@@ -237,7 +243,7 @@ void R_LoadTex(void) {
 	if ( !cmd )
 		return;
 	cmd->commandId = RC_LOAD_TEX;
-	R_SyncRenderThread();
+	LocalSyncThread();
 }
 
 void R_PushInit( void ) {
@@ -247,7 +253,7 @@ void R_PushInit( void ) {
 	if ( !cmd )
 		return;
 	cmd->commandId = RC_INIT;
-	R_SyncRenderThread();
+	LocalSyncThread();
 }
 
 void RE_PreShutdown( qboolean destroyWindow ) {
@@ -260,7 +266,7 @@ void RE_PreShutdown( qboolean destroyWindow ) {
 		cmd->commandId = RC_CLEAN1;
 	else
 		cmd->commandId = RC_CLEAN0;
-	R_SyncRenderThread();
+	LocalSyncThread();
 }
 
 void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
@@ -281,7 +287,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	cmd->dirty = dirty;
 
 	// was frontend
-	R_SyncRenderThread();
+	LocalSyncThread();
 }
 
 void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
@@ -571,7 +577,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if ( !r_ignoreGLErrors->integer ) {
 		int err;
 
-		R_SyncRenderThread();
+		LocalSyncThread();
 		if ( ( err = qglGetError() ) != GL_NO_ERROR ) {
 			ri.Error( ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err );
 		}

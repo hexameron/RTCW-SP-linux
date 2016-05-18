@@ -1239,7 +1239,7 @@ AICast_GetAvoid
 */
 qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qboolean reverse, int blockEnt ) {
 	float yaw, oldyaw, distmoved, bestmoved, bestyaw;
-	vec3_t bestpos;
+	vec3_t bestpos = {0};
 	aicast_predictmove_t castmove;
 	usercmd_t ucmd;
 	qboolean enemyVisible;

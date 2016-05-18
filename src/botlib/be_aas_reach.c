@@ -963,8 +963,12 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge( int area1num, int area
 	float length, ground_bestlength, water_bestlength, ground_bestdist, water_bestdist;
 	vec3_t v1, v2, v3, v4, tmpv, p1area1, p1area2, p2area1, p2area2;
 	vec3_t normal, ort, edgevec, start, end, dir;
-	vec3_t ground_beststart, ground_bestend, ground_bestnormal;
-	vec3_t water_beststart, water_bestend, water_bestnormal;
+	vec3_t ground_beststart = {0};
+	vec3_t ground_bestend = {0};
+	vec3_t ground_bestnormal = {0};
+	vec3_t water_beststart = {0};
+	vec3_t water_bestend = {0};
+	vec3_t water_bestnormal = {0};
 	vec3_t invgravity = {0, 0, 1};
 	vec3_t testpoint;
 	aas_plane_t *plane;
@@ -2253,7 +2257,8 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 	float face1area, face2area, bestface1area, bestface2area;
 	float sv_jumpvel, maxjumpheight;
 	vec3_t area1point, area2point, v1, v2, up = {0, 0, 1};
-	vec3_t mid, lowestpoint, start, end, sharededgevec, dir;
+	vec3_t mid, start, end, sharededgevec, dir;
+	vec3_t lowestpoint = {0};
 	aas_area_t *area1, *area2;
 	aas_face_t *face1, *face2, *ladderface1, *ladderface2;
 	aas_plane_t *plane1, *plane2;

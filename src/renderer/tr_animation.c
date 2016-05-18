@@ -640,9 +640,12 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 	mdsFrame_t      *frame, *torsoFrame;
 	mdsBoneInfo_t   *boneInfo, *thisBoneInfo, *parentBoneInfo;
 	mdsBoneFrameCompressed_t    *cBonePtr, *cTBonePtr,  *cBoneList, *cBoneListTorso;
-	vec3_t t, torsoAxis[3], tmpAxis[3], torsoParentOffset;
-	vec4_t m1[4], m2[4];
+	vec3_t t, torsoAxis[3], tmpAxis[3];
+	vec3_t torsoParentOffset = {0};
+	vec4_t m1[4];
+	vec4_t m2[4] = {{0}, {0}, {0}, {0}};
 	int frameSize;
+
 
 	bones = smpbones[renderend];
 	frameSize = (int) ( sizeof( mdsFrame_t ) + ( header->numBones - 1 ) * sizeof( mdsBoneFrameCompressed_t ) );
@@ -667,7 +670,6 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 		boneNum = *boneRefs;
 		thisBoneInfo = &boneInfo[boneNum];
 		if ( thisBoneInfo->torsoWeight ) {
-			cTBonePtr = &cBoneListTorso[boneNum];
 			isTorso = qtrue;
 			if ( thisBoneInfo->torsoWeight == 1.0f ) {
 				fullTorso = qtrue;
@@ -675,6 +677,7 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 		} else {
 			isTorso = qfalse;
 		}
+		cTBonePtr = &cBoneListTorso[boneNum];
 		cBonePtr = &cBoneList[boneNum];
 
 		bonePtr = &bones[ boneNum ];

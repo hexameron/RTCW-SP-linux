@@ -94,6 +94,11 @@ static void HSVtoRGB( float h, float s, float v, float rgb[3] ) {
 		rgb[1] = p;
 		rgb[2] = q;
 		break;
+	default:
+		rgb[0] =
+		rgb[1] =
+		rgb[2] = 0;
+		break;
 	}
 }
 
@@ -179,7 +184,7 @@ static void R_LoadLightmaps( lump_t *l ) {
 				float g = buf_p[j * 3 + 1];
 				float b = buf_p[j * 3 + 2];
 				float intensity;
-				float out[3];
+				float out[3] = {0};
 
 				intensity = 0.33f * r + 0.685f * g + 0.063f * b;
 

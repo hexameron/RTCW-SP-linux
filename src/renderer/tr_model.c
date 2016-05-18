@@ -330,6 +330,7 @@ unsigned char R_MDC_GetAnorm( const vec3_t dir ) {
 	best_diff = 999;
 	this_val = -999;
 
+	best_start_i[2] = next_start;
 	for ( i = next_start ; i < next_end ; i++ )
 	{
 		if ( r_anormals[i][2] == this_val ) {

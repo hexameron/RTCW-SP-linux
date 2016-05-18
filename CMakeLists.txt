@@ -7,6 +7,7 @@ endif(COMMAND cmake_policy)
 
 option(ENABLE_DEMO "Build demo version")
 
+set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe -fsigned-char -fno-strict-aliasing -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wno-unused")
 

@@ -636,34 +636,46 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 	int i, j;
 	int   *boneRefs;
 	float torsoWeight;
+	float backlerp, frontlerp, torsoBacklerp, torsoFrontlerp;
 	mdsBoneFrame_t  *bones, *bonePtr, *parentBone;
 	mdsFrame_t      *frame, *torsoFrame;
+	mdsFrame_t      *oldFrame, *oldTorsoFrame;
 	mdsBoneInfo_t   *boneInfo, *thisBoneInfo, *parentBoneInfo;
-	mdsBoneFrameCompressed_t    *cBonePtr, *cTBonePtr,  *cBoneList, *cBoneListTorso;
+	mdsBoneFrameCompressed_t *cBonePtr, *cTBonePtr, *cOldBonePtr, *cOldTBonePtr;
+	mdsBoneFrameCompressed_t *cBoneList, *cBoneListTorso, *cOldBoneList, *cOldBoneListTorso;
 	vec3_t t, torsoAxis[3], tmpAxis[3];
 	vec3_t torsoParentOffset = {0};
 	vec4_t m1[4];
 	vec4_t m2[4] = {{0}, {0}, {0}, {0}};
 	int frameSize;
 
+	backlerp = refent->backlerp;
+	frontlerp = 1.0f - backlerp;
+	torsoBacklerp = refent->torsoBacklerp;
+	torsoFrontlerp = 1.0f - torsoBacklerp;
 
 	bones = smpbones[renderend];
 	frameSize = (int) ( sizeof( mdsFrame_t ) + ( header->numBones - 1 ) * sizeof( mdsBoneFrameCompressed_t ) );
 	frame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->frame * frameSize );
 	torsoFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->torsoFrame * frameSize );
+	oldFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->oldframe * frameSize );
+	oldTorsoFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames + refent->oldTorsoFrame * frameSize );
 
 	boneInfo = ( mdsBoneInfo_t * )( (byte *)header + header->ofsBones );
 	boneRefs = boneList;
 	Matrix3Transpose( refent->torsoAxis, torsoAxis );
 	cBoneList = frame->bones;
 	cBoneListTorso = torsoFrame->bones;
+	cOldBoneList = oldFrame->bones;
+	cOldBoneListTorso = oldTorsoFrame->bones;
 
 	for ( i = 0; i < numBones; i++, boneRefs++ ) {
 		// R_CalcBone( header, refent, *boneRefs );
 		int boneNum;
-		short   *sh;
+		short   *sh, *sh2;
 		float   *pf, diff;
-		vec3_t tangles, angles, vec, v2;
+		float   a1, a2;
+		vec3_t tangles, angles, vec, v2, v3;
 		qboolean isTorso, fullTorso;
 
 		fullTorso = qfalse;
@@ -678,7 +690,9 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 			isTorso = qfalse;
 		}
 		cTBonePtr = &cBoneListTorso[boneNum];
+		cOldTBonePtr = &cOldBoneListTorso[boneNum];
 		cBonePtr = &cBoneList[boneNum];
+		cOldBonePtr = &cOldBoneList[boneNum];
 
 		bonePtr = &bones[ boneNum ];
 
@@ -694,16 +708,39 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 		// rotation
 		if ( fullTorso ) {
 			sh = (short *)cTBonePtr->angles;
+			sh2 = (short *)cOldTBonePtr->angles;
 			pf = angles;
-			ANGLES_SHORT_TO_FLOAT( pf, sh );
+
+			a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+			*( pf++ ) = a1 - torsoBacklerp * diff;
+			a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+			*( pf++ ) = a1 - torsoBacklerp * diff;
+			a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+			*( pf++ ) = a1 - torsoBacklerp * diff;
 		} else {
 			sh = (short *)cBonePtr->angles;
+			sh2 = (short *)cOldBonePtr->angles;
 			pf = angles;
-			ANGLES_SHORT_TO_FLOAT( pf, sh );
+
+			a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+			*( pf++ ) = a1 - backlerp * diff;
+			a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+			*( pf++ ) = a1 - backlerp * diff;
+			a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+			*( pf++ ) = a1 - backlerp * diff;
+
 			if ( isTorso ) {
 				sh = (short *)cTBonePtr->angles;
+				sh2 = (short *)cOldTBonePtr->angles;
 				pf = tangles;
-				ANGLES_SHORT_TO_FLOAT( pf, sh );
+
+				a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+				*( pf++ ) = a1 - torsoBacklerp * diff;
+				a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+				*( pf++ ) = a1 - torsoBacklerp * diff;
+				a1 = SHORT2ANGLE( *( sh++ ) ); a2 = SHORT2ANGLE( *( sh2++ ) ); diff = AngleNormalize180( a1 - a2 );
+				*( pf++ ) = a1 - torsoBacklerp * diff;
+
 				// blend the angles together
 				for ( j = 0; j < 3; j++ ) {
 					diff = tangles[j] - angles[j];
@@ -720,31 +757,68 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 		if ( parentBone ) {
 
 			if ( fullTorso ) {
-				sh = (short *)cTBonePtr->ofsAngles; pf = angles;
-				*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
-				LocalAngleVector( angles, vec );
-			} else {
+				sh = (short *)cTBonePtr->ofsAngles;
+				sh2 = (short *)cOldTBonePtr->ofsAngles;
 
-				sh = (short *)cBonePtr->ofsAngles; pf = angles;
-				*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
+				pf = angles;
+				*( pf++ ) = SHORT2ANGLE( *( sh++ ) );
+				*( pf++ ) = SHORT2ANGLE( *( sh++ ) );
+				*( pf++ ) = 0;
 				LocalAngleVector( angles, vec );
+
+				pf = angles;
+				*( pf++ ) = SHORT2ANGLE( *( sh2++ ) );
+				*( pf++ ) = SHORT2ANGLE( *( sh2++ ) );
+				*( pf++ ) = 0;
+				LocalAngleVector( angles, v2 );
+
+				SLerp_Normal( v2, vec, torsoFrontlerp, v3 );
+			} else {
+				sh = (short *)cBonePtr->ofsAngles;
+				sh2 = (short *)cOldBonePtr->ofsAngles;
+
+				pf = angles;
+				*( pf++ ) = SHORT2ANGLE( *( sh++ ) );
+				*( pf++ ) = SHORT2ANGLE( *( sh++ ) );
+				*( pf++ ) = 0;
+				LocalAngleVector( angles, vec );
+
+				pf = angles;
+				*( pf++ ) = SHORT2ANGLE( *( sh2++ ) );
+				*( pf++ ) = SHORT2ANGLE( *( sh2++ ) );
+				*( pf++ ) = 0;
+				LocalAngleVector( angles, v2 );
+
+				SLerp_Normal( v2, vec, frontlerp, v3 );
 
 				if ( isTorso ) {
 					sh = (short *)cTBonePtr->ofsAngles;
+					sh2 = (short *)cOldTBonePtr->ofsAngles;
+
 					pf = tangles;
-					*( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = SHORT2ANGLE( *( sh++ ) ); *( pf++ ) = 0;
+					*( pf++ ) = SHORT2ANGLE( *( sh++ ) );
+					*( pf++ ) = SHORT2ANGLE( *( sh++ ) );
+					*( pf++ ) = 0;
+					LocalAngleVector( tangles, vec );
+
+					pf = tangles;
+					*( pf++ ) = SHORT2ANGLE( *( sh2++ ) );
+					*( pf++ ) = SHORT2ANGLE( *( sh2++ ) );
+					*( pf++ ) = 0;
 					LocalAngleVector( tangles, v2 );
 
-					// blend the angles together
-					SLerp_Normal( vec, v2, thisBoneInfo->torsoWeight, vec );
+					// blend the old and new angles together
+					SLerp_Normal( v2, vec, torsoFrontlerp, v2 );
 
+					// blend the leg and torso angles together
+					SLerp_Normal( v3, v2, thisBoneInfo->torsoWeight, v3 );
 				}
 			}
-			LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, vec, bonePtr->translation );
-		} else { // just use the frame position
-			bonePtr->translation[0] = frame->parentOffset[0];
-			bonePtr->translation[1] = frame->parentOffset[1];
-			bonePtr->translation[2] = frame->parentOffset[2];
+			LocalVectorMA( parentBone->translation, thisBoneInfo->parentDist, v3, bonePtr->translation );
+		} else { // just interpolate the position directly
+			bonePtr->translation[0] = frontlerp * frame->parentOffset[0] + backlerp * oldFrame->parentOffset[0];
+			bonePtr->translation[1] = frontlerp * frame->parentOffset[1] + backlerp * oldFrame->parentOffset[1];
+			bonePtr->translation[2] = frontlerp * frame->parentOffset[2] + backlerp * oldFrame->parentOffset[2];
 		}
 		if ( boneNum == header->torsoParent ) {
 			VectorCopy( bonePtr->translation, torsoParentOffset );

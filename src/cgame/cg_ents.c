@@ -408,7 +408,8 @@ void CG_AddLightstyle( centity_t *cent ) {
 	int otime;
 	int lastch, nextch;
 
-	if ( !cent->dl_stylestring ) {
+	// stylestring always exists, but you don`t want zero length
+	if ( !cent->dl_stylestring[0] ) {
 		return;
 	}
 

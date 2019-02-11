@@ -1854,7 +1854,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 			snd.nextMusicTrackType = 0; // be quiet at the next opportunity
 
 			// clear out looping sound in current music so that it'll stop when it's done
-			if ( ss && ss->loop ) {
+			if ( ss ) {
 				ss->loop[0] = 0;    // clear loop
 			}
 
@@ -2168,7 +2168,7 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 		return;
 	}
 
-	if ( ss->loop && loop ) {
+	if ( loop ) {
 		Q_strncpyz( ss->loop, loop, sizeof( ss->loop ) - 4 );
 	} else {
 		ss->loop[0] = 0;
@@ -2484,7 +2484,7 @@ void S_UpdateStreamingSounds( void ) {
 					break;  // this is now the music ss->file, no need to re-start next time through
 				} else {
 					// loop
-					if ( ss->loop && ss->loop[0] ) {
+					if ( ss->loop[0] ) {
 						if ( ss->looped ) {
 							char dump[16];
 							Sys_StreamSeek( ss->file, 0, FS_SEEK_SET );       // just go back to the beginning

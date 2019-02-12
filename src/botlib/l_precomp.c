@@ -1067,9 +1067,10 @@ int PC_WhiteSpaceBeforeToken( token_t *token ) {
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
+char *emptystring = "";
 void PC_ClearTokenWhiteSpace( token_t *token ) {
-	token->whitespace_p = NULL;
-	token->endwhitespace_p = NULL;
+	token->whitespace_p = emptystring;
+	token->endwhitespace_p = emptystring;
 	token->linescrossed = 0;
 } //end of the function PC_ClearTokenWhiteSpace
 //============================================================================

@@ -275,13 +275,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-#if defined( __MACOS__ )
-#pragma export on
-#endif
-intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6 ) {
-#if defined( __MACOS__ )
-#pragma export off
-#endif
+intptr_t gMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4 ) {
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
@@ -329,6 +323,24 @@ intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intpt
 
 	return -1;
 }
+
+#ifdef MONOLITHIC
+intptr_t gvm( intptr_t command, ... ) {
+	intptr_t arg0, arg1, arg2, arg3, arg4;
+	va_list ap;
+
+	va_start( ap, command );
+	arg0 = va_arg( ap, intptr_t );
+	arg1 = va_arg( ap, intptr_t );
+	arg2 = va_arg( ap, intptr_t );
+	arg3 = va_arg( ap, intptr_t );
+	arg4 = va_arg( ap, intptr_t );
+	va_end( ap );
+
+	return	gMain( command, arg0, arg1, arg2, arg3, arg4 );
+}
+#endif
+
 
 
 void QDECL G_Printf( const char *fmt, ... ) {
@@ -1386,7 +1398,7 @@ void G_ShutdownGame( int restart ) {
 
 //===================================================================
 
-#if !defined( GAME_HARD_LINKED ) || defined( __MACOS__ )
+#ifndef MONOLITHIC
 // this is only here so the functions in q_shared.c and bg_*.c can link
 
 void QDECL Com_Error( int level, const char *error, ... ) {

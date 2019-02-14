@@ -335,7 +335,18 @@ void    VM_Free( vm_t *vm );
 void    VM_Clear( void );
 vm_t    *VM_Restart( vm_t *vm );
 
+//#define MONOLITHIC
+#ifdef MONOLITHIC
+#define VM_Call( FUNC, ...) FUNC(__VA_ARGS__)
+intptr_t QDECL uivm( intptr_t type, ... );
+intptr_t QDECL gvm( intptr_t type, ... );
+intptr_t QDECL cgvm( intptr_t type, ... );
+#else
 intptr_t QDECL VM_Call( vm_t *vm, intptr_t callNum, ... );
+extern vm_t            *gvm;   // interface to game dll or vm
+extern vm_t            *cgvm;   // interface to cgame dll or vm
+extern vm_t            *uivm;   // interface to ui dll or vm
+#endif
 
 void    VM_Debug( int level );
 

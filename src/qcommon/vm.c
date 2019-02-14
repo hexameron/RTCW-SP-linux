@@ -42,7 +42,17 @@ and one exported function: Perform
 
 #include "vm_local.h"
 
-
+#ifdef MONOLITHIC
+void VM_Init( void ) {}
+void VM_Debug( int level ) {}
+void VM_Clear( void ) {}
+const char *VM_ValueToSymbol( vm_t *vm, int value ) {
+	return ("No Symbols");
+}
+#else
+vm_t	*gvm = NULL;
+vm_t	*cgvm = NULL;
+vm_t	*uivm = NULL;
 vm_t    *currentVM = NULL; // bk001212
 vm_t    *lastVM    = NULL; // bk001212
 int vm_debugLevel;
@@ -826,7 +836,7 @@ void VM_VmInfo_f( void ) {
 		Com_Printf( "    data length : %7i\n", vm->dataMask + 1 );
 	}
 }
-
+#endif // NOT FOR MONOLITHIC
 /*
 ===============
 VM_LogSyscalls

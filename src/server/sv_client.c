@@ -415,9 +415,11 @@ gotnewcl:
 	// get the game a chance to reject this connection or modify the userinfo
 	denied = VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, qtrue, qfalse ); // firstTime = qtrue
 	if ( denied ) {
+#ifndef MONOLITHIC
 		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
 		denied = (intptr_t)VM_ExplicitArgPtr( gvm, denied );
-
+		// - but the returned pointer should be valid for a Monolithic build
+#endif
 		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
 		Com_DPrintf( "Game rejected a connection: %s.\n", denied );
 		return;

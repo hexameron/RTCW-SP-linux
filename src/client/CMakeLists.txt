@@ -50,7 +50,7 @@ list(APPEND CLIENT_SOURCES ${RENDERER_SOURCES} ${QCOMMON_SOURCES} ${UNIX_SOURCES
 list(APPEND CLIENT_SOURCES ${BOTLIB_SOURCES} ${JPEG_SOURCES} ${ADDITONAL_SOURCES} ${SERVER_SOURCES})
 
 # TODO: Fix all warnings
-set_source_files_properties(${CLIENT_SOURCES} PROPERTIES LANGUAGE C COMPILE_FLAGS "-g -Wno-unused")
+set_source_files_properties(${CLIENT_SOURCES} PROPERTIES LANGUAGE C COMPILE_FLAGS "-Wno-unused")
 
 # Compile our program
 add_executable(${PROJECT_NAME} ${CLIENT_SOURCES})
@@ -58,4 +58,4 @@ add_definitions(-DBOTLIB)
 
 # Our executable
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX "../../" SUFFIX "")
-target_link_libraries(${PROJECT_NAME} SDL2 GL dl m splines.a )
+target_link_libraries(${PROJECT_NAME} SDL2 GL dl m splines.a game.a cgame.a)

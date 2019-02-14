@@ -1,6 +1,6 @@
 add_definitions(-DCGAMEDLL)
 
-add_library(cgame SHARED
+add_library(cgame.a STATIC
 	../game/bg_animation.c
 	../game/bg_misc.c
 	../game/bg_pmove.c
@@ -33,5 +33,5 @@ add_library(cgame SHARED
 	cg_view.c
 	cg_weapons.c
 )
-target_link_libraries(cgame m)
-set_target_properties(cgame PROPERTIES PREFIX "" OUTPUT_NAME "cgame-rtcw")
+target_link_libraries(cgame.a m)
+set_target_properties(cgame.a PROPERTIES PREFIX "" SUFFIX "")

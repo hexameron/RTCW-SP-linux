@@ -452,12 +452,12 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		}
 	}
 #endif
-
+#ifndef MONOLITHIC
 	if ( !uivm ) {
 		Com_DPrintf( "draw screen without UI loaded\n" );
 		return;
 	}
-
+#endif
 	// if the menu is going to cover the entire screen, we
 	// don't need to render anything under it
 	if ( !VM_Call( uivm, UI_IS_FULLSCREEN ) ) {
@@ -506,7 +506,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// the menu draws next
-	if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
+	if ( cls.keyCatchers & KEYCATCH_UI ) {
 		VM_Call( uivm, UI_REFRESH, cls.realtime );
 	}
 

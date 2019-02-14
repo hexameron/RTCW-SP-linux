@@ -33,8 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 
 extern botlib_export_t *botlib_export;
 
-vm_t *uivm;
-
 extern char cl_cdkey[34];
 
 
@@ -1167,6 +1165,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 	return 0;
 }
 
+
 /*
 ====================
 CL_ShutdownUI
@@ -1175,12 +1174,16 @@ CL_ShutdownUI
 void CL_ShutdownUI( void ) {
 	cls.keyCatchers &= ~KEYCATCH_UI;
 	cls.uiStarted = qfalse;
+#ifdef MONOLITHIC
+	VM_Call( uivm, UI_SHUTDOWN );
+#else
 	if ( !uivm ) {
 		return;
 	}
 	VM_Call( uivm, UI_SHUTDOWN );
 	VM_Free( uivm );
 	uivm = NULL;
+#endif
 }
 
 /*
@@ -1202,7 +1205,7 @@ void CL_InitUI( void ) {
 	}
 
 //----(SA)	always dll
-
+#ifndef MONOLITHIC
 #ifdef WOLF_SP_DEMO
 	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
 #else
@@ -1212,7 +1215,7 @@ void CL_InitUI( void ) {
 	if ( !uivm ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
 	}
-
+#endif
 	// sanity check
 	v = VM_Call( uivm, UI_GETAPIVERSION );
 	if ( v != UI_API_VERSION ) {
@@ -1227,11 +1230,15 @@ void CL_InitUI( void ) {
 
 
 qboolean UI_usesUniqueCDKey() {
+#ifdef MONOLITHIC
+	return ( VM_Call( uivm, UI_HASUNIQUECDKEY ) == qtrue );
+#else
 	if ( uivm ) {
 		return ( VM_Call( uivm, UI_HASUNIQUECDKEY ) == qtrue );
 	} else {
 		return qfalse;
 	}
+#endif
 }
 
 /*
@@ -1242,9 +1249,10 @@ See if the current console command is claimed by the ui
 ====================
 */
 qboolean UI_GameCommand( void ) {
+#ifndef MONOLITHIC
 	if ( !uivm ) {
 		return qfalse;
 	}
-
+#endif
 	return VM_Call( uivm, UI_CONSOLE_COMMAND, cls.realtime );
 }

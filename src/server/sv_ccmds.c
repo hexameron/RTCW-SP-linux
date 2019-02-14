@@ -423,7 +423,11 @@ static void SV_MapRestart_f( void ) {
 		SV_AddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
+#ifdef MONOLITHIC
+		denied = (char *)VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot );
+#else
 		denied = VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );
+#endif
 		if ( denied ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
@@ -431,7 +435,6 @@ static void SV_MapRestart_f( void ) {
 			Com_Printf( "SV_MapRestart_f(%d): dropped client %i - denied!\n", delay, i ); // bk010125
 			continue;
 		}
-
 		client->state = CS_ACTIVE;
 
 		SV_ClientEnterWorld( client, &client->lastUsercmd );

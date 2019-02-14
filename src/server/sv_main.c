@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 serverStatic_t svs;                 // persistant server info
 server_t sv;                        // local server
-vm_t            *gvm = NULL;                // game virtual machine // bk001212 init
 
 cvar_t  *sv_fps;                // time rate for running non-clients
 cvar_t  *sv_timeout;            // seconds without any message

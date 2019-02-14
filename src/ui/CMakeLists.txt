@@ -1,4 +1,4 @@
-add_library(ui SHARED
+add_library(ui.a STATIC
 	../game/bg_misc.c
 	../game/q_math.c
 	../game/q_shared.c
@@ -10,5 +10,5 @@ add_library(ui SHARED
 	ui_syscalls.c
 	ui_util.c
 )
-target_link_libraries(ui m)
-set_target_properties(ui PROPERTIES PREFIX "" OUTPUT_NAME "ui-rtcw")
+target_link_libraries(ui.a m)
+set_target_properties(ui.a PROPERTIES PREFIX "" SUFFIX "")

@@ -89,7 +89,6 @@ char cl_cdkey[34] = "                                ";
 clientActive_t cl;
 clientConnection_t clc;
 clientStatic_t cls;
-vm_t                *cgvm;
 
 // Structure containing functions exported from refresh DLL
 refexport_t re;
@@ -738,7 +737,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		clc.demofile = 0;
 	}
 
-	if ( uivm && showMainMenu ) {
+	if ( showMainMenu ) {
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE );
 	}
 

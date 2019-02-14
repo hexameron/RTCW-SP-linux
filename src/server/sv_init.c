@@ -778,7 +778,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
 		// send the new gamestate to all connected clients
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
-			char    *denied;
+			char	*denied;
 
 			if ( svs.clients[i].netchan.remoteAddress.type == NA_BOT ) {
 				if ( killBots || Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
@@ -791,7 +791,11 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 			}
 
 			// connect the client again
+#ifdef MONOLITHIC
+			denied = (char *)VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot );
+#else
 			denied = VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );   // firstTime = qfalse
+#endif
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change

@@ -1,6 +1,7 @@
 add_definitions(-DGAMEDLL)
 
-add_library(game SHARED
+# Add to our library.
+add_library(game.a STATIC
 	../botai/ai_chat.c
 	../botai/ai_cmd.c
 	../botai/ai_dmnet.c
@@ -52,6 +53,14 @@ add_library(game SHARED
 	g_weapon.c
 	q_math.c
 	q_shared.c
-)
-target_link_libraries(game m)
-set_target_properties(game PROPERTIES PREFIX "" OUTPUT_NAME "qagame-rtcw")
+	../ui/ui_atoms.c
+	../ui/ui_atoms.c
+	../ui/ui_gameinfo.c
+	../ui/ui_main.c
+	../ui/ui_players.c
+	../ui/ui_shared.c
+	../ui/ui_syscalls.c
+	../ui/ui_util.c
+	)
+target_link_libraries(game.a m)
+set_target_properties(game.a PROPERTIES PREFIX "" SUFFIX "")

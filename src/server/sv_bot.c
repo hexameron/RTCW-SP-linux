@@ -473,10 +473,12 @@ void SV_BotFrame( int time ) {
 	if ( !bot_enable ) {
 		return;
 	}
+#ifndef MONOLITHIC
 	//NOTE: maybe the game is already shutdown
 	if ( !gvm ) {
 		return;
 	}
+#endif
 	VM_Call( gvm, BOTAI_START_FRAME, time );
 }
 

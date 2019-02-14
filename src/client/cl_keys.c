@@ -1781,9 +1781,9 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			Cbuf_AddText( cmd );
 		}
 
-		if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
+		if ( cls.keyCatchers & KEYCATCH_UI ) {
 			VM_Call( uivm, UI_KEY_EVENT, key, down );
-		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
+		} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 			VM_Call( cgvm, CG_KEY_EVENT, key, down );
 		}
 
@@ -1822,14 +1822,10 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			}
 		}
 
-		if ( uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, down );
-		}
+		VM_Call( uivm, UI_KEY_EVENT, key, down );
 
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
-		if ( cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, down );
-		}
+		VM_Call( cgvm, CG_KEY_EVENT, key, down );
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE ) {
 		Message_Key( key );
 	} else if ( cls.state == CA_DISCONNECTED ) {

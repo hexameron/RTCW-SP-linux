@@ -14,6 +14,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wno-unused")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g")
 set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG -O3 -ffast-math")
 
+add_definitions(-DMONOLITHIC)
 
 if(ENABLE_DEMO)
 add_definitions(-DWOLF_SP_DEMO)

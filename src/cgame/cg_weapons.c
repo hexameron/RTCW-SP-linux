@@ -3430,13 +3430,7 @@ int CG_WeaponIndex( int weapnum, int *bank, int *cycle ) {
 	static int bnk, cyc;
 
 	if ( weapnum <= 0 || weapnum >= WP_NUM_WEAPONS ) {
-		if ( bank ) {
-			*bank = 0;
-		}
-		if ( cycle ) {
-			*cycle = 0;
-		}
-		return 0;
+		goto fail;
 	}
 
 	for ( bnk = 0; bnk < maxWeapBanks; bnk++ ) {
@@ -3479,10 +3473,15 @@ int CG_WeaponIndex( int weapnum, int *bank, int *cycle ) {
 // jpw
 		}
 	}
-
+fail:
 	// failed to find the weapon in the table
 	// probably an alternate
-
+	if ( bank ) {
+		*bank = 0;
+	}
+	if ( cycle ) {
+		*cycle = 0;
+	}
 	return 0;
 }
 

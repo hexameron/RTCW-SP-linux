@@ -629,11 +629,10 @@ int CG_GetOriginForTag( centity_t *cent, refEntity_t *parent, char *tagName, int
 	// lerp the tag
 	retval = trap_R_LerpTag( &lerped, parent, tagName, startIndex );
 
+	VectorCopy( parent->origin, org );
 	if ( retval < 0 ) {
 		return retval;
 	}
-
-	VectorCopy( parent->origin, org );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
 		VectorMA( org, lerped.origin[i], parent->axis[i], org );

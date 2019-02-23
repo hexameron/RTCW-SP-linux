@@ -44,7 +44,6 @@ add_library(game.a STATIC
 	g_session.c
 	g_spawn.c
 	g_svcmds.c
-	g_syscalls.c
 	g_target.c
 	g_team.c
 	g_tramcar.c
@@ -54,12 +53,10 @@ add_library(game.a STATIC
 	q_math.c
 	q_shared.c
 	../ui/ui_atoms.c
-	../ui/ui_atoms.c
 	../ui/ui_gameinfo.c
 	../ui/ui_main.c
 	../ui/ui_players.c
 	../ui/ui_shared.c
-	../ui/ui_syscalls.c
 	../ui/ui_util.c
 	)
 target_link_libraries(game.a m)

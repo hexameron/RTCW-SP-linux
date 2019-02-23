@@ -293,7 +293,7 @@ typedef struct {
 	int cvarFlags;
 } cvarTable_t;
 
-cvarTable_t cvarTable[] = {
+cvarTable_t cgTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0 },  // used for debugging
 	{ &cg_autoswitch, "cg_autoswitch", "2", CVAR_ARCHIVE },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
@@ -481,7 +481,7 @@ cvarTable_t cvarTable[] = {
 
 	{ &cg_showAIState, "cg_showAIState", "0", CVAR_CHEAT},
 };
-int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
+int cgTableSize = sizeof( cgTable ) / sizeof( cgTable[0] );
 
 /*
 =================
@@ -495,7 +495,7 @@ void CG_RegisterCvars( void ) {
 
 	trap_Cvar_Set( "cg_letterbox", "0" ); // force this for people who might have it in their
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+	for ( i = 0, cv = cgTable ; i < cgTableSize ; i++, cv++ ) {
 		trap_Cvar_Register( cv->vmCvar, cv->cvarName,
 							cv->defaultString, cv->cvarFlags );
 	}
@@ -543,7 +543,7 @@ void CG_UpdateCvars( void ) {
 	int i;
 	cvarTable_t *cv;
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+	for ( i = 0, cv = cgTable ; i < cgTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
 	}
 /* RF, disabled this, not needed anymore

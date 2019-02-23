@@ -28,7 +28,6 @@ add_library(cgame.a STATIC
 	cg_servercmds.c
 	cg_snapshot.c
 	cg_sound.c
-	cg_syscalls.c
 	cg_trails.c
 	cg_view.c
 	cg_weapons.c

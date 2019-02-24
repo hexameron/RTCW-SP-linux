@@ -38,6 +38,61 @@ If you have questions concerning this license or the applicable additional terms
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 void CG_DrawInformation( void );
+intptr_t CL_UISystemCalls( intptr_t *args );
+intptr_t CL_CgameSystemCalls( intptr_t *args );
+intptr_t SV_GameSystemCalls( intptr_t *args );
+
+intptr_t ui_call( intptr_t arg, ... ) {
+	intptr_t args[16];
+	int i;
+	va_list ap;
+
+	args[0] = arg;
+
+	va_start( ap, arg );
+	for ( i = 1; i < sizeof( args ) / sizeof( args[i] ); i++ )
+		args[i] = va_arg( ap, intptr_t );
+	va_end( ap );
+
+	return CL_UISystemCalls( args );
+}
+
+
+intptr_t cgame_call( intptr_t arg, ... ) {
+	intptr_t args[16];
+	int i;
+	va_list ap;
+
+	args[0] = arg;
+
+	va_start( ap, arg );
+	for ( i = 1; i < sizeof( args ) / sizeof( args[i] ); i++ )
+		args[i] = va_arg( ap, intptr_t );
+	va_end( ap );
+
+	return CL_CgameSystemCalls( args );
+}
+
+
+intptr_t game_call( intptr_t arg, ... ) {
+	intptr_t args[16];
+	int i;
+	va_list ap;
+
+	args[0] = arg;
+
+	va_start( ap, arg );
+	for ( i = 1; i < sizeof( args ) / sizeof( args[i] ); i++ )
+		args[i] = va_arg( ap, intptr_t );
+	va_end( ap );
+
+	return SV_GameSystemCalls( args );
+}
+
+void dllEntry( intptr_t ( QDECL *syscallptr )( intptr_t arg,... ) ) {
+	Com_Printf( "dllEntry should never be called in Monolithic builds!\n" );
+	__builtin_trap(); // should never get here
+}
 
 int PASSFLOAT( float x ) {
 	float floatTemp;

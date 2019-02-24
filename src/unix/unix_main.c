@@ -638,6 +638,9 @@ void *Sys_LoadDll( const char *name,
 				   intptr_t ( *systemcalls )( intptr_t, ... ) )
 #endif
 {
+#ifdef MONOLITHIC
+	__builtin_trap();
+#else
 	void *libHandle;
 	void ( *dllEntry )( intptr_t ( *syscallptr )( intptr_t, ... ) );
 	char fname[MAX_OSPATH];
@@ -770,7 +773,9 @@ void *Sys_LoadDll( const char *name,
 		return NULL;
 	}
 	dllEntry( systemcalls );
+
 	return libHandle;
+#endif
 }
 
 #if defined( DO_LOADDLL_WRAP )

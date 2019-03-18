@@ -93,11 +93,11 @@ sub build_funcs {
 }
 
 # explicit dependency of those headers
-Depends $env ['../game/g_funcs.h', '../game/g_func_decs.h'], @$GAMESREF;
-Depends $env ['../game/g_funcs.h', '../game/g_func_decs.h'], '#extractfuncs';
+# Depends $env ['../game/g_funcs.h', '../game/g_func_decs.h'], @$GAMESREF;
+# Depends $env ['../game/g_funcs.h', '../game/g_func_decs.h'], '#extractfuncs';
 
 # generation command
-Command $env ['../game/g_funcs.h', '../game/g_func_decs.h'], "[perl] &build_funcs()";
+# Command $env ['../game/g_funcs.h', '../game/g_func_decs.h'], "[perl] &build_funcs()";
 
 # TODO use an ldd -r after .so build to catch unresolved symbols? (PostBuild command)
 Program $env 'qagame-rtcw.so', @$FILESREF;

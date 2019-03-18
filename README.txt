@@ -1,11 +1,11 @@
 /**************************************************************
  64bit safe, with bugfixes, SDL 1.2 or 2.0 and SMP support.
-	Build with "cd src/unix && ./cons"
+	Build with "cd src/unix && ./cons" (cons is broken on Debian)	
+	(builds shared libraries to be installed in "main")
 
  SMP Requires SDL 2.0 for window changes on some drivers:
-	Build with "cd src/unix && ./cons -- sdl2"
-
- Building with Cmake selects SDL2
+	Build with "cmake . && make" (selects SDL2)
+	(builds a single file without shared libraries) 
 
 **************************************************************/
 

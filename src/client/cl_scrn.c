@@ -452,12 +452,10 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		}
 	}
 #endif
-#ifndef MONOLITHIC
-	if ( !uivm ) {
+	if ( !uivm_loaded ) {
 		Com_DPrintf( "draw screen without UI loaded\n" );
 		return;
 	}
-#endif
 	// if the menu is going to cover the entire screen, we
 	// don't need to render anything under it
 	if ( !VM_Call( uivm, UI_IS_FULLSCREEN ) ) {

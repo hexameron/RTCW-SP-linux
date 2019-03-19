@@ -43,6 +43,9 @@ and one exported function: Perform
 #include "vm_local.h"
 
 #ifdef MONOLITHIC
+qboolean gvm_loaded = qfalse;
+qboolean cgvm_loaded = qfalse;
+qboolean uivm_loaded = qfalse;
 void VM_Init( void ) {}
 void VM_Debug( int level ) {}
 void VM_Clear( void ) {}

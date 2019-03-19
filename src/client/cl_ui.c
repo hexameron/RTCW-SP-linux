@@ -1174,13 +1174,14 @@ CL_ShutdownUI
 void CL_ShutdownUI( void ) {
 	cls.keyCatchers &= ~KEYCATCH_UI;
 	cls.uiStarted = qfalse;
-#ifdef MONOLITHIC
-	VM_Call( uivm, UI_SHUTDOWN );
-#else
-	if ( !uivm ) {
+
+	if ( !uivm_loaded ) {
 		return;
 	}
 	VM_Call( uivm, UI_SHUTDOWN );
+#ifdef MONOLITHIC
+	uivm_loaded = qfalse;
+#else
 	VM_Free( uivm );
 	uivm = NULL;
 #endif
@@ -1205,17 +1206,18 @@ void CL_InitUI( void ) {
 	}
 
 //----(SA)	always dll
-#ifndef MONOLITHIC
+#ifdef MONOLITHIC
+	uivm_loaded = qtrue;
+#else
 #ifdef WOLF_SP_DEMO
 	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
 #else
 	uivm = VM_Create( "ui", CL_UISystemCalls, Cvar_VariableValue( "vm_ui" ) );
 #endif
-
-	if ( !uivm ) {
+#endif
+	if ( !uivm_loaded ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
 	}
-#endif
 	// sanity check
 	v = VM_Call( uivm, UI_GETAPIVERSION );
 	if ( v != UI_API_VERSION ) {
@@ -1230,15 +1232,11 @@ void CL_InitUI( void ) {
 
 
 qboolean UI_usesUniqueCDKey() {
-#ifdef MONOLITHIC
-	return ( VM_Call( uivm, UI_HASUNIQUECDKEY ) == qtrue );
-#else
-	if ( uivm ) {
+	if ( uivm_loaded ) {
 		return ( VM_Call( uivm, UI_HASUNIQUECDKEY ) == qtrue );
 	} else {
 		return qfalse;
 	}
-#endif
 }
 
 /*
@@ -1249,10 +1247,9 @@ See if the current console command is claimed by the ui
 ====================
 */
 qboolean UI_GameCommand( void ) {
-#ifndef MONOLITHIC
-	if ( !uivm ) {
+	if ( !uivm_loaded ) {
 		return qfalse;
 	}
-#endif
+
 	return VM_Call( uivm, UI_CONSOLE_COMMAND, cls.realtime );
 }

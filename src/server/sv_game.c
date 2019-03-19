@@ -906,13 +906,13 @@ Called every time a map changes
 ===============
 */
 void SV_ShutdownGameProgs( void ) {
-#ifdef MONOLITHIC
-	VM_Call( gvm, GAME_SHUTDOWN, qfalse );
-#else
-	if ( !gvm ) {
+	if ( !gvm_loaded ) {
 		return;
 	}
 	VM_Call( gvm, GAME_SHUTDOWN, qfalse );
+#ifdef MONOLITHIC
+	gvm_loaded = qfalse;
+#else
 	VM_Free( gvm );
 	gvm = NULL;
 #endif
@@ -953,20 +953,18 @@ Called on a map_restart, but not on a normal map change
 ===================
 */
 void SV_RestartGameProgs( void ) {
-#ifdef MONOLITHIC
-	VM_Call( gvm, GAME_SHUTDOWN, qtrue );
-#else
-	if ( !gvm ) {
+	if ( !gvm_loaded ) {
 		return;
 	}
 	VM_Call( gvm, GAME_SHUTDOWN, qtrue );
-
-	// do a restart instead of a free
+#ifdef MONOLITHIC
+	// clear VM memory ?
+#else
 	gvm = VM_Restart( gvm );
-	if ( !gvm ) { // bk001212 - as done below
+#endif
+	if ( !gvm_loaded ) { // bk001212 - as done below
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
-#endif
 	SV_InitGameVM( qtrue );
 }
 
@@ -989,13 +987,15 @@ void SV_InitGameProgs( void ) {
 	} else {
 		bot_enable = 0;
 	}
-#ifndef MONOLITHIC
+#ifdef MONOLITHIC
+	gvm_loaded = qtrue;
+#else
 	// load the dll or bytecode
 	gvm = VM_Create( "qagame", SV_GameSystemCalls, Cvar_VariableValue( "vm_game" ) );
-	if ( !gvm ) {
+#endif
+	if ( !gvm_loaded ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
-#endif
 	SV_InitGameVM( qfalse );
 }
 
@@ -1022,11 +1022,9 @@ SV_SendMoveSpeedsToGame
 ====================
 */
 void SV_SendMoveSpeedsToGame( int entnum, char *text ) {
-#ifndef MONOLITHIC
-	if ( !gvm ) {
+	if ( !gvm_loaded ) {
 		return;
 	}
-#endif
 	VM_Call( gvm, GAME_RETRIEVE_MOVESPEEDS_FROM_CLIENT, entnum, text );
 }
 

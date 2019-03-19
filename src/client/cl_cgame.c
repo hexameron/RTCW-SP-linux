@@ -408,13 +408,13 @@ CL_ShutdonwCGame
 void CL_ShutdownCGame( void ) {
 	cls.keyCatchers &= ~KEYCATCH_CGAME;
 	cls.cgameStarted = qfalse;
-#ifdef MONOLITHIC
-	VM_Call( cgvm, CG_SHUTDOWN );
-#else
-	if ( !cgvm ) {
+	if ( !cgvm_loaded ) {
 		return;
 	}
 	VM_Call( cgvm, CG_SHUTDOWN );
+#ifdef MONOLITHIC
+	cgvm_loaded = qfalse;
+#else
 	VM_Free( cgvm );
 	cgvm = NULL;
 #endif
@@ -973,7 +973,9 @@ void CL_InitCGame( void ) {
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
-#ifndef MONOLITHIC
+#ifdef MONOLITHIC
+	cgvm_loaded = qtrue;
+#else
 	// load the dll or bytecode
 	if ( cl_connectedToPureServer != 0 ) {
 		// if sv_pure is set we only allow qvms to be loaded
@@ -983,10 +985,10 @@ void CL_InitCGame( void ) {
 	}
 	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
 //	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, Cvar_VariableValue( "vm_cgame" ) );
-	if ( !cgvm ) {
+#endif
+	if ( !cgvm_loaded ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}
-#endif
 	cls.state = CA_LOADING;
 
 	// init for this gamestate
@@ -1028,11 +1030,9 @@ See if the current console command is claimed by the cgame
 ====================
 */
 qboolean CL_GameCommand( void ) {
-#ifndef MONOLITHIC
-	if ( !cgvm ) {
+	if ( !cgvm_loaded ) {
 		return qfalse;
 	}
-#endif
 	return VM_Call( cgvm, CG_CONSOLE_COMMAND );
 }
 
@@ -1289,10 +1289,8 @@ CL_GetTag
 ====================
 */
 qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or ) {
-#ifndef MONOLITHIC
-	if ( !cgvm ) {
+	if ( !cgvm_loaded ) {
 		return qfalse;
 	}
-#endif
 	return VM_Call( cgvm, CG_GET_TAG, clientNum, tagname, or );
 }

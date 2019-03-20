@@ -51,14 +51,37 @@ add_library(game.a STATIC
 	g_trigger.c
 	g_utils.c
 	g_weapon.c
-	q_math.c
-	q_shared.c
 	../ui/ui_atoms.c
 	../ui/ui_gameinfo.c
 	../ui/ui_main.c
 	../ui/ui_players.c
 	../ui/ui_shared.c
 	../ui/ui_util.c
+	../cgame/cg_consolecmds.c
+	../cgame/cg_draw.c
+	../cgame/cg_drawtools.c
+	../cgame/cg_effects.c
+	../cgame/cg_ents.c
+	../cgame/cg_event.c
+	../cgame/cg_flamethrower.c
+	../cgame/cg_info.c
+	../cgame/cg_localents.c
+	../cgame/cg_main.c
+	../cgame/cg_marks.c
+	../cgame/cg_newDraw.c
+	../cgame/cg_particles.c
+	../cgame/cg_players.c
+	../cgame/cg_playerstate.c
+	../cgame/cg_predict.c
+	../cgame/cg_scoreboard.c
+	../cgame/cg_servercmds.c
+	../cgame/cg_snapshot.c
+	../cgame/cg_sound.c
+	../cgame/cg_static.c
+	../cgame/cg_trails.c
+	../cgame/cg_view.c
+	../cgame/cg_weapons.c
+	../cgame/cg_static.c
 )
 target_link_libraries(game.a m)
 set_target_properties(game.a PROPERTIES PREFIX "" SUFFIX "")

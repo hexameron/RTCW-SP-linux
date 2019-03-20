@@ -58,4 +58,4 @@ add_definitions(-DBOTLIB)
 
 # Our executable
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX "../../" SUFFIX "")
-target_link_libraries(${PROJECT_NAME} SDL2 GL dl m splines.a game.a cgame.a)
+target_link_libraries(${PROJECT_NAME} SDL2 GL dl m splines.a game.a)

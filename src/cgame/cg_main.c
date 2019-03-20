@@ -96,9 +96,12 @@ intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intptr_t arg2, 
 
 
 #ifdef MONOLITHIC
+void UIDC_Context(int context);
 intptr_t cgvm( intptr_t command, ... ) {
-	intptr_t arg0, arg1, arg2;
+	intptr_t r, arg0, arg1, arg2;
 	va_list ap;
+
+	UIDC_Context( 1 );
 
 	va_start( ap, command );
 	arg0 = va_arg( ap, intptr_t );
@@ -106,7 +109,10 @@ intptr_t cgvm( intptr_t command, ... ) {
 	arg2 = va_arg( ap, intptr_t );
 	va_end( ap );
 
-	return cgMain( command, arg0, arg1, arg2 );
+	r = cgMain( command, arg0, arg1, arg2 );
+
+	UIDC_Context( 0 );
+	return r;
 }
 #endif
 

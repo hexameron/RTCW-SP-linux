@@ -1,5 +1,5 @@
 add_subdirectory(game)
-add_subdirectory(cgame)
+#add_subdirectory(cgame)
 #add_subdirectory(ui)
 #add_subdirectory(jpeg-6)
 add_subdirectory(splines)

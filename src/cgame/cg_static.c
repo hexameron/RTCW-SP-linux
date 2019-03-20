@@ -39,11 +39,14 @@ typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 void CG_DrawInformation( void );
 intptr_t CL_CgameSystemCalls( intptr_t *args );
+void UIDC_Context(int context);
 
 intptr_t cgame_call( intptr_t arg, ... ) {
-	intptr_t args[16];
+	intptr_t rv, args[16];
 	int i;
 	va_list ap;
+
+	UIDC_Context( 0 );
 
 	args[0] = arg;
 
@@ -52,7 +55,9 @@ intptr_t cgame_call( intptr_t arg, ... ) {
 		args[i] = va_arg( ap, intptr_t );
 	va_end( ap );
 
-	return CL_CgameSystemCalls( args );
+	rv = CL_CgameSystemCalls( args );
+	UIDC_Context( 1 );
+	return rv;
 }
 
 #define PASSFLOAT(x) *(int32_t *)&x

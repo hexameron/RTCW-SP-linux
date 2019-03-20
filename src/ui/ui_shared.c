@@ -31,10 +31,27 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "ui_shared.h"
 
-#define SCROLL_TIME_START                   500
-#define SCROLL_TIME_ADJUST              150
-#define SCROLL_TIME_ADJUSTOFFSET    40
-#define SCROLL_TIME_FLOOR                   20
+#define SCROLL_TIME_START	500
+#define SCROLL_TIME_ADJUST	150
+#define SCROLL_TIME_ADJUSTOFFSET 40
+#define SCROLL_TIME_FLOOR	20
+#define DOUBLE_CLICK_DELAY	300
+#define MEM_POOL_SIZE		2 * 1024 * 1024
+#define HASH_TABLE_SIZE		2048
+
+#ifdef MONOLITHIC
+int DC_context = 0;
+void UIDC_Context(int context) { DC_context = context; }
+displayContextDef_t *DC[2] = { NULL };
+#define CDC DC[DC_context]
+#else
+displayContextDef_t *CDC = NULL;
+#endif
+
+typedef struct stringDef_s {
+	struct stringDef_s *next;
+	const char *str;
+} stringDef_t;
 
 typedef struct scrollInfo_s {
 	int nextScrollTime;
@@ -49,19 +66,15 @@ typedef struct scrollInfo_s {
 
 /* Shared code, static variables */
 /* ----------------------------- */
-static scrollInfo_t scrollInfo;
-static void ( *captureFunc )( void *p ) = NULL;
-static void *captureData = NULL;
-static itemDef_t *itemCapture = NULL;   // item that has the mouse captured ( if any )
-
-int DC_context = 0;
-displayContextDef_t *DC[2] = { NULL };
-#define CDC DC[DC_context]
+scrollInfo_t scrollInfo;
+void ( *captureFunc )( void *p ) = NULL;
+void *captureData = NULL;
+itemDef_t *itemCapture = NULL;   // item that has the mouse captured ( if any )
 
 qboolean g_waitingForKey = qfalse;
 qboolean g_editingField = qfalse;
 
-static itemDef_t *g_bindItem = NULL;
+itemDef_t *g_bindItem = NULL;
 itemDef_t *g_editItem = NULL;
 
 menuDef_t Menus[MAX_MENUS];      // defined menus
@@ -70,10 +83,18 @@ int menuCount = 0;               // how many
 menuDef_t *menuStack[MAX_OPEN_MENUS];
 int openMenuCount = 0;
 
-static qboolean debugMode = qfalse;
+qboolean debugMode = qfalse;
+int lastListBoxClickTime = 0;
 
-#define DOUBLE_CLICK_DELAY 300
-static int lastListBoxClickTime = 0;
+char memoryPool[MEM_POOL_SIZE];
+int allocPoint, outOfMemory;
+int strPoolIndex = 0;
+char strPool[STRING_POOL_SIZE];
+
+int strHandleCount = 0;
+stringDef_t *strHandle[HASH_TABLE_SIZE];
+
+/* ----------------------------- */
 
 void Item_RunScript( itemDef_t *item, const char *s );
 void Item_SetupKeywordHash( void );
@@ -83,17 +104,6 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down );
 itemDef_t *Menu_SetPrevCursorItem( menuDef_t *menu );
 itemDef_t *Menu_SetNextCursorItem( menuDef_t *menu );
 static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y );
-
-#ifdef CGAME
-#define MEM_POOL_SIZE  2 * 128 * 1024
-#else
-#define MEM_POOL_SIZE  2 * 1024 * 1024
-#endif
-
-static char memoryPool[MEM_POOL_SIZE];
-static int allocPoint, outOfMemory;
-/* ----------------------------- */
-
 
 // these are expected to be translated by the strings.txt file
 translateString_t translateStrings[] = {
@@ -211,7 +221,6 @@ qboolean UI_OutOfMemory() {
 
 
 
-#define HASH_TABLE_SIZE 2048
 /*
 ================
 return a hash value for the string
@@ -232,18 +241,6 @@ static long hashForString( const char *str ) {
 	hash &= ( HASH_TABLE_SIZE - 1 );
 	return hash;
 }
-
-typedef struct stringDef_s {
-	struct stringDef_s *next;
-	const char *str;
-} stringDef_t;
-
-static int strPoolIndex = 0;
-static char strPool[STRING_POOL_SIZE];
-
-static int strHandleCount = 0;
-static stringDef_t *strHandle[HASH_TABLE_SIZE];
-
 
 const char *String_Alloc( const char *p ) {
 	int len;
@@ -660,10 +657,9 @@ Initializes the display with a structure to all the drawing routines
  ==================
 */
 void Init_Display( displayContextDef_t *dc ) {
+	Com_Printf("Init Display Context\n" );
 	CDC = dc;
 }
-
-
 
 // type and style painting
 

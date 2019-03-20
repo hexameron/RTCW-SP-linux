@@ -43,6 +43,7 @@ add_library(game.a STATIC
 	g_script_actions.c
 	g_session.c
 	g_spawn.c
+	g_static.c
 	g_svcmds.c
 	g_target.c
 	g_team.c
@@ -58,6 +59,6 @@ add_library(game.a STATIC
 	../ui/ui_players.c
 	../ui/ui_shared.c
 	../ui/ui_util.c
-	)
+)
 target_link_libraries(game.a m)
 set_target_properties(game.a PROPERTIES PREFIX "" SUFFIX "")

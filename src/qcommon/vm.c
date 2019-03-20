@@ -49,9 +49,8 @@ qboolean uivm_loaded = qfalse;
 void VM_Init( void ) {}
 void VM_Debug( int level ) {}
 void VM_Clear( void ) {}
-const char *VM_ValueToSymbol( vm_t *vm, int value ) {
-	return ("No Symbols");
-}
+const char *VM_ValueToSymbol( vm_t *vm, int value ) { return ("No Symbols"); }
+void dllEntry( intptr_t ( QDECL *syscallptr )( intptr_t arg,... ) ) {}
 #else
 vm_t	*gvm = NULL;
 vm_t	*cgvm = NULL;

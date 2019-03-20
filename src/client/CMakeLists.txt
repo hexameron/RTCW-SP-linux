@@ -41,7 +41,6 @@ list(SORT CLIENT_SOURCES)
 # message(STATUS "CLIENT_SOURCES: ${CLIENT_SOURCES}")
 
 set(ADDITONAL_SOURCES
-	${CMAKE_SOURCE_DIR}/src/game/q_syscalls.c
 	${CMAKE_SOURCE_DIR}/src/game/q_shared.c
 	${CMAKE_SOURCE_DIR}/src/game/q_math.c
 )

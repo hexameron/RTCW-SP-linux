@@ -7,7 +7,6 @@ add_library(cgame.a STATIC
 	../game/bg_slidemove.c
 	../game/q_math.c
 	../game/q_shared.c
-	../ui/ui_shared.c
 	cg_consolecmds.c
 	cg_draw.c
 	cg_drawtools.c

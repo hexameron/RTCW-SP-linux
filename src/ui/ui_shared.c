@@ -33,7 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef MONOLITHIC
 int DC_context = 0;
-void UIDC_Context(int context) { DC_context = context; }
+int UIDC_Context(int context) {
+	int oldcontext = DC_context;
+	DC_context = context;
+	return oldcontext;
+}
 displayContextDef_t *DC[2] = { NULL };
 #define CDC DC[DC_context]
 #define DCV DC[DC_context]

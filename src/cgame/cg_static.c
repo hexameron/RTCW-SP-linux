@@ -39,25 +39,19 @@ typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 void CG_DrawInformation( void );
 intptr_t CL_CgameSystemCalls( intptr_t *args );
-void UIDC_Context(int context);
 
 intptr_t cgame_call( intptr_t arg, ... ) {
 	intptr_t rv, args[16];
 	int i;
 	va_list ap;
 
-	UIDC_Context( 0 );
-
 	args[0] = arg;
-
 	va_start( ap, arg );
 	for ( i = 1; i < sizeof( args ) / sizeof( args[i] ); i++ )
 		args[i] = va_arg( ap, intptr_t );
 	va_end( ap );
 
-	rv = CL_CgameSystemCalls( args );
-	UIDC_Context( 1 );
-	return rv;
+	return CL_CgameSystemCalls( args );
 }
 
 #define PASSFLOAT(x) *(int32_t *)&x
@@ -131,7 +125,8 @@ void    trap_SendClientCommand( const char *s ) {
 }
 
 void    trap_UpdateScreen( void ) {
-	cgame_call( CG_UPDATESCREEN );
+	SCR_UpdateScreen();
+	// cgame_call( CG_UPDATESCREEN );
 }
 
 void    trap_CM_LoadMap( const char *mapname ) {

@@ -239,16 +239,22 @@ intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intptr_t arg2, 
 
 
 #ifdef MONOLITHIC
+int UIDC_Context(int context);
 intptr_t uivm( intptr_t command, ... ) {
-	intptr_t arg0, arg1;
+	intptr_t r, arg0, arg1;
 	va_list ap;
+	int lastcontext;
+
+	lastcontext = UIDC_Context( 0 );
 
 	va_start( ap, command );
 	arg0 = va_arg( ap, intptr_t );
 	arg1 = va_arg( ap, intptr_t );
 	va_end( ap );
 
-	return uiMain( command, arg0, arg1 );
+	r = uiMain( command, arg0, arg1 );
+	lastcontext = UIDC_Context( lastcontext );
+	return r;
 }
 #endif
 
@@ -6553,6 +6559,8 @@ void _UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
 	int start;
 
+	Init_Display( &uiInfo.uiDC ); // need to do this first !
+
 	//uiInfo.inGameLoad = inGameLoad;
 
 	UI_RegisterCvars();
@@ -6629,9 +6637,6 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
 	uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
 	uiInfo.uiDC.runCinematicFrame = &UI_RunCinematicFrame;
-
-	Init_Display( &uiInfo.uiDC );
-
 	String_Init();
 
 	// load translation text

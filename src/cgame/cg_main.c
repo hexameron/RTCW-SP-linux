@@ -96,12 +96,13 @@ intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intptr_t arg2, 
 
 
 #ifdef MONOLITHIC
-void UIDC_Context(int context);
+int UIDC_Context(int context);
 intptr_t cgvm( intptr_t command, ... ) {
 	intptr_t r, arg0, arg1, arg2;
 	va_list ap;
+	int lastcontext;
 
-	UIDC_Context( 1 );
+	lastcontext = UIDC_Context( 1 );
 
 	va_start( ap, command );
 	arg0 = va_arg( ap, intptr_t );
@@ -110,10 +111,10 @@ intptr_t cgvm( intptr_t command, ... ) {
 	va_end( ap );
 
 	r = cgMain( command, arg0, arg1, arg2 );
-
-	UIDC_Context( 0 );
+	lastcontext = UIDC_Context( lastcontext );
 	return r;
 }
+
 #endif
 
 
@@ -2268,8 +2269,6 @@ void CG_LoadHudMenu() {
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
 
-	Init_Display( &cgDC );
-
 	Menu_Reset();
 
 	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
@@ -2317,6 +2316,8 @@ Will perform callbacks to make the loading info screen update.
 */
 void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	const char  *s;
+
+	Init_Display( &cgDC );  // need to do this first !
 
 	// clear everything
 	memset( &cgs, 0, sizeof( cgs ) );
@@ -2394,6 +2395,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	CG_RegisterClients();       // if low on memory, some clients will be deferred
 
 	CG_AssetCache();
+
 	CG_LoadHudMenu();      // load new hud stuff
 
 	cg.loading = qfalse;    // future players will be deferred

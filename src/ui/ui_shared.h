@@ -83,6 +83,14 @@ If you have questions concerning this license or the applicable additional terms
 #define STRING_POOL_SIZE    384 * 1024
 #endif
 
+#define SCROLL_TIME_START	500
+#define SCROLL_TIME_ADJUST	150
+#define SCROLL_TIME_ADJUSTOFFSET 40
+#define SCROLL_TIME_FLOOR	20
+#define DOUBLE_CLICK_DELAY	300
+#define MEM_POOL_SIZE		2 * 1024 * 1024
+#define HASH_TABLE_SIZE		2048
+
 #define MAX_STRING_HANDLES  4096
 #define MAX_SCRIPT_ARGS     12
 #define MAX_EDITFIELD       256
@@ -338,13 +346,28 @@ typedef struct {
 	qhandle_t fxBasePic;
 	qhandle_t fxPic[7];
 	qhandle_t crosshairShader[NUM_CROSSHAIRS];
-
 } cachedAssets_t;
 
 typedef struct {
 	const char *name;
 	void ( *handler )( itemDef_t *item, char** args );
 } commandDef_t;
+
+typedef struct stringDef_s {
+	struct stringDef_s *next;
+	const char *str;
+} stringDef_t;
+
+typedef struct scrollInfo_s {
+	int nextScrollTime;
+	int nextAdjustTime;
+	int adjustValue;
+	int scrollKey;
+	float xStart;
+	float yStart;
+	itemDef_t *item;
+	qboolean scrollDir;
+} scrollInfo_t;
 
 typedef struct {
 	qhandle_t ( *registerShaderNoMip )( const char *p );
@@ -421,6 +444,27 @@ typedef struct {
 	qhandle_t cursor;
 	float FPS;
 
+// MONOLITHIC variables
+	scrollInfo_t scrollInfo;
+	void ( *captureFunc )( void *p );
+	void *captureData;
+	itemDef_t *itemCapture;
+	qboolean g_waitingForKey;
+	qboolean g_editingField;
+	itemDef_t *g_bindItem;
+	itemDef_t *g_editItem;
+	menuDef_t Menus[MAX_MENUS];
+	int menuCount;
+	menuDef_t *menuStack[MAX_OPEN_MENUS];
+	int openMenuCount;
+	int lastListBoxClickTime;
+
+	char memoryPool[MEM_POOL_SIZE];
+	int allocPoint;
+	int strPoolIndex;
+	char strPool[STRING_POOL_SIZE];
+	int strHandleCount;
+	stringDef_t *strHandle[HASH_TABLE_SIZE];
 } displayContextDef_t;
 
 
@@ -500,5 +544,14 @@ int         trap_PC_LoadSource( const char *filename );
 int         trap_PC_FreeSource( int handle );
 int         trap_PC_ReadToken( int handle, pc_token_t *pc_token );
 int         trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
+
+void Item_RunScript( itemDef_t *item, const char *s );
+void Item_SetupKeywordHash( void );
+void Menu_SetupKeywordHash( void );
+int BindingIDFromName( const char *name );
+qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down );
+itemDef_t *Menu_SetPrevCursorItem( menuDef_t *menu );
+itemDef_t *Menu_SetNextCursorItem( menuDef_t *menu );
+static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y );
 
 #endif

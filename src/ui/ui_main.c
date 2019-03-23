@@ -4294,6 +4294,7 @@ void WM_LimboChat() {
 	trap_Cvar_Set( "ui_cmd", "" );
 }
 
+#if 0
 extern qboolean g_waitingForKey;
 extern qboolean g_editingField;
 extern itemDef_t *g_editItem;
@@ -4319,7 +4320,7 @@ void WM_ActivateLimboChat() {
 	}
 }
 // -NERVE - SMF
-
+#endif
 /*
 ==============
 UI_Update
@@ -5010,10 +5011,9 @@ static void UI_RunMenuScript( char **args ) {
 			}
 
 		} else if ( Q_stricmp( name, "limboChat" ) == 0 ) {
-			WM_LimboChat();
+			// WM_LimboChat();
 		} else if ( Q_stricmp( name, "activateLimboChat" ) == 0 ) {
-			WM_ActivateLimboChat();
-			// -NERVE - SMF
+			// WM_ActivateLimboChat();
 		} else if ( Q_stricmp( name, "setrecommended" ) == 0 ) {
 			trap_Cmd_ExecuteText( EXEC_APPEND, "setRecommended 1\n" );
 		} else {

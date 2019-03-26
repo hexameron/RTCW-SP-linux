@@ -322,6 +322,7 @@ intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intpt
 		G_RetrieveMoveSpeedsFromClient( arg0, (char *)arg1 );
 		return 0;
 	case GAME_GETMODELINFO:
+		// called from inside cgame
 		return G_GetModelInfo( arg0, (char *)arg1, (animModelInfo_t **)arg2 );
 	}
 
@@ -329,9 +330,13 @@ intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intpt
 }
 
 #ifdef MONOLITHIC
+int UIDC_Context(int context);
 intptr_t gvm( intptr_t command, ... ) {
-	intptr_t arg0, arg1, arg2, arg3, arg4;
+	intptr_t r, arg0, arg1, arg2, arg3, arg4;
 	va_list ap;
+	int lastcontext;
+
+	lastcontext = UIDC_Context( 0 );
 
 	va_start( ap, command );
 	arg0 = va_arg( ap, intptr_t );
@@ -341,7 +346,9 @@ intptr_t gvm( intptr_t command, ... ) {
 	arg4 = va_arg( ap, intptr_t );
 	va_end( ap );
 
-	return	gMain( command, arg0, arg1, arg2, arg3, arg4 );
+	r = gMain( command, arg0, arg1, arg2, arg3, arg4 );
+	lastcontext = UIDC_Context( lastcontext );
+	return r;
 }
 #endif
 

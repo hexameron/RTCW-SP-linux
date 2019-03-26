@@ -569,6 +569,7 @@ void CL_SetCGameTime( void );
 void CL_FirstSnapshot( void );
 void CL_ShaderStateChanged( void );
 void CL_UpdateLevelHunkUsage( void );
+void SCR_UpdateScreen(void);
 //
 // cl_ui.c
 //

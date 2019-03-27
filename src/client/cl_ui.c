@@ -777,6 +777,7 @@ static int FloatAsInt( float f ) {
 	return temp;
 }
 
+// TODO: This is casting a 64 bit intptr_t to 32 bit float
 #define VMA( x ) ( (void *) args[x] )
 #define VMF( x )  ( *(float *)&args[x] )
 

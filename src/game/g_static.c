@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../cgame/cg_public.h"
 #include "../ui/ui_public.h"
 #include "../cgame/tr_types.h"
+#include "../qcommon/qcommon.h"
 
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
@@ -42,7 +43,7 @@ intptr_t CL_UISystemCalls( intptr_t *args );
 intptr_t SV_GameSystemCalls( intptr_t *args );
 
 intptr_t ui_call( intptr_t arg, ... ) {
-	intptr_t args[16];
+	intptr_t args[8];
 	int i;
 	va_list ap;
 
@@ -57,7 +58,7 @@ intptr_t ui_call( intptr_t arg, ... ) {
 }
 
 intptr_t game_call( intptr_t arg, ... ) {
-	intptr_t args[16];
+	intptr_t args[8];
 	int i;
 	va_list ap;
 
@@ -78,26 +79,26 @@ int PASSFLOAT( float x ) {
 }
 
 void    trap_Printf( const char *fmt ) {
-	game_call( G_PRINT, fmt );
+	Com_Printf("%s", fmt);
 }
 
 void    trap_Error( const char *fmt ) {
-	game_call( G_ERROR, fmt );
+	Com_Error( ERR_DROP, "%s", fmt);
 }
 
 void    trap_Endgame( void ) {
-	game_call( G_ENDGAME );
+	Com_Error( ERR_ENDGAME, "endgame" );
 }
 
 int     trap_Milliseconds( void ) {
-	return game_call( G_MILLISECONDS );
+	return Sys_Milliseconds();
 }
 int     trap_Argc( void ) {
-	return game_call( G_ARGC );
+	return Cmd_Argc();
 }
 
 void    trap_Argv( int n, char *buffer, int bufferLength ) {
-	game_call( G_ARGV, n, buffer, bufferLength );
+	Cmd_ArgvBuffer( n, buffer, bufferLength );
 }
 
 int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
@@ -133,7 +134,7 @@ void    trap_SendConsoleCommand( int exec_when, const char *text ) {
 }
 
 void    trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
-	game_call( G_CVAR_REGISTER, cvar, var_name, value, flags );
+	Cvar_Register( cvar, var_name, value, flags );
 }
 
 void    trap_Cvar_Update( vmCvar_t *cvar ) {
@@ -149,7 +150,7 @@ int trap_Cvar_VariableIntegerValue( const char *var_name ) {
 }
 
 void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
-	game_call( G_CVAR_VARIABLE_STRING_BUFFER, var_name, buffer, bufsize );
+	Cvar_VariableStringBuffer( var_name, buffer, bufsize );
 }
 
 
@@ -394,8 +395,17 @@ int trap_AAS_Swimming( vec3_t origin ) {
 	return game_call( BOTLIB_AAS_SWIMMING, origin );
 }
 
-int trap_AAS_PredictClientMovement( void /* struct aas_clientmove_s */ *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize ) {
-	return game_call( BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT, move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, PASSFLOAT( frametime ), stopevent, stopareanum, visualize );
+int AAS_PredictClientMovement( void /*aas_clientmove_s*/ *move,
+							   int entnum, vec3_t origin,
+							   int presencetype, int onground,
+							   vec3_t velocity, vec3_t cmdmove,
+							   int cmdframes,
+							   int maxframes, float frametime,
+							   int stopevent, int stopareanum, int visualize );
+	
+int trap_AAS_PredictClientMovement( void *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove,
+											int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize ) {
+	return AAS_PredictClientMovement( move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, frametime, stopevent, stopareanum, visualize );
 }
 
 // Ridah, route-tables
@@ -588,16 +598,18 @@ int trap_BotNumConsoleMessages( int chatstate ) {
 	return game_call( BOTLIB_AI_NUM_CONSOLE_MESSAGE, chatstate );
 }
 
+void BotInitialChat( int chatstate, char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 );
 void trap_BotInitialChat( int chatstate, char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 ) {
-	game_call( BOTLIB_AI_INITIAL_CHAT, chatstate, type, mcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
+	BotInitialChat( chatstate, type, mcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
 }
 
 int trap_BotNumInitialChats( int chatstate, char *type ) {
 	return game_call( BOTLIB_AI_NUM_INITIAL_CHATS, chatstate, type );
 }
 
+int BotReplyChat( int chatstate, char *message, int mcontext, int vcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 );
 int trap_BotReplyChat( int chatstate, char *message, int mcontext, int vcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 ) {
-	return game_call( BOTLIB_AI_REPLY_CHAT, chatstate, message, mcontext, vcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
+	return BotReplyChat( chatstate, message, mcontext, vcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
 }
 
 int trap_BotChatLength( int chatstate ) {
@@ -1271,3 +1283,8 @@ qboolean trap_GetLimboString( int index, char *buf ) {
 	return ui_call( UI_CL_GETLIMBOSTRING, index, buf );
 }
 // -NERVE - SMF
+
+extern qboolean SV_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
+qboolean trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
+	return SV_GetModelInfo( clientNum, modelName, modelInfo );
+}

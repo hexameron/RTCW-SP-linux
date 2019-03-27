@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../cgame/cg_public.h"
 #include "../ui/ui_public.h"
 #include "../cgame/tr_types.h"
+#include "../qcommon/qcommon.h"
 
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
@@ -41,7 +42,7 @@ void CG_DrawInformation( void );
 intptr_t CL_CgameSystemCalls( intptr_t *args );
 
 intptr_t cgame_call( intptr_t arg, ... ) {
-	intptr_t rv, args[16];
+	intptr_t args[8];
 	int i;
 	va_list ap;
 
@@ -57,7 +58,7 @@ intptr_t cgame_call( intptr_t arg, ... ) {
 #define PASSFLOAT(x) *(int32_t *)&x
 
 void    trap_Print( const char *fmt ) {
-	cgame_call( CG_PRINT, fmt );
+	Com_Printf("%s", fmt );
 }
 /* DUPLICATE
 void    trap_Error( const char *fmt ) {
@@ -93,7 +94,7 @@ void    trap_Argv( int n, char *buffer, int bufferLength ) {
 }
 */
 void    trap_Args( char *buffer, int bufferLength ) {
-	cgame_call( CG_ARGS, buffer, bufferLength );
+	Cmd_ArgsBuffer( buffer, bufferLength );
 }
 /* DUPLICATE
 int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
@@ -124,9 +125,9 @@ void    trap_SendClientCommand( const char *s ) {
 	cgame_call( CG_SENDCLIENTCOMMAND, s );
 }
 
+void SCR_UpdateScreen(void);
 void    trap_UpdateScreen( void ) {
 	SCR_UpdateScreen();
-	// cgame_call( CG_UPDATESCREEN );
 }
 
 void    trap_CM_LoadMap( const char *mapname ) {
@@ -163,11 +164,16 @@ void    trap_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end
 	cgame_call( CG_CM_BOXTRACE, results, start, end, mins, maxs, model, brushmask );
 }
 
+void	CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
+							 const vec3_t mins, const vec3_t maxs,
+							 clipHandle_t model, int brushmask,
+							 const vec3_t origin, const vec3_t angles, qboolean capsule );
+
 void    trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 									 const vec3_t mins, const vec3_t maxs,
 									 clipHandle_t model, int brushmask,
 									 const vec3_t origin, const vec3_t angles ) {
-	cgame_call( CG_CM_TRANSFORMEDBOXTRACE, results, start, end, mins, maxs, model, brushmask, origin, angles );
+	CM_TransformedBoxTrace( results, start, end, mins, maxs, model, brushmask, origin, angles, qfalse );
 }
 
 void    trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
@@ -180,7 +186,7 @@ void    trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, c
 										 const vec3_t mins, const vec3_t maxs,
 										 clipHandle_t model, int brushmask,
 										 const vec3_t origin, const vec3_t angles ) {
-	cgame_call( CG_CM_TRANSFORMEDCAPSULETRACE, results, start, end, mins, maxs, model, brushmask, origin, angles );
+	CM_TransformedBoxTrace( results, start, end, mins, maxs, model, brushmask, origin, angles, qtrue );
 }
 
 int     trap_CM_MarkFragments( int numPoints, const vec3_t *points,
@@ -353,15 +359,18 @@ void    trap_R_SetColor( const float *rgba ) {
 	cgame_call( CG_R_SETCOLOR, rgba );
 }
 
+void	RE_StretchPic(	float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 void    trap_R_DrawStretchPic( float x, float y, float w, float h,
 							   float s1, float t1, float s2, float t2, qhandle_t hShader ) {
-	cgame_call( CG_R_DRAWSTRETCHPIC, PASSFLOAT( x ), PASSFLOAT( y ), PASSFLOAT( w ), PASSFLOAT( h ), PASSFLOAT( s1 ), PASSFLOAT( t1 ), PASSFLOAT( s2 ), PASSFLOAT( t2 ), hShader );
+	RE_StretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
 }
 
+void	RE_StretchPicGradient(		float x, float y, float w, float h,	float s1, float t1, float s2, float t2, qhandle_t hShader,
+										const float *gradientColor, int gradientType );	
 void    trap_R_DrawStretchPicGradient(  float x, float y, float w, float h,
 										float s1, float t1, float s2, float t2, qhandle_t hShader,
 										const float *gradientColor, int gradientType ) {
-	cgame_call( CG_R_DRAWSTRETCHPIC_GRADIENT, PASSFLOAT( x ), PASSFLOAT( y ), PASSFLOAT( w ), PASSFLOAT( h ), PASSFLOAT( s1 ), PASSFLOAT( t1 ), PASSFLOAT( s2 ), PASSFLOAT( t2 ), hShader, gradientColor, gradientType  );
+	RE_StretchPicGradient( x, y, w, h, s1, t1, s2, t2, hShader, gradientColor, gradientType );
 }
 
 void    trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
@@ -543,8 +552,4 @@ void trap_UI_LimboChat( const char *arg0 ) {
 void trap_UI_ClosePopup( const char *arg0 ) {
 	cgame_call( CG_INGAME_CLOSEPOPUP, arg0 );
 }
-// -NERVE - SMF
 
-qboolean trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
-	return cgame_call( CG_GETMODELINFO, clientNum, modelName, modelInfo );
-}

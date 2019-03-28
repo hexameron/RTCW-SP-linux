@@ -63,17 +63,23 @@ int parseEvent;
 #ifdef MONOLITHIC
 extern int DC_context;
 animcontext_t anim_context[2];
-//anim_context[0].globalScriptData = NULL;
-//anim_context[1].globalScriptData = NULL;
 #define CGV anim_context[DC_context]
 #else
-anim_context_t anim_context;
-anim_context.globalScriptData = NULL;
-#define CGV animcontext
+animcontext_t anim_context;
+#define CGV anim_context
 #endif
 
 animStringItem_t weaponStrings[WP_NUM_WEAPONS];
 qboolean weaponStringsInited = qfalse;
+
+void init_game_context(void) {
+#ifdef MONOLITHIC
+anim_context[0].globalScriptData = NULL;
+anim_context[1].globalScriptData = NULL;
+#else
+anim_context.globalScriptData = NULL;
+#endif
+}
 
 void setScriptData( animScriptData_t *gsd ) {
 	CGV.globalScriptData = gsd;

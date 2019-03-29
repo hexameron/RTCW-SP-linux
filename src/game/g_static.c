@@ -253,6 +253,7 @@ void trap_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 	game_call( G_GET_USERCMD, clientNum, cmd );
 }
 
+/* Duplicate call name, renamed for CGame code */
 qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
 	return game_call( G_GET_ENTITY_TOKEN, buffer, bufferSize );
 }

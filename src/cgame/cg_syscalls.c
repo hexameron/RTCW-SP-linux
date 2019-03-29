@@ -515,7 +515,8 @@ void trap_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	syscall( CG_CIN_SETEXTENTS, handle, x, y, w, h );
 }
 
-qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
+// Renamed from "trap_GetEntityToken()" due to conflict
+qboolean CG_GetEntityToken( char *buffer, int bufferSize ) {
 	return syscall( CG_GET_ENTITY_TOKEN, buffer, bufferSize );
 }
 

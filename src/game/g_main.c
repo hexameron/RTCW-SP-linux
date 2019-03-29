@@ -49,7 +49,7 @@ gclient_t g_clients[MAX_CLIENTS];
 gentity_t       *g_camEnt = NULL;   //----(SA)	script camera
 
 // Rafael gameskill
-extern int bg_pmove_gameskill_integer;
+// extern int bg_pmove_gameskill_integer;
 // done
 
 vmCvar_t g_gametype;
@@ -1023,7 +1023,7 @@ void G_RegisterCvars( void ) {
 		trap_Cvar_Set( "g_gameskill", va( "%d", GSKILL_MEDIUM ) ); // default to medium
 	}
 
-	bg_pmove_gameskill_integer = g_gameskill.integer;
+	// bg_pmove_gameskill_integer = g_gameskill.integer;
 	// done
 
 	level.warmupModificationCount = g_warmup.modificationCount;

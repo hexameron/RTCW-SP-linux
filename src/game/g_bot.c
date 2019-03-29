@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"
 
 
-static int g_numBots;
+static int g_numBots = -1; // "unused"
 static char g_botInfos[MAX_BOTS][MAX_INFO_STRING];
 
 

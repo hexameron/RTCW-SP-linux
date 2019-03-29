@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "bg_local.h"
 
 // Rafael gameskill
-int bg_pmove_gameskill_integer;
+// int bg_pmove_gameskill_integer;
 // done
 
 // JPW NERVE -- added because I need to check single/multiplayer instances and branch accordingly

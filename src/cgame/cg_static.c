@@ -530,11 +530,11 @@ void trap_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	cgame_call( CG_CIN_SETEXTENTS, handle, x, y, w, h );
 }
 
-/* DUPLICATE name, different code
-qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
-	return cgame_call( CG_GET_ENTITY_TOKEN, buffer, bufferSize );
+/* DUPLICATE name, different code, but unused here */
+qboolean R_GetEntityToken( char *buffer, int size );
+qboolean CG_GetEntityToken( char *buffer, int bufferSize ) {
+	return R_GetEntityToken( buffer, bufferSize );
 }
-*/
 
 //----(SA)	added
 // bring up a popup menu

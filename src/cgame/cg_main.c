@@ -2269,6 +2269,8 @@ void CG_LoadHudMenu() {
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
 
+	Init_Display( &cgDC );
+
 	Menu_Reset();
 
 	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
@@ -2317,9 +2319,8 @@ Will perform callbacks to make the loading info screen update.
 void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	const char  *s;
 
-	Init_Display( &cgDC );  // need to do this first !
-
 	// clear everything
+	Init_Context( 1 );
 	memset( &cgs, 0, sizeof( cgs ) );
 	memset( &cg, 0, sizeof( cg ) );
 	memset( cg_entities, 0, sizeof( cg_entities ) );
@@ -2347,8 +2348,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	CG_RegisterCvars();
 
 	CG_InitConsoleCommands();
-
-//	cg.weaponSelect = WP_MP40;
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig( &cgs.glconfig );

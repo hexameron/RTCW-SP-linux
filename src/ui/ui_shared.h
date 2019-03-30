@@ -443,8 +443,11 @@ typedef struct {
 	qhandle_t gradientImage;
 	qhandle_t cursor;
 	float FPS;
+} displayContextDef_t;
 
-// MONOLITHIC variables
+
+// game/cgame common variables
+typedef struct {
 	scrollInfo_t scrollInfo;
 	void ( *captureFunc )( void *p );
 	void *captureData;
@@ -465,7 +468,7 @@ typedef struct {
 	char strPool[STRING_POOL_SIZE];
 	int strHandleCount;
 	stringDef_t *strHandle[HASH_TABLE_SIZE];
-} displayContextDef_t;
+} staticContextDef_t;
 
 
 //----(SA)	added
@@ -480,7 +483,7 @@ extern translateString_t translateStrings[MAX_TRANSLATESTRINGS];
 
 //----(SA)	end
 
-
+void Init_Context( int ctx );
 const char *String_Alloc( const char *p );
 void String_Init();
 void String_Report();

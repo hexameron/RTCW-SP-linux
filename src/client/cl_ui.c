@@ -1227,7 +1227,6 @@ void CL_InitUI( void ) {
 	}
 
 	// init for this gamestate
-//	VM_Call( uivm, UI_INIT );
 	VM_Call( uivm, UI_INIT, ( cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE ) );
 }
 

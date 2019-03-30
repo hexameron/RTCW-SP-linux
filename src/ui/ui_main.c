@@ -6559,12 +6559,11 @@ void _UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
 	int start;
 
-	Init_Display( &uiInfo.uiDC ); // need to do this first !
-
 	//uiInfo.inGameLoad = inGameLoad;
-
+	Init_Context( 0 );
 	UI_RegisterCvars();
 	UI_InitMemory();
+	Init_Display( &uiInfo.uiDC );
 
 	// cache redundant calulations
 	trap_GetGlconfig( &uiInfo.uiDC.glconfig );

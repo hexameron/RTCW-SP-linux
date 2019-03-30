@@ -39,11 +39,14 @@ int UIDC_Context(int context) {
 	return oldcontext;
 }
 displayContextDef_t *DC[2] = { NULL };
+staticContextDef_t SC[2];
 #define CDC DC[DC_context]
-#define DCV DC[DC_context]
+#define DCV SC[DC_context]
 #else
-displayContextDef_t *CDC = NULL;
-#define DCV CDC
+displayContextDef_t *DC = NULL;
+staticContextDef_t SC;
+#define CDC DC
+#define DCV SC
 #endif
 
 int outOfMemory;
@@ -131,7 +134,7 @@ UI_Alloc
 void *UI_Alloc( int size ) {
 	char    *p;
 
-	if ( DCV->allocPoint + size > MEM_POOL_SIZE ) {
+	if ( DCV.allocPoint + size > MEM_POOL_SIZE ) {
 		outOfMemory = qtrue;
 		if ( CDC->Print ) {
 			CDC->Print( "UI_Alloc: Failure. Out of memory!\n" );
@@ -140,12 +143,38 @@ void *UI_Alloc( int size ) {
 		return NULL;
 	}
 
-	p = &DCV->memoryPool[DCV->allocPoint];
+	p = &DCV.memoryPool[DCV.allocPoint];
 
-	DCV->allocPoint += ( size + 15 ) & ~15;
+	DCV.allocPoint += ( size + 15 ) & ~15;
 
 	return p;
 }
+
+/* Clear common UI/Cgame variables */
+void Init_Context( int ctx ) {
+#ifdef MONOLITHIC
+	int oldctx = UIDC_Context( ctx );
+#endif
+	Com_Printf("Init Context (%d)\n", ctx );
+
+	DCV.captureFunc = NULL;
+	DCV.captureData = NULL;
+	DCV.itemCapture = NULL;
+	DCV.g_waitingForKey = qfalse;
+	DCV.g_editingField = qfalse;
+	DCV.g_bindItem = NULL;
+	DCV.g_editItem = NULL;
+	DCV.menuCount = 0;
+	DCV.openMenuCount = 0;
+	DCV.lastListBoxClickTime = 0;
+	DCV.strPoolIndex = 0;
+	DCV.strHandleCount = 0;
+
+#ifdef MONOLITHIC
+	oldctx =  UIDC_Context( oldctx );
+#endif
+}
+
 
 /*
 ===============
@@ -153,7 +182,7 @@ UI_InitMemory
 ===============
 */
 void UI_InitMemory( void ) {
-	DCV->allocPoint = 0;
+	DCV.allocPoint = 0;
 	outOfMemory = qfalse;
 }
 
@@ -202,7 +231,7 @@ const char *String_Alloc( const char *p ) {
 
 	hash = hashForString( p );
 
-	str = DCV->strHandle[hash];
+	str = DCV.strHandle[hash];
 	while ( str ) {
 		if ( strcmp( p, str->str ) == 0 ) {
 			return str->str;
@@ -211,12 +240,12 @@ const char *String_Alloc( const char *p ) {
 	}
 
 	len = strlen( p );
-	if ( len + DCV->strPoolIndex + 1 < STRING_POOL_SIZE ) {
-		int ph = DCV->strPoolIndex;
-		strcpy( &DCV->strPool[DCV->strPoolIndex], p );
-		DCV->strPoolIndex += len + 1;
+	if ( len + DCV.strPoolIndex + 1 < STRING_POOL_SIZE ) {
+		int ph = DCV.strPoolIndex;
+		strcpy( &DCV.strPool[DCV.strPoolIndex], p );
+		DCV.strPoolIndex += len + 1;
 
-		str = DCV->strHandle[hash];
+		str = DCV.strHandle[hash];
 		last = str;
 		while ( str && str->next ) {
 			last = str;
@@ -225,13 +254,13 @@ const char *String_Alloc( const char *p ) {
 
 		str  = UI_Alloc( sizeof( stringDef_t ) );
 		str->next = NULL;
-		str->str = &DCV->strPool[ph];
+		str->str = &DCV.strPool[ph];
 		if ( last ) {
 			last->next = str;
 		} else {
-			DCV->strHandle[hash] = str;
+			DCV.strHandle[hash] = str;
 		}
-		return &DCV->strPool[ph];
+		return &DCV.strPool[ph];
 	}
 	return NULL;
 }
@@ -240,14 +269,14 @@ void String_Report() {
 	float f;
 	Com_Printf( "Memory/String Pool Info\n" );
 	Com_Printf( "----------------\n" );
-	f = DCV->strPoolIndex;
+	f = DCV.strPoolIndex;
 	f /= STRING_POOL_SIZE;
 	f *= 100;
-	Com_Printf( "String Pool is %.1f%% full, %i bytes out of %i used.\n", f, DCV->strPoolIndex, STRING_POOL_SIZE );
-	f = DCV->allocPoint;
+	Com_Printf( "String Pool is %.1f%% full, %i bytes out of %i used.\n", f, DCV.strPoolIndex, STRING_POOL_SIZE );
+	f = DCV.allocPoint;
 	f /= MEM_POOL_SIZE;
 	f *= 100;
-	Com_Printf( "Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, DCV->allocPoint, MEM_POOL_SIZE );
+	Com_Printf( "Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, DCV.allocPoint, MEM_POOL_SIZE );
 }
 
 
@@ -259,12 +288,12 @@ String_Init
 void String_Init() {
 	int i;
 	for ( i = 0; i < HASH_TABLE_SIZE; i++ ) {
-		DCV->strHandle[i] = 0;
+		DCV.strHandle[i] = 0;
 	}
-	DCV->strHandleCount = 0;
-	DCV->strPoolIndex = 0;
-	DCV->menuCount = 0;
-	DCV->openMenuCount = 0;
+	DCV.strHandleCount = 0;
+	DCV.strPoolIndex = 0;
+	DCV.menuCount = 0;
+	DCV.openMenuCount = 0;
 	UI_InitMemory();
 	Item_SetupKeywordHash();
 	Menu_SetupKeywordHash();
@@ -602,19 +631,7 @@ Initializes the display with a structure to all the drawing routines
 */
 void Init_Display( displayContextDef_t *dc ) {
 	CDC = dc;
-	Com_Printf("Init Display Context\n" );
-	dc->captureFunc = NULL;
-	dc->captureData = NULL;
-	dc->itemCapture = NULL;
-	dc->g_waitingForKey = qfalse;
-	dc->g_editingField = qfalse;
-	dc->g_bindItem = NULL;
-	dc->g_editItem = NULL;
-	dc->menuCount = 0;
-	dc->openMenuCount = 0;
-	dc->lastListBoxClickTime = 0;
-	dc->strPoolIndex = 0;
-	dc->strHandleCount = 0;
+	Com_Printf("Init Display Context (%d)\n", DC_context );
 }
 
 // type and style painting
@@ -1094,9 +1111,9 @@ void Menu_FadeItemByName( menuDef_t *menu, const char *p, qboolean fadeOut ) {
 
 menuDef_t *Menus_FindByName( const char *p ) {
 	int i;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		if ( Q_stricmp( DCV->Menus[i].window.name, p ) == 0 ) {
-			return &DCV->Menus[i];
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		if ( Q_stricmp( DCV.Menus[i].window.name, p ) == 0 ) {
+			return &DCV.Menus[i];
 		}
 	}
 	return NULL;
@@ -1131,9 +1148,9 @@ void Menus_CloseByName( const char *p ) {
 
 void Menus_CloseAll() {
 	int i;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		Menu_RunCloseScript( &DCV->Menus[i] );
-		DCV->Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		Menu_RunCloseScript( &DCV.Menus[i] );
+		DCV.Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
 	}
 }
 
@@ -1671,7 +1688,7 @@ int Item_ListBox_ThumbPosition( itemDef_t *item ) {
 int Item_ListBox_ThumbDrawPosition( itemDef_t *item ) {
 	int min, max;
 
-	if ( DCV->itemCapture == item ) {
+	if ( DCV.itemCapture == item ) {
 		if ( item->window.flags & WINDOW_HORIZONTAL ) {
 			min = item->window.rect.x + SCROLLBAR_SIZE + 1;
 			max = item->window.rect.x + item->window.rect.w - 2 * SCROLLBAR_SIZE - 1;
@@ -2061,10 +2078,10 @@ qboolean Item_ListBox_HandleKey( itemDef_t *item, int key, qboolean down, qboole
 				// Display_SetCaptureItem(item);
 			} else {
 				// select an item
-				if ( CDC->realTime < DCV->lastListBoxClickTime && listPtr->doubleClick ) {
+				if ( CDC->realTime < DCV.lastListBoxClickTime && listPtr->doubleClick ) {
 					Item_RunScript( item, listPtr->doubleClick );
 				}
-				DCV->lastListBoxClickTime = CDC->realTime + DOUBLE_CLICK_DELAY;
+				DCV.lastListBoxClickTime = CDC->realTime + DOUBLE_CLICK_DELAY;
 				if ( item->cursorPos != listPtr->cursorPos ) {
 					if ( listPtr->cursorPos < CDC->feederCount( item->special ) ) {
 						item->cursorPos = listPtr->cursorPos;   // only set if it's valid
@@ -2362,14 +2379,14 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key ) {
 		if ( key == K_TAB || key == K_DOWNARROW || key == K_KP_DOWNARROW ) {
 			newItem = Menu_SetNextCursorItem( item->parent );
 			if ( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD || newItem->type == ITEM_TYPE_VALIDFILEFIELD ) ) {
-				DCV->g_editItem = newItem;
+				DCV.g_editItem = newItem;
 			}
 		}
 
 		if ( key == K_UPARROW || key == K_KP_UPARROW ) {
 			newItem = Menu_SetPrevCursorItem( item->parent );
 			if ( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD || newItem->type == ITEM_TYPE_VALIDFILEFIELD ) ) {
-				DCV->g_editItem = newItem;
+				DCV.g_editItem = newItem;
 			}
 		}
 
@@ -2503,23 +2520,23 @@ void Item_StartCapture( itemDef_t *item, int key ) {
 	{
 		flags = Item_ListBox_OverLB( item, CDC->cursorx, CDC->cursory );
 		if ( flags & ( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW ) ) {
-			DCV->scrollInfo.nextScrollTime = CDC->realTime + SCROLL_TIME_START;
-			DCV->scrollInfo.nextAdjustTime = CDC->realTime + SCROLL_TIME_ADJUST;
-			DCV->scrollInfo.adjustValue = SCROLL_TIME_START;
-			DCV->scrollInfo.scrollKey = key;
-			DCV->scrollInfo.scrollDir = ( flags & WINDOW_LB_LEFTARROW ) ? qtrue : qfalse;
-			DCV->scrollInfo.item = item;
-			DCV->captureData = &DCV->scrollInfo;
-			DCV->captureFunc = &Scroll_ListBox_AutoFunc;
-			DCV->itemCapture = item;
+			DCV.scrollInfo.nextScrollTime = CDC->realTime + SCROLL_TIME_START;
+			DCV.scrollInfo.nextAdjustTime = CDC->realTime + SCROLL_TIME_ADJUST;
+			DCV.scrollInfo.adjustValue = SCROLL_TIME_START;
+			DCV.scrollInfo.scrollKey = key;
+			DCV.scrollInfo.scrollDir = ( flags & WINDOW_LB_LEFTARROW ) ? qtrue : qfalse;
+			DCV.scrollInfo.item = item;
+			DCV.captureData = &DCV.scrollInfo;
+			DCV.captureFunc = &Scroll_ListBox_AutoFunc;
+			DCV.itemCapture = item;
 		} else if ( flags & WINDOW_LB_THUMB ) {
-			DCV->scrollInfo.scrollKey = key;
-			DCV->scrollInfo.item = item;
-			DCV->scrollInfo.xStart = CDC->cursorx;
-			DCV->scrollInfo.yStart = CDC->cursory;
-			DCV->captureData = &DCV->scrollInfo;
-			DCV->captureFunc = &Scroll_ListBox_ThumbFunc;
-			DCV->itemCapture = item;
+			DCV.scrollInfo.scrollKey = key;
+			DCV.scrollInfo.item = item;
+			DCV.scrollInfo.xStart = CDC->cursorx;
+			DCV.scrollInfo.yStart = CDC->cursory;
+			DCV.captureData = &DCV.scrollInfo;
+			DCV.captureFunc = &Scroll_ListBox_ThumbFunc;
+			DCV.itemCapture = item;
 		}
 		break;
 	}
@@ -2527,13 +2544,13 @@ void Item_StartCapture( itemDef_t *item, int key ) {
 	{
 		flags = Item_Slider_OverSlider( item, CDC->cursorx, CDC->cursory );
 		if ( flags & WINDOW_LB_THUMB ) {
-			DCV->scrollInfo.scrollKey = key;
-			DCV->scrollInfo.item = item;
-			DCV->scrollInfo.xStart = CDC->cursorx;
-			DCV->scrollInfo.yStart = CDC->cursory;
-			DCV->captureData = &DCV->scrollInfo;
-			DCV->captureFunc = &Scroll_Slider_ThumbFunc;
-			DCV->itemCapture = item;
+			DCV.scrollInfo.scrollKey = key;
+			DCV.scrollInfo.item = item;
+			DCV.scrollInfo.xStart = CDC->cursorx;
+			DCV.scrollInfo.yStart = CDC->cursory;
+			DCV.captureData = &DCV.scrollInfo;
+			DCV.captureFunc = &Scroll_Slider_ThumbFunc;
+			DCV.itemCapture = item;
 		}
 		break;
 	}
@@ -2587,11 +2604,11 @@ qboolean Item_Slider_HandleKey( itemDef_t *item, int key, qboolean down ) {
 
 qboolean Item_HandleKey( itemDef_t *item, int key, qboolean down ) {
 
-	if ( DCV->itemCapture ) {
-		Item_StopCapture( DCV->itemCapture );
-		DCV->itemCapture = NULL;
-		DCV->captureFunc = NULL;
-		DCV->captureData = NULL;
+	if ( DCV.itemCapture ) {
+		Item_StopCapture( DCV.itemCapture );
+		DCV.itemCapture = NULL;
+		DCV.captureFunc = NULL;
+		DCV.captureData = NULL;
 	} else {
 		// TTimo: gcc: suggest parentheses around && within ||
 		// initial line:
@@ -2743,8 +2760,8 @@ static void Menu_CloseCinematics( menuDef_t *menu ) {
 
 static void Display_CloseCinematics() {
 	int i;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		Menu_CloseCinematics( &DCV->Menus[i] );
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		Menu_CloseCinematics( &DCV.Menus[i] );
 	}
 }
 
@@ -2768,8 +2785,8 @@ void  Menus_Activate( menuDef_t *menu ) {
 int Display_VisibleMenuCount() {
 	int i, count;
 	count = 0;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		if ( DCV->Menus[i].window.flags & ( WINDOW_FORCED | WINDOW_VISIBLE ) ) {
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		if ( DCV.Menus[i].window.flags & ( WINDOW_FORCED | WINDOW_VISIBLE ) ) {
 			count++;
 		}
 	}
@@ -2787,14 +2804,14 @@ void Menus_HandleOOBClick( menuDef_t *menu, int key, qboolean down ) {
 			menu->window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
 		}
 
-		for ( i = 0; i < DCV->menuCount; i++ ) {
-			if ( Menu_OverActiveItem( &DCV->Menus[i], CDC->cursorx, CDC->cursory ) ) {
+		for ( i = 0; i < DCV.menuCount; i++ ) {
+			if ( Menu_OverActiveItem( &DCV.Menus[i], CDC->cursorx, CDC->cursory ) ) {
 //				Menu_RunCloseScript(menu);			// NERVE - SMF - why do we close the calling menu instead of just removing the focus?
 //				menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
 				menu->window.flags &= ~( WINDOW_HASFOCUS );
-				Menus_Activate( &DCV->Menus[i] );
-				Menu_HandleMouseMove( &DCV->Menus[i], CDC->cursorx, CDC->cursory );
-				Menu_HandleKey( &DCV->Menus[i], key, down );
+				Menus_Activate( &DCV.Menus[i] );
+				Menu_HandleMouseMove( &DCV.Menus[i], CDC->cursorx, CDC->cursory );
+				Menu_HandleKey( &DCV.Menus[i], key, down );
 			}
 		}
 
@@ -2829,21 +2846,21 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 	}
 
 	inHandler = qtrue;
-	if ( DCV->g_waitingForKey && down ) {
-		Item_Bind_HandleKey( DCV->g_bindItem, key, down );
+	if ( DCV.g_waitingForKey && down ) {
+		Item_Bind_HandleKey( DCV.g_bindItem, key, down );
 		inHandler = qfalse;
 		return;
 	}
 
-	if ( DCV->g_editingField && down ) {
-		if ( !Item_TextField_HandleKey( DCV->g_editItem, key ) ) {
-			DCV->g_editingField = qfalse;
-			DCV->g_editItem = NULL;
+	if ( DCV.g_editingField && down ) {
+		if ( !Item_TextField_HandleKey( DCV.g_editItem, key ) ) {
+			DCV.g_editingField = qfalse;
+			DCV.g_editItem = NULL;
 			inHandler = qfalse;
 			return;
 		} else if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) {
-			DCV->g_editingField = qfalse;
-			DCV->g_editItem = NULL;
+			DCV.g_editingField = qfalse;
+			DCV.g_editItem = NULL;
 			Display_MouseMove( NULL, CDC->cursorx, CDC->cursory );
 //		} else if (key == K_TAB || key == K_UPARROW || key == K_DOWNARROW) {
 		} else {
@@ -2923,7 +2940,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 		break;
 
 	case K_ESCAPE:
-		if ( !DCV->g_waitingForKey && menu->onESC ) {
+		if ( !DCV.g_waitingForKey && menu->onESC ) {
 			itemDef_t it;
 			it.parent = menu;
 			Item_RunScript( &it, menu->onESC );
@@ -2948,8 +2965,8 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 			} else if ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_VALIDFILEFIELD ) {
 				if ( Rect_ContainsPoint( &item->window.rect, CDC->cursorx, CDC->cursory ) ) {
 					item->cursorPos = 0;
-					DCV->g_editingField = qtrue;
-					DCV->g_editItem = item;
+					DCV.g_editingField = qtrue;
+					DCV.g_editItem = item;
 					CDC->setOverstrikeMode( qtrue );
 				}
 			} else {
@@ -2987,8 +3004,8 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 		if ( item ) {
 			if ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_VALIDFILEFIELD ) {
 				item->cursorPos = 0;
-				DCV->g_editingField = qtrue;
-				DCV->g_editItem = item;
+				DCV.g_editingField = qtrue;
+				DCV.g_editItem = item;
 				CDC->setOverstrikeMode( qtrue );
 			} else {
 				Item_Action( item );
@@ -3312,7 +3329,7 @@ void Item_TextField_Paint( itemDef_t *item ) {
 	}
 
 	offset = ( item->text && *item->text ) ? 8 : 0;
-	if ( item->window.flags & WINDOW_HASFOCUS && DCV->g_editingField ) {
+	if ( item->window.flags & WINDOW_HASFOCUS && DCV.g_editingField ) {
 		char cursor = CDC->getOverstrikeMode() ? '_' : '|';
 		CDC->drawTextWithCursor( item->textRect.x + item->textRect.w + offset, item->textRect.y, item->font, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset, cursor, editPtr->maxPaintChars, item->textStyle );
 	} else {
@@ -3707,7 +3724,7 @@ void Item_Bind_Paint( itemDef_t *item ) {
 	value = ( item->cvar ) ? CDC->getCVarValue( item->cvar ) : 0;
 
 	if ( item->window.flags & WINDOW_HASFOCUS ) {
-		if ( DCV->g_bindItem == item ) {
+		if ( DCV.g_bindItem == item ) {
 			lowLight[0] = 0.8f * 1.0f;
 			lowLight[1] = 0.8f * 0.0f;
 			lowLight[2] = 0.8f * 0.0f;
@@ -3733,22 +3750,22 @@ void Item_Bind_Paint( itemDef_t *item ) {
 }
 
 qboolean Display_KeyBindPending() {
-	return DCV->g_waitingForKey;
+	return DCV.g_waitingForKey;
 }
 
 qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down ) {
 	int id;
 	int i;
 
-	if ( Rect_ContainsPoint( &item->window.rect, CDC->cursorx, CDC->cursory ) && !DCV->g_waitingForKey ) {
+	if ( Rect_ContainsPoint( &item->window.rect, CDC->cursorx, CDC->cursory ) && !DCV.g_waitingForKey ) {
 		if ( down && ( key == K_MOUSE1 || key == K_ENTER ) ) {
-			DCV->g_waitingForKey = qtrue;
-			DCV->g_bindItem = item;
+			DCV.g_waitingForKey = qtrue;
+			DCV.g_bindItem = item;
 		}
 		return qtrue;
 	} else
 	{
-		if ( !DCV->g_waitingForKey || DCV->g_bindItem == NULL ) {
+		if ( !DCV.g_waitingForKey || DCV.g_bindItem == NULL ) {
 			return qtrue;
 		}
 
@@ -3759,7 +3776,7 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down ) {
 		switch ( key )
 		{
 		case K_ESCAPE:
-			DCV->g_waitingForKey = qfalse;
+			DCV.g_waitingForKey = qfalse;
 			return qtrue;
 
 		case K_BACKSPACE:
@@ -3772,12 +3789,12 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down ) {
 								// then they click to bind and hit 'r'.  now the menu looks right to them, but if you drop the menu
 								// and come back, the 'g' is magically re-bound since it didn't get bound to "" on the <backsp>.  <phew>
 								// does this seem reasonable to anybody reading this? (SA)
-//					DCV->g_bindings[id].bind1 = -1;
-//					DCV->g_bindings[id].bind2 = -1;
+//					DCV.g_bindings[id].bind1 = -1;
+//					DCV.g_bindings[id].bind2 = -1;
 			}
 //				Controls_SetConfig(qtrue);
-//				DCV->g_waitingForKey = qfalse;
-//				DCV->g_bindItem = NULL;
+//				DCV.g_waitingForKey = qfalse;
+//				DCV.g_bindItem = NULL;
 //				return qtrue;
 			break;
 
@@ -3828,7 +3845,7 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down ) {
 	}
 
 	Controls_SetConfig( qtrue );
-	DCV->g_waitingForKey = qfalse;
+	DCV.g_waitingForKey = qfalse;
 
 	return qtrue;
 }
@@ -4409,9 +4426,9 @@ itemDef_t *Menu_GetFocusedItem( menuDef_t *menu ) {
 
 menuDef_t *Menu_GetFocused() {
 	int i;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		if ( DCV->Menus[i].window.flags & WINDOW_HASFOCUS && DCV->Menus[i].window.flags & WINDOW_VISIBLE ) {
-			return &DCV->Menus[i];
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		if ( DCV.Menus[i].window.flags & WINDOW_HASFOCUS && DCV.Menus[i].window.flags & WINDOW_VISIBLE ) {
+			return &DCV.Menus[i];
 		}
 	}
 	return NULL;
@@ -4459,8 +4476,8 @@ void Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char
 
 qboolean Menus_AnyFullScreenVisible() {
 	int i;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		if ( DCV->Menus[i].window.flags & WINDOW_VISIBLE && DCV->Menus[i].fullScreen ) {
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		if ( DCV.Menus[i].window.flags & WINDOW_VISIBLE && DCV.Menus[i].fullScreen ) {
 			return qtrue;
 		}
 	}
@@ -4471,15 +4488,15 @@ menuDef_t *Menus_ActivateByName( const char *p ) {
 	int i;
 	menuDef_t *m = NULL;
 	menuDef_t *focus = Menu_GetFocused();
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		if ( Q_stricmp( DCV->Menus[i].window.name, p ) == 0 ) {
-			m = &DCV->Menus[i];
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		if ( Q_stricmp( DCV.Menus[i].window.name, p ) == 0 ) {
+			m = &DCV.Menus[i];
 			Menus_Activate( m );
-			if ( DCV->openMenuCount < MAX_OPEN_MENUS && focus != NULL ) {
-				DCV->menuStack[DCV->openMenuCount++] = focus;
+			if ( DCV.openMenuCount < MAX_OPEN_MENUS && focus != NULL ) {
+				DCV.menuStack[DCV.openMenuCount++] = focus;
 			}
 		} else {
-			DCV->Menus[i].window.flags &= ~WINDOW_HASFOCUS;
+			DCV.Menus[i].window.flags &= ~WINDOW_HASFOCUS;
 		}
 	}
 	Display_CloseCinematics();
@@ -4506,12 +4523,12 @@ void Menu_HandleMouseMove( menuDef_t *menu, float x, float y ) {
 		return;
 	}
 
-	if ( DCV->itemCapture ) {
-		//Item_MouseMove(DCV->itemCapture, x, y);
+	if ( DCV.itemCapture ) {
+		//Item_MouseMove(DCV.itemCapture, x, y);
 		return;
 	}
 
-	if ( DCV->g_waitingForKey || DCV->g_editingField ) {
+	if ( DCV.g_waitingForKey || DCV.g_editingField ) {
 		return;
 	}
 
@@ -6096,29 +6113,29 @@ Menu_New
 ===============
 */
 void Menu_New( int handle ) {
-	menuDef_t *menu = &DCV->Menus[DCV->menuCount];
+	menuDef_t *menu = &DCV.Menus[DCV.menuCount];
 
-	if ( DCV->menuCount < MAX_MENUS ) {
+	if ( DCV.menuCount < MAX_MENUS ) {
 		Menu_Init( menu );
 		if ( Menu_Parse( handle, menu ) ) {
 			Menu_PostParse( menu );
-			DCV->menuCount++;
+			DCV.menuCount++;
 		}
 	}
 }
 
 int Menu_Count() {
-	return DCV->menuCount;
+	return DCV.menuCount;
 }
 
 void Menu_PaintAll() {
 	int i;
-	if ( DCV->captureFunc ) {
-		DCV->captureFunc( DCV->captureData );
+	if ( DCV.captureFunc ) {
+		DCV.captureFunc( DCV.captureData );
 	}
 
 	for ( i = 0; i < Menu_Count(); i++ ) {
-		Menu_Paint( &DCV->Menus[i], qfalse );
+		Menu_Paint( &DCV.Menus[i], qfalse );
 	}
 
 	if ( debugMode ) {
@@ -6128,7 +6145,7 @@ void Menu_PaintAll() {
 }
 
 void Menu_Reset() {
-	DCV->menuCount = 0;
+	DCV.menuCount = 0;
 }
 
 displayContextDef_t *Display_GetContext() {
@@ -6144,11 +6161,11 @@ static float captureY;
 void *Display_CaptureItem( int x, int y ) {
 	int i;
 
-	for ( i = 0; i < DCV->menuCount; i++ ) {
+	for ( i = 0; i < DCV.menuCount; i++ ) {
 		// turn off focus each item
 		// menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
-		if ( Rect_ContainsPoint( &DCV->Menus[i].window.rect, x, y ) ) {
-			return &DCV->Menus[i];
+		if ( Rect_ContainsPoint( &DCV.Menus[i].window.rect, x, y ) ) {
+			return &DCV.Menus[i];
 		}
 	}
 	return NULL;
@@ -6168,8 +6185,8 @@ qboolean Display_MouseMove( void *p, int x, int y ) {
 				return qtrue;
 			}
 		}
-		for ( i = 0; i < DCV->menuCount; i++ ) {
-			Menu_HandleMouseMove( &DCV->Menus[i], x, y );
+		for ( i = 0; i < DCV.menuCount; i++ ) {
+			Menu_HandleMouseMove( &DCV.Menus[i], x, y );
 		}
 	} else {
 		menu->window.rect.x += x;
@@ -6182,10 +6199,10 @@ qboolean Display_MouseMove( void *p, int x, int y ) {
 
 int Display_CursorType( int x, int y ) {
 	int i;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
+	for ( i = 0; i < DCV.menuCount; i++ ) {
 		rectDef_t r2;
-		r2.x = DCV->Menus[i].window.rect.x - 3;
-		r2.y = DCV->Menus[i].window.rect.y - 3;
+		r2.x = DCV.Menus[i].window.rect.x - 3;
+		r2.y = DCV.Menus[i].window.rect.y - 3;
 		r2.w = r2.h = 7;
 		if ( Rect_ContainsPoint( &r2, x, y ) ) {
 			return CURSOR_SIZER;
@@ -6242,8 +6259,8 @@ static void Menu_CacheContents( menuDef_t *menu ) {
 
 void Display_CacheAll() {
 	int i;
-	for ( i = 0; i < DCV->menuCount; i++ ) {
-		Menu_CacheContents( &DCV->Menus[i] );
+	for ( i = 0; i < DCV.menuCount; i++ ) {
+		Menu_CacheContents( &DCV.Menus[i] );
 	}
 }
 

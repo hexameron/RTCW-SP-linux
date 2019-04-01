@@ -1283,9 +1283,4 @@ qboolean trap_VerifyCDKey( const char *key, const char *chksum ) {
 qboolean trap_GetLimboString( int index, char *buf ) {
 	return ui_call( UI_CL_GETLIMBOSTRING, index, buf );
 }
-// -NERVE - SMF
 
-extern qboolean SV_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
-qboolean trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
-	return SV_GetModelInfo( clientNum, modelName, modelInfo );
-}

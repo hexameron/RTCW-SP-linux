@@ -45,10 +45,10 @@ If you have questions concerning this license or the applicable additional terms
 //#define	DBGANIMEVENTS
 #define MAX_ANIM_DEFINES    16
 
+animScriptData_t *globalScriptData = NULL;
 
 /* Shared code, static variables */
 typedef struct {
-animScriptData_t *globalScriptData;
 char *globalFilename;
 int parseClient;
 int numDefines[NUM_ANIM_CONDITIONS];
@@ -71,19 +71,6 @@ animcontext_t anim_context;
 
 animStringItem_t weaponStrings[WP_NUM_WEAPONS];
 qboolean weaponStringsInited = qfalse;
-
-void init_game_context(void) {
-#ifdef MONOLITHIC
-anim_context[0].globalScriptData = NULL;
-anim_context[1].globalScriptData = NULL;
-#else
-anim_context.globalScriptData = NULL;
-#endif
-}
-
-void setScriptData( animScriptData_t *gsd ) {
-	CGV.globalScriptData = gsd;
-}
 
 animStringItem_t animStateStr[] =
 {
@@ -350,15 +337,15 @@ BG_ModelInfoForClient
 =================
 */
 animModelInfo_t *BG_ModelInfoForClient( int client ) {
-	if ( !CGV.globalScriptData ) {
-		BG_AnimParseError( "BG_ModelInfoForClient: NULL CGV->globalScriptData" );
+	if ( !globalScriptData ) {
+		BG_AnimParseError( "BG_ModelInfoForClient: NULL globalScriptData" );
 	}
 	//
-	if ( !CGV.globalScriptData->clientModels[client] ) {
+	if ( !globalScriptData->clientModels[client] ) {
 		BG_AnimParseError( "BG_ModelInfoForClient: client %i has no modelinfo", client );
 	}
 	//
-	return CGV.globalScriptData->modelInfo[CGV.globalScriptData->clientModels[client] - 1];
+	return globalScriptData->modelInfo[globalScriptData->clientModels[client] - 1];
 }
 
 /*
@@ -370,12 +357,12 @@ animModelInfo_t *BG_ModelInfoForModelname( char *modelname ) {
 	int i;
 	animModelInfo_t *modelInfo;
 	//
-	if ( !CGV.globalScriptData ) {
-		BG_AnimParseError( "BG_ModelInfoForModelname: NULL CGV->globalScriptData" );
+	if ( !globalScriptData ) {
+		BG_AnimParseError( "BG_ModelInfoForModelname: NULL globalScriptData" );
 	}
 	//
 	for ( i = 0; i < MAX_ANIMSCRIPT_MODELS; i++ ) {
-		modelInfo = CGV.globalScriptData->modelInfo[i];
+		modelInfo = globalScriptData->modelInfo[i];
 		if ( modelInfo == NULL ) {
 			continue;
 		}
@@ -994,7 +981,7 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 	animScriptCommand_t *command = NULL; // TTimo: init
 	int partIndex = 0;
 
-	CGV.globalScriptData = scriptData;
+	globalScriptData = scriptData;
 	while ( 1 ) {
 
 		// parse the body part
@@ -1078,7 +1065,7 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 				if ( strstr( token, ".wav" ) ) {
 					BG_AnimParseError( "BG_ParseCommands: wav files not supported, only sound scripts" );    // RF mod
 				}
-				command->soundIndex = CGV.globalScriptData->soundIndex( token );
+				command->soundIndex = globalScriptData->soundIndex( token );
 
 //----(SA)	added
 			} else if ( !Q_stricmp( token, "showpart" ) ) {    // show
@@ -1151,7 +1138,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 	int i, defineType;
 
 	// the scriptData passed into here must be the one this binary is using
-	CGV.globalScriptData = scriptData;
+	globalScriptData = scriptData;
 
 	// current client being parsed
 	CGV.parseClient = client;
@@ -1507,13 +1494,13 @@ qboolean BG_EvaluateConditions( int client, animScriptItem_t *scriptItem ) {
 	{
 		switch ( animConditionsTable[cond->index].type ) {
 		case ANIM_CONDTYPE_BITFLAGS:
-			if ( !( CGV.globalScriptData->clientConditions[client][cond->index][0] & cond->value[0] ) &&
-				 !( CGV.globalScriptData->clientConditions[client][cond->index][1] & cond->value[1] ) ) {
+			if ( !( globalScriptData->clientConditions[client][cond->index][0] & cond->value[0] ) &&
+				 !( globalScriptData->clientConditions[client][cond->index][1] & cond->value[1] ) ) {
 				return qfalse;
 			}
 			break;
 		case ANIM_CONDTYPE_VALUE:
-			if ( !( CGV.globalScriptData->clientConditions[client][cond->index][0] == cond->value[0] ) ) {
+			if ( !( globalScriptData->clientConditions[client][cond->index][0] == cond->value[0] ) ) {
 				return qfalse;
 			}
 			break;
@@ -1662,7 +1649,7 @@ int BG_ExecuteCommand( playerState_t *ps, animScriptCommand_t *scriptCommand, qb
 	}
 
 	if ( scriptCommand->soundIndex ) {
-		CGV.globalScriptData->playSound( scriptCommand->soundIndex, ps->origin, ps->clientNum );
+		globalScriptData->playSound( scriptCommand->soundIndex, ps->origin, ps->clientNum );
 	}
 
 //----(SA)	added
@@ -1774,7 +1761,7 @@ int BG_AnimScriptCannedAnimation( playerState_t *ps, aistateEnum_t state ) {
 		return -1;
 	}
 
-	movetype = CGV.globalScriptData->clientConditions[ ps->clientNum ][ ANIM_COND_MOVETYPE ][0];
+	movetype = globalScriptData->clientConditions[ ps->clientNum ][ ANIM_COND_MOVETYPE ][0];
 	if ( !movetype ) {    // no valid movetype yet for this client
 		return -1;
 	}
@@ -1896,11 +1883,11 @@ BG_ValidAnimScript
 ===============
 */
 qboolean BG_ValidAnimScript( int clientNum ) {
-	if ( !CGV.globalScriptData->clientModels[clientNum] ) {
+	if ( !globalScriptData->clientModels[clientNum] ) {
 		return qfalse;
 	}
 	//
-	if ( !CGV.globalScriptData->modelInfo[ CGV.globalScriptData->clientModels[clientNum] ]->numScriptItems ) {
+	if ( !globalScriptData->modelInfo[ globalScriptData->clientModels[clientNum] ]->numScriptItems ) {
 		return qfalse;
 	}
 	//
@@ -1934,15 +1921,15 @@ void BG_UpdateConditionValue( int client, int condition, int value, qboolean che
 
 			// DHM - Nerve :: We want to set the ScriptData to the explicit value passed in.
 			//				COM_BitSet will OR values on top of each other, so clear it first.
-			CGV.globalScriptData->clientConditions[client][condition][0] = 0;
-			CGV.globalScriptData->clientConditions[client][condition][1] = 0;
+			globalScriptData->clientConditions[client][condition][0] = 0;
+			globalScriptData->clientConditions[client][condition][1] = 0;
 			// dhm - end
 
-			COM_BitSet( CGV.globalScriptData->clientConditions[client][condition], value );
+			COM_BitSet( globalScriptData->clientConditions[client][condition], value );
 			return;
 		}
 	}
-	CGV.globalScriptData->clientConditions[client][condition][0] = value;
+	globalScriptData->clientConditions[client][condition][0] = value;
 }
 
 
@@ -1957,7 +1944,7 @@ void BG_UpdateConditionValueStrings( int client, char *conditionStr, char *value
 	condition = BG_IndexForString( conditionStr, animConditionsStr, qfalse );
 	value = BG_IndexForString( valueStr, animConditionsTable[condition].values, qfalse );
 	//
-	CGV.globalScriptData->clientConditions[client][condition][0] = value;
+	globalScriptData->clientConditions[client][condition][0] = value;
 }
 
 /*
@@ -1968,15 +1955,15 @@ BG_GetConditionValue
 int BG_GetConditionValue( int client, int condition, qboolean checkConversion ) {
 	int value, i;
 
-	value = CGV.globalScriptData->clientConditions[client][condition][0];
+	value = globalScriptData->clientConditions[client][condition][0];
 
 	if ( checkConversion ) {
 		// we may need to convert to a value
 		if ( animConditionsTable[condition].type == ANIM_CONDTYPE_BITFLAGS ) {
 			//if (!value)
 			//	return 0;
-			for ( i = 0; i < 8 * sizeof( CGV.globalScriptData->clientConditions[0][0] ); i++ ) {
-				if ( COM_BitCheck( CGV.globalScriptData->clientConditions[client][condition], i ) ) {
+			for ( i = 0; i < 8 * sizeof( globalScriptData->clientConditions[0][0] ); i++ ) {
+				if ( COM_BitCheck( globalScriptData->clientConditions[client][condition], i ) ) {
 					return i;
 				}
 			}

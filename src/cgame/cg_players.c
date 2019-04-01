@@ -489,7 +489,6 @@ static qboolean CG_RegisterAcc( clientInfo_t *ci, const char *modelName, const c
 
 //----(SA)	end
 
-void setScriptData(animScriptData_t *globalScriptData);
 /*
 ==================
 CG_CheckForExistingModelInfo
@@ -500,12 +499,10 @@ CG_CheckForExistingModelInfo
   returns qtrue if existing model found, qfalse otherwise
 ==================
 */
-// extern animScriptData_t *globalScriptData;
+extern animScriptData_t *globalScriptData;
 qboolean CG_CheckForExistingModelInfo( clientInfo_t *ci, char *modelName, animModelInfo_t **modelInfo ) {
 	int i;
 	animModelInfo_t *trav; // *firstFree=NULL; // TTimo: unused
-
-	setScriptData( &cgs.animScriptData );
 
 	for ( i = 0; i < MAX_ANIMSCRIPT_MODELS; i++ ) {
 		trav = cgs.animScriptData.modelInfo[i];
@@ -519,6 +516,8 @@ qboolean CG_CheckForExistingModelInfo( clientInfo_t *ci, char *modelName, animMo
 			}
 		} else {
 			// if we fell down to here, then we have found a free slot
+			animScriptData_t *lgsd = globalScriptData;
+			globalScriptData = &cgs.animScriptData;
 
 			// request it from the server (game module)
 			if ( trap_GetModelInfo( ci->clientNum, modelName, &cgs.animScriptData.modelInfo[i] ) ) {
@@ -528,6 +527,7 @@ qboolean CG_CheckForExistingModelInfo( clientInfo_t *ci, char *modelName, animMo
 				*modelInfo = cgs.animScriptData.modelInfo[i];
 				// calc movespeed/footstep values
 				CG_CalcMoveSpeeds( ci );
+				globalScriptData = lgsd; // restore previous value on exit
 				return qfalse;  // we need to cache all the assets for this character
 
 			}

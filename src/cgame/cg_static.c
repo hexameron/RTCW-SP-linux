@@ -553,3 +553,8 @@ void trap_UI_ClosePopup( const char *arg0 ) {
 	cgame_call( CG_INGAME_CLOSEPOPUP, arg0 );
 }
 
+// SV_GetModelInfo calls into G_GetModelInfo via the game context
+extern qboolean G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
+qboolean trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
+	return G_GetModelInfo( clientNum, modelName, modelInfo );
+}

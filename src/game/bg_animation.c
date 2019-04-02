@@ -43,31 +43,24 @@ If you have questions concerning this license or the applicable additional terms
 // debug defines, to prevent doing costly string cvar lookups
 //#define	DBGANIMS
 //#define	DBGANIMEVENTS
-#define MAX_ANIM_DEFINES    16
 
+// this is used globally within this file to reduce redundant params
 animScriptData_t *globalScriptData = NULL;
 
-/* Shared code, static variables */
-typedef struct {
-char *globalFilename;
-int parseClient;
-int numDefines[NUM_ANIM_CONDITIONS];
-char defineStrings[10000];
-int defineStringsOffset;
-animStringItem_t defineStr[NUM_ANIM_CONDITIONS][MAX_ANIM_DEFINES];
-int defineBits[NUM_ANIM_CONDITIONS][MAX_ANIM_DEFINES][2];
-scriptAnimMoveTypes_t parseMovetype;
-int parseEvent;
-} animcontext_t;
+#define MAX_ANIM_DEFINES    16
 
-#ifdef MONOLITHIC
-extern int DC_context;
-animcontext_t anim_context[2];
-#define CGV anim_context[DC_context]
-#else
-animcontext_t anim_context;
-#define CGV anim_context
-#endif
+static char *globalFilename;    // to prevent redundant params
+static int parseClient;
+
+// these are used globally during script parsing
+static int numDefines[NUM_ANIM_CONDITIONS];
+static char defineStrings[10000];       // stores the actual strings
+static int defineStringsOffset;
+static animStringItem_t defineStr[NUM_ANIM_CONDITIONS][MAX_ANIM_DEFINES];
+static int defineBits[NUM_ANIM_CONDITIONS][MAX_ANIM_DEFINES][2];
+
+static scriptAnimMoveTypes_t parseMovetype;
+static int parseEvent;
 
 animStringItem_t weaponStrings[WP_NUM_WEAPONS];
 qboolean weaponStringsInited = qfalse;
@@ -324,8 +317,8 @@ void QDECL BG_AnimParseError( const char *msg, ... ) {
 	vsprintf( text, msg, argptr );
 	va_end( argptr );
 
-	if ( CGV.globalFilename ) {
-		Com_Error( ERR_DROP,  "%s: (%s, line %i)", text, CGV.globalFilename, COM_GetCurrentParseLine() + 1 );
+	if ( globalFilename ) {
+		Com_Error( ERR_DROP,  "%s: (%s, line %i)", text, globalFilename, COM_GetCurrentParseLine() + 1 );
 	} else {
 		Com_Error( ERR_DROP,  "%s", text );
 	}
@@ -530,7 +523,7 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 		BG_InitWeaponStrings();
 	}
 
-	CGV.globalFilename = (char *)filename;
+	globalFilename = (char *)filename;
 
 	animations = animModelInfo->animations;
 	animModelInfo->numAnimations = 0;
@@ -875,11 +868,11 @@ void BG_ParseConditionBits( char **text_pp, animStringItem_t *stringTable, int c
 				tempBits[1] = ~0x0;
 			} else {
 				// first check this string with our defines
-				indexFound = BG_IndexForString( currentString, CGV.defineStr[condIndex], qtrue );
+				indexFound = BG_IndexForString( currentString, defineStr[condIndex], qtrue );
 				if ( indexFound >= 0 ) {
 					// we have precalculated the bitflags for the defines
-					tempBits[0] = CGV.defineBits[condIndex][indexFound][0];
-					tempBits[1] = CGV.defineBits[condIndex][indexFound][1];
+					tempBits[0] = defineBits[condIndex][indexFound][0];
+					tempBits[1] = defineBits[condIndex][indexFound][1];
 				} else {
 					// convert the string into an index
 					indexFound = BG_IndexForString( currentString, stringTable, qfalse );
@@ -1012,14 +1005,14 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 			if ( !token || !token[0] ) {
 				BG_AnimParseError( "BG_ParseCommands: expected animation" );
 			}
-			command->animIndex[partIndex] = BG_AnimationIndexForString( token, CGV.parseClient );
+			command->animIndex[partIndex] = BG_AnimationIndexForString( token, parseClient );
 			command->animDuration[partIndex] = modelInfo->animations[command->animIndex[partIndex]].duration;
 			// if this is a locomotion, set the movetype of the animation so we can reverse engineer the movetype from the animation, on the client
-			if ( CGV.parseMovetype != ANIM_MT_UNUSED && command->bodyPart[partIndex] != ANIM_BP_TORSO ) {
-				modelInfo->animations[command->animIndex[partIndex]].movetype |= ( 1 << CGV.parseMovetype );
+			if ( parseMovetype != ANIM_MT_UNUSED && command->bodyPart[partIndex] != ANIM_BP_TORSO ) {
+				modelInfo->animations[command->animIndex[partIndex]].movetype |= ( 1 << parseMovetype );
 			}
 			// if this is a fireweapon event, then this is a firing animation
-			if ( CGV.parseEvent == ANIM_ET_FIREWEAPON ) {
+			if ( parseEvent == ANIM_ET_FIREWEAPON ) {
 				modelInfo->animations[command->animIndex[partIndex]].flags |= ANIMFL_FIRINGANIM;
 				modelInfo->animations[command->animIndex[partIndex]].initialLerp = 40;
 			}
@@ -1141,7 +1134,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 	globalScriptData = scriptData;
 
 	// current client being parsed
-	CGV.parseClient = client;
+	parseClient = client;
 
 	// start at the defines
 	parseMode = PARSEMODE_DEFINES;
@@ -1152,11 +1145,11 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 	//scriptData->clientModels[client] = 1 + (int)(modelInfo - *scriptData->modelInfo);
 
 	// init the global defines
-	CGV.globalFilename = filename;
-	memset( CGV.defineStr, 0, sizeof( CGV.defineStr ) );
-	memset( CGV.defineStrings, 0, sizeof( CGV.defineStrings ) );
-	memset( CGV.numDefines, 0, sizeof( CGV.numDefines ) );
-	CGV.defineStringsOffset = 0;
+	globalFilename = filename;
+	memset( defineStr, 0, sizeof( defineStr ) );
+	memset( defineStrings, 0, sizeof( defineStrings ) );
+	memset( numDefines, 0, sizeof( numDefines ) );
+	defineStringsOffset = 0;
 
 	for ( i = 0; i < MAX_INDENT_LEVELS; i++ )
 		indexes[i] = -1;
@@ -1185,8 +1178,8 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 			}
 
 			parseMode = newParseMode;
-			CGV.parseMovetype = ANIM_MT_UNUSED;
-			CGV.parseEvent = -1;
+			parseMovetype = ANIM_MT_UNUSED;
+			parseEvent = -1;
 			continue;
 		}
 
@@ -1210,8 +1203,8 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				}
 
 				// copy the define to the strings list
-				CGV.defineStr[defineType][CGV.numDefines[defineType]].string = BG_CopyStringIntoBuffer( token, CGV.defineStrings, sizeof( CGV.defineStrings ), &CGV.defineStringsOffset );
-				CGV.defineStr[defineType][CGV.numDefines[defineType]].hash = BG_StringHashValue( CGV.defineStr[defineType][CGV.numDefines[defineType]].string );
+				defineStr[defineType][numDefines[defineType]].string = BG_CopyStringIntoBuffer( token, defineStrings, sizeof( defineStrings ), &defineStringsOffset );
+				defineStr[defineType][numDefines[defineType]].hash = BG_StringHashValue( defineStr[defineType][numDefines[defineType]].string );
 				// expecting an =
 				token = COM_ParseExt( &text_p, qfalse );
 				if ( !token ) {
@@ -1222,13 +1215,13 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				}
 
 				// parse the bits
-				BG_ParseConditionBits( &text_p, animConditionsTable[defineType].values, defineType, CGV.defineBits[defineType][CGV.numDefines[defineType]] );
-				CGV.numDefines[defineType]++;
+				BG_ParseConditionBits( &text_p, animConditionsTable[defineType].values, defineType, defineBits[defineType][numDefines[defineType]] );
+				numDefines[defineType]++;
 
 				// copy the weapon defines over to the enemy_weapon defines
-				memcpy( &CGV.defineStr[ANIM_COND_ENEMY_WEAPON][0], &CGV.defineStr[ANIM_COND_WEAPON][0], sizeof( animStringItem_t ) * MAX_ANIM_DEFINES );
-				memcpy( &CGV.defineBits[ANIM_COND_ENEMY_WEAPON][0], &CGV.defineBits[ANIM_COND_WEAPON][0], sizeof( CGV.defineBits[ANIM_COND_ENEMY_WEAPON][0] ) * MAX_ANIM_DEFINES );
-				CGV.numDefines[ANIM_COND_ENEMY_WEAPON] = CGV.numDefines[ANIM_COND_WEAPON];
+				memcpy( &defineStr[ANIM_COND_ENEMY_WEAPON][0], &defineStr[ANIM_COND_WEAPON][0], sizeof( animStringItem_t ) * MAX_ANIM_DEFINES );
+				memcpy( &defineBits[ANIM_COND_ENEMY_WEAPON][0], &defineBits[ANIM_COND_WEAPON][0], sizeof( defineBits[ANIM_COND_ENEMY_WEAPON][0] ) * MAX_ANIM_DEFINES );
+				numDefines[ANIM_COND_ENEMY_WEAPON] = numDefines[ANIM_COND_WEAPON];
 
 			}
 
@@ -1289,7 +1282,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				indexes[indentLevel] = BG_IndexForString( token, animMoveTypesStr, qfalse );
 				if ( parseMode == PARSEMODE_ANIMATION ) {
 					currentScript = &modelInfo->scriptAnims[indexes[0]][indexes[1]];
-					CGV.parseMovetype = indexes[1];
+					parseMovetype = indexes[1];
 				} else if ( parseMode == PARSEMODE_CANNED_ANIMATIONS ) {
 					currentScript = &modelInfo->scriptCannedAnims[indexes[0]][indexes[1]];
 				}
@@ -1411,7 +1404,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 					indexes[indentLevel] = BG_IndexForString( token, animEventTypesStr, qfalse );
 					currentScript = &modelInfo->scriptEvents[indexes[0]];
 
-					CGV.parseEvent = indexes[indentLevel];
+					parseEvent = indexes[indentLevel];
 
 				}
 
@@ -1469,7 +1462,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 	}
 
-	CGV.globalFilename = NULL;
+	globalFilename = NULL;
 
 }
 

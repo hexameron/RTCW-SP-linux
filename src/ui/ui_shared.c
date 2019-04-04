@@ -152,9 +152,6 @@ void *UI_Alloc( int size ) {
 
 /* Clear common UI/Cgame variables */
 void Init_Context( int ctx ) {
-#ifdef MONOLITHIC
-	int oldctx = UIDC_Context( ctx );
-#endif
 	Com_Printf("Init Context (%d)\n", ctx );
 
 	DCV.captureFunc = NULL;
@@ -169,10 +166,6 @@ void Init_Context( int ctx ) {
 	DCV.lastListBoxClickTime = 0;
 	DCV.strPoolIndex = 0;
 	DCV.strHandleCount = 0;
-
-#ifdef MONOLITHIC
-	oldctx =  UIDC_Context( oldctx );
-#endif
 }
 
 

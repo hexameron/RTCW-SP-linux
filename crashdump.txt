@@ -1,0 +1,24 @@
+Static build is mostly fixed, with one significant failing:
+
+Memory corruption: the string "trace condition escape1_cutscene_1" from script "maps/escape1.ai" (anim_condition special_condition escape1_cutscene_1)
+ is over-writing model data on loading, although this is not causing failure until the data is reloaded after death.
+
+This is less important now that the odd issue affecting the normal build may have been resolved.
+
+
+GDB logtail:
+WolfPlayer^7 entered the game
+ ("trace condition escape" is overwriting cs->bs, causing massive offset in cs->bs->entitynum)
+Thread 1 wolf.exe received signal SIGSEGV, Segmentation fault.
+0x00005555557b0823 in AICast_UpdateBattleInventory (cs=0x5555561f5b20 <memoryPool+15296>, enemy=-1) at /home/hexameron/src/rtcw-sp-linux/src/game/ai_cast_fight.c:856
+856gentity_t gent = g_entities[num];
+#0  0x00005555557b0823 in AICast_UpdateBattleInventory (cs=0x5555561f5b20 <memoryPool+15296>, enemy=-1) at /home/hexameron/src/rtcw-sp-linux/src/game/ai_cast_fight.c:856
+#1  0x00005555557a9987 in AICast_CreateCharacter (ent=0x555556e15f70 <g_entities+271920>, attributes=0x555555ae6e28 <aiDefaults+296>, weaponInfo=0x555557ca7560 <weaponInfo>, castname=0x555555884f68 Soldier, 
+    model=0x5555562eee80 <memoryPool+1036064> infantryss/escape2, head=0x5555562eee60 <memoryPool+1036032> escape3, sex=0x555555885c68 m, color=0x555555885c66 7, handicap=0x555555885c62 100)
+    at /home/hexameron/src/rtcw-sp-linux/src/game/ai_cast.c:441
+#2  0x00005555557abf1a in AIChar_spawn (ent=0x555556e15f70 <g_entities+271920>) at /home/hexameron/src/rtcw-sp-linux/src/game/ai_cast_characters.c:1376
+#3  0x0000555555701170 in G_RunThink (ent=0x555556e15f70 <g_entities+271920>) at /home/hexameron/src/rtcw-sp-linux/src/game/g_main.c:2411
+#4  0x00005555557015f8 in G_RunFrame (levelTime=1108750) at /home/hexameron/src/rtcw-sp-linux/src/game/g_main.c:2565
+#5  0x00005555556fd246 in gMain (command=8, arg0=1108750, arg1=1108700, arg2=93825063489616, arg3=12, arg4=172) at /home/hexameron/src/rtcw-sp-linux/src/game/g_main.c:308
+#6  0x00005555556fd542 in gvm (command=8) at /home/hexameron/src/rtcw-sp-linux/src/game/g_main.c:349
+

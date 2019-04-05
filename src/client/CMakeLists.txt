@@ -13,12 +13,12 @@ set(CLIENT_SOURCES)
 file(GLOB RENDERER_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "../renderer/*.c")
 file(GLOB QCOMMON_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "../qcommon/*.c")
 file(GLOB SERVER_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "../server/*.c")
-file(GLOB BOTLIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "../botlib/*.c")
+#file(GLOB BOTLIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "../botlib/*.c")
 file(GLOB JPEG_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "../jpeg-6/*.c")
 list(SORT RENDERER_SOURCES)
 list(SORT QCOMMON_SOURCES)
 list(SORT SERVER_SOURCES)
-list(SORT BOTLIB_SOURCES)
+#list(SORT BOTLIB_SOURCES)
 list(SORT JPEG_SOURCES)
 
 # Remove this for now.
@@ -54,8 +54,8 @@ set_source_files_properties(${CLIENT_SOURCES} PROPERTIES LANGUAGE C COMPILE_FLAG
 
 # Compile our program
 add_executable(${PROJECT_NAME} ${CLIENT_SOURCES})
-add_definitions(-DBOTLIB)
+#add_definitions(-DBOTLIB)
 
 # Our executable
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX "../../" SUFFIX "")
-target_link_libraries(${PROJECT_NAME} SDL2 GL dl m splines.a )
+target_link_libraries(${PROJECT_NAME} SDL2 GL dl m botlib.a splines.a )

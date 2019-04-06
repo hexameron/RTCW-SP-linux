@@ -5,8 +5,6 @@ add_library(cgame.a STATIC
 	../game/bg_misc.c
 	../game/bg_pmove.c
 	../game/bg_slidemove.c
-	../game/q_math.c
-	../game/q_shared.c
 	cg_consolecmds.c
 	cg_draw.c
 	cg_drawtools.c
@@ -31,7 +29,6 @@ add_library(cgame.a STATIC
 	cg_trails.c
 	cg_view.c
 	cg_weapons.c
-	cg_static.c
 )
 target_link_libraries(cgame.a m)
 set_target_properties(cgame.a PROPERTIES PREFIX "" SUFFIX "")

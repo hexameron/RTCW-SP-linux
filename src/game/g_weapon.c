@@ -1621,6 +1621,7 @@ void CalcMuzzlePoint( gentity_t *ent, int weapon, vec3_t forward, vec3_t right, 
 	case WP_AKIMBO:     // left side rather than right
 		VectorMA( muzzlePoint, -6, right, muzzlePoint );
 		VectorMA( muzzlePoint, -4, up, muzzlePoint );
+		break;
 	default:
 		VectorMA( muzzlePoint, 6, right, muzzlePoint );
 		VectorMA( muzzlePoint, -4, up, muzzlePoint );

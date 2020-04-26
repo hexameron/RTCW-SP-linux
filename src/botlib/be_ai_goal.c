@@ -192,10 +192,10 @@ maplocation_t *maplocations = NULL;
 //camp spots
 campspot_t *campspots = NULL;
 //the game type
-int g_gametype;
+int ggametype;
 
 // Rafael gameskill
-int g_gameskill;
+// int g_gameskill;
 // done
 
 //========================================================================
@@ -767,11 +767,11 @@ int BotGetLevelItemGoal( int index, char *name, bot_goal_t *goal ) {
 			continue;
 		}
 		//
-		if ( g_gametype == GT_SINGLE_PLAYER ) {
+		if ( ggametype == GT_SINGLE_PLAYER ) {
 			if ( li->notsingle ) {
 				continue;
 			}
-		} else if ( g_gametype >= GT_TEAM )     {
+		} else if ( ggametype >= GT_TEAM )     {
 			if ( li->notteam ) {
 				continue;
 			}
@@ -1144,11 +1144,11 @@ int BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
 	{
-		if ( g_gametype == GT_SINGLE_PLAYER ) {
+		if ( ggametype == GT_SINGLE_PLAYER ) {
 			if ( li->notsingle ) {
 				continue;
 			}
-		} else if ( g_gametype >= GT_TEAM )     {
+		} else if ( ggametype >= GT_TEAM )     {
 			if ( li->notteam ) {
 				continue;
 			}
@@ -1307,11 +1307,11 @@ int BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
 	{
-		if ( g_gametype == GT_SINGLE_PLAYER ) {
+		if ( ggametype == GT_SINGLE_PLAYER ) {
 			if ( li->notsingle ) {
 				continue;
 			}
-		} else if ( g_gametype >= GT_TEAM )     {
+		} else if ( ggametype >= GT_TEAM )     {
 			if ( li->notteam ) {
 				continue;
 			}
@@ -1586,7 +1586,7 @@ int BotSetupGoalAI( void ) {
 	char *filename;
 
 	//check if teamplay is on
-	g_gametype = LibVarValue( "g_gametype", "0" );
+	ggametype = LibVarValue( "g_gametype", "0" );
 	//item configuration file
 	filename = LibVarString( "itemconfig", "items.c" );
 	//load the item configuration

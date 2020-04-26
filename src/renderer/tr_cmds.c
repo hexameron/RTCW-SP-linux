@@ -215,7 +215,6 @@ void *R_GetCommandBuffer( int bytes ) {
 /*
 Moving GL commands to backend, for SMP
 */
-
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
 				qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
 	createImageCommand_t    *cmd;
@@ -233,7 +232,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	cmd->glWrapClampMode = glWrapClampMode;
 
 	LocalSyncThread();
-	return( createdImage );
+	return getCreatedImage();
 }
 
 void R_LoadTex(void) {

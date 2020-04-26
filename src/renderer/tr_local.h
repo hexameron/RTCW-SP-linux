@@ -1324,7 +1324,6 @@ model_t     *R_AllocModel( void );
 
 image_t     *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
 image_t     *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean characterMip, int glWrapClampMode ); //----(SA)	added
-
 image_t     *R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
 							, qboolean allowPicmip, int wrapClampMode );
 //----(SA)	added (didn't want to modify all instances of R_CreateImage()
@@ -1664,9 +1663,10 @@ typedef struct {
 	void    *data;
 } subImageCommand_t;
 
+/* Image is loaded from second thread for OpenGL access */
+image_t* getCreatedImage();
 //image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
 //				qboolean mipmap, qboolean allowPicmip, int glWrapClampMode )
-image_t *createdImage;
 typedef struct {
 	int commandId;
 	const char *name;

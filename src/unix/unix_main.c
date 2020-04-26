@@ -63,7 +63,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "linux_local.h" // bk001204
 
 // Structure containing functions exported from refresh DLL
-refexport_t re;
+// refexport_t re;
 
 unsigned sys_frame_time;
 

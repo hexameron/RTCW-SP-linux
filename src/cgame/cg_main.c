@@ -209,8 +209,8 @@ vmCvar_t cg_particleLOD;
 vmCvar_t cg_blinktime;      //----(SA)	added
 
 vmCvar_t cg_smoothClients;
-vmCvar_t pmove_fixed;
-vmCvar_t pmove_msec;
+extern vmCvar_t pmove_fixed;
+extern vmCvar_t pmove_msec;
 
 // Rafael - particle switch
 vmCvar_t cg_wolfparticles;

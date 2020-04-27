@@ -268,8 +268,8 @@ void PC_InitTokenHeap( void ) {
 token_t *PC_CopyToken( token_t *token ) {
 	token_t *t;
 
-//	t = (token_t *) malloc(sizeof(token_t));
-	t = (token_t *) GetMemory( sizeof( token_t ) );
+	t = (token_t *) malloc(sizeof(token_t));
+	// t = (token_t *) GetMemory( sizeof( token_t ) );
 //	t = freetokens;
 	if ( !t ) {
 #ifdef BSPC
@@ -277,7 +277,6 @@ token_t *PC_CopyToken( token_t *token ) {
 #else
 		Com_Error( ERR_FATAL, "out of token space\n" );
 #endif
-		return NULL;
 	} //end if
 //	freetokens = freetokens->next;
 	memcpy( t, token, sizeof( token_t ) );
@@ -292,8 +291,8 @@ token_t *PC_CopyToken( token_t *token ) {
 // Changes Globals:		-
 //============================================================================
 void PC_FreeToken( token_t *token ) {
-	//free(token);
-	FreeMemory( token );
+	free(token);
+	// FreeMemory( token );
 //	token->next = freetokens;
 //	freetokens = token;
 	numtokens--;
@@ -1010,7 +1009,7 @@ int PC_Directive_include( source_t *source ) {
 		memset( &file, 0, sizeof( foundfile_t ) );
 		script = LoadScriptFile( path );
 		if ( script ) {
-			strncpy( script->filename, path, _MAX_PATH );
+			strncpy( script->filename, path, _MAX_PATH - 1);
 		}
 	} //end if
 #endif //QUAKE
@@ -1068,8 +1067,8 @@ int PC_WhiteSpaceBeforeToken( token_t *token ) {
 // Changes Globals:		-
 //============================================================================
 void PC_ClearTokenWhiteSpace( token_t *token ) {
-	token->whitespace_p = &token->string[0];
-	token->endwhitespace_p = &token->string[0];
+	token->whitespace_p = NULL;
+	token->endwhitespace_p = NULL;
 	token->linescrossed = 0;
 } //end of the function PC_ClearTokenWhiteSpace
 //============================================================================
@@ -1295,7 +1294,7 @@ define_t *PC_DefineFromString( char *string ) {
 	script = LoadScriptMemory( string, strlen( string ), "*extern" );
 	//create a new source
 	memset( &src, 0, sizeof( source_t ) );
-	strncpy( src.filename, "*extern", _MAX_PATH );
+	strncpy( src.filename, "*extern", _MAX_PATH - 1);
 	src.scriptstack = script;
 #if DEFINEHASHING
 	src.definehash = GetClearedMemory( DEFINEHASHSIZE * sizeof( define_t * ) );
@@ -2952,7 +2951,7 @@ void PC_UnreadToken( source_t *source, token_t *token ) {
 // Changes Globals:		-
 //============================================================================
 void PC_SetIncludePath( source_t *source, char *path ) {
-	strncpy( source->includepath, path, _MAX_PATH );
+	strncpy( source->includepath, path, _MAX_PATH - 1 );
 	//add trailing path seperator
 	if ( source->includepath[strlen( source->includepath ) - 1] != '\\' &&
 		 source->includepath[strlen( source->includepath ) - 1] != '/' ) {
@@ -2990,7 +2989,7 @@ source_t *LoadSourceFile( const char *filename ) {
 	source = (source_t *) GetMemory( sizeof( source_t ) );
 	memset( source, 0, sizeof( source_t ) );
 
-	strncpy( source->filename, filename, _MAX_PATH );
+	strncpy( source->filename, filename, _MAX_PATH - 1);
 	source->scriptstack = script;
 	source->tokens = NULL;
 	source->defines = NULL;
@@ -3024,7 +3023,7 @@ source_t *LoadSourceMemory( char *ptr, int length, char *name ) {
 	source = (source_t *) GetMemory( sizeof( source_t ) );
 	memset( source, 0, sizeof( source_t ) );
 
-	strncpy( source->filename, name, _MAX_PATH );
+	strncpy( source->filename, name, _MAX_PATH - 1);
 	source->scriptstack = script;
 	source->tokens = NULL;
 	source->defines = NULL;

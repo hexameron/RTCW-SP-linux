@@ -56,7 +56,7 @@ If you have questions concerning this license or the applicable additional terms
 #define DOLLAR
 
 //maximum token length
-#define MAX_TOKEN                   1024
+#define MAX_TOKEN                   1020
 //maximum path length
 #ifndef _MAX_PATH
 // TTimo: used to be MAX_QPATH, which is the game filesystem max len, and not the OS max len

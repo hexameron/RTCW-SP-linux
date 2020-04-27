@@ -75,7 +75,7 @@ void Log_AlwaysOpen( char *filename ) {
 		botimport.Print( PRT_ERROR, "can't open the log file %s\n", filename );
 		return;
 	} //end if
-	strncpy( logfile.filename, filename, MAX_LOGFILENAMESIZE );
+	strncpy( logfile.filename, filename, MAX_LOGFILENAMESIZE - 1);
 	botimport.Print( PRT_MESSAGE, "Opened log %s\n", logfile.filename );
 } //end of the function Log_Create
 //===========================================================================

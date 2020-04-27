@@ -355,7 +355,7 @@ void BotQueueConsoleMessage( int chatstate, int type, char *message ) {
 	m->handle = cs->handle;
 	m->time = AAS_Time();
 	m->type = type;
-	strncpy( m->message, message, MAX_MESSAGE_SIZE );
+	strncpy( m->message, message, MAX_MESSAGE_SIZE - 1 );
 	m->next = NULL;
 	if ( cs->lastmessage ) {
 		cs->lastmessage->next = m;
@@ -1449,7 +1449,7 @@ int BotFindMatch( char *str, bot_match_t *match, unsigned int context ) {
 	int i;
 	bot_matchtemplate_t *ms;
 
-	strncpy( match->string, str, MAX_MESSAGE_SIZE );
+	strncpy( match->string, str, MAX_MESSAGE_SIZE - 1 );
 	//remove any trailing enters
 	while ( strlen( match->string ) &&
 			match->string[strlen( match->string ) - 1] == '\n' )

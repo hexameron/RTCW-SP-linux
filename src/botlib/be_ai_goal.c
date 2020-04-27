@@ -278,7 +278,7 @@ itemconfig_t *LoadItemConfig( char *filename ) {
 		LibVarSet( "max_iteminfo", "128" );
 	}
 
-	strncpy( path, filename, MAX_PATH );
+	strncpy( path, filename, MAX_PATH - 1);
 	source = LoadSourceFile( path );
 	if ( !source ) {
 		botimport.Print( PRT_ERROR, "counldn't load %s\n", path );

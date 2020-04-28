@@ -988,6 +988,7 @@ int PC_Directive_include( source_t *source ) {
 				break;
 			}
 			strncat( path, token.string, _MAX_PATH - 1 );
+			path[_MAX_PATH - 1] = 0;
 		} //end while
 		if ( *token.string != '>' ) {
 			SourceWarning( source, "#include missing trailing >" );

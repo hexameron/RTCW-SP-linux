@@ -216,6 +216,7 @@ qboolean ReadChar( source_t *source, fielddef_t *fd, void *p ) {
 //===========================================================================
 int ReadString( source_t *source, fielddef_t *fd, void *p ) {
 	token_t token;
+	char tempstring[MAX_STRINGFIELD];
 
 	if ( !PC_ExpectTokenType( source, TT_STRING, 0, &token ) ) {
 		return 0;
@@ -223,9 +224,10 @@ int ReadString( source_t *source, fielddef_t *fd, void *p ) {
 	//remove the double quotes
 	StripDoubleQuotes( token.string );
 	//copy the string
-	strncpy( (char *) p, token.string, MAX_STRINGFIELD );
+	strncpy( tempstring, token.string, MAX_STRINGFIELD );
 	//make sure the string is closed with a zero
-	( (char *)p )[MAX_STRINGFIELD - 1] = '\0';
+	tempstring[MAX_STRINGFIELD - 1] = '\0';
+	strncpy( (char *)p, tempstring, MAX_STRINGFIELD );
 	//
 	return 1;
 } //end of the function ReadString

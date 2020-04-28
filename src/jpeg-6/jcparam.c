@@ -153,15 +153,16 @@ jpeg_set_quality( j_compress_ptr cinfo, int quality, boolean force_baseline ) {
  */
 
 LOCAL void
-add_huff_table( j_compress_ptr cinfo,
-				JHUFF_TBL **htblptr, const UINT8 *bits, const UINT8 *val ) {
+add_huff_table( j_compress_ptr cinfo, JHUFF_TBL **htblptr, int valsize,
+				const UINT8 bits[], const UINT8 val[] ) {
 /* Define a Huffman table */
 	if ( *htblptr == NULL ) {
 		*htblptr = jpeg_alloc_huff_table( (j_common_ptr) cinfo );
 	}
 
 	MEMCOPY( ( *htblptr )->bits, bits, SIZEOF( ( *htblptr )->bits ) );
-	MEMCOPY( ( *htblptr )->huffval, val, SIZEOF( ( *htblptr )->huffval ) );
+	/* Use the size of the source, not the destination (UINT8 huffval[256]) */
+	MEMCOPY( ( *htblptr )->huffval, val, valsize );
 
 	/* Initialize sent_table FALSE so table will be written to JPEG file. */
 	( *htblptr )->sent_table = FALSE;
@@ -232,13 +233,13 @@ std_huff_tables( j_compress_ptr cinfo ) {
 	  0xea, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8,
 	  0xf9, 0xfa };
 
-	add_huff_table( cinfo, &cinfo->dc_huff_tbl_ptrs[0],
+	add_huff_table( cinfo, &cinfo->dc_huff_tbl_ptrs[0], sizeof val_dc_luminance,
 					bits_dc_luminance, val_dc_luminance );
-	add_huff_table( cinfo, &cinfo->ac_huff_tbl_ptrs[0],
+	add_huff_table( cinfo, &cinfo->ac_huff_tbl_ptrs[0], sizeof val_ac_luminance,
 					bits_ac_luminance, val_ac_luminance );
-	add_huff_table( cinfo, &cinfo->dc_huff_tbl_ptrs[1],
+	add_huff_table( cinfo, &cinfo->dc_huff_tbl_ptrs[1], sizeof val_dc_chrominance,
 					bits_dc_chrominance, val_dc_chrominance );
-	add_huff_table( cinfo, &cinfo->ac_huff_tbl_ptrs[1],
+	add_huff_table( cinfo, &cinfo->ac_huff_tbl_ptrs[1], sizeof val_ac_chrominance,
 					bits_ac_chrominance, val_ac_chrominance );
 }
 

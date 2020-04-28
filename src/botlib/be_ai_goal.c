@@ -307,7 +307,8 @@ itemconfig_t *LoadItemConfig( char *filename ) {
 				return NULL;
 			} //end if
 			StripDoubleQuotes( token.string );
-			strncpy( ii->classname, token.string, sizeof( ii->classname ) - 1 );
+			strncpy( ii->classname, token.string, sizeof( ii->classname ) );
+			ii->classname[sizeof(ii->classname) - 1] = 0;
 			if ( !ReadStructure( source, &iteminfo_struct, (char *) ii ) ) {
 				FreeMemory( ic );
 				FreeSource( source );
@@ -636,8 +637,9 @@ void BotGoalName( int number, char *name, int size ) {
 	for ( li = levelitems; li; li = li->next )
 	{
 		if ( li->number == number ) {
-			strncpy( name, itemconfig->iteminfo[li->iteminfo].name, size - 1 );
-			name[size - 1] = '\0';
+			// Copy name into an 80 byte buffer, but truncate at 32 for debug printing
+			strncpy( name, itemconfig->iteminfo[li->iteminfo].name, size );
+			name[31] = '\0';
 			return;
 		} //end for
 	} //end for
@@ -669,7 +671,7 @@ void BotResetAvoidGoals( int goalstate ) {
 void BotDumpAvoidGoals( int goalstate ) {
 	int i;
 	bot_goalstate_t *gs;
-	char name[32];
+	char name[80];
 
 	gs = BotGoalStateFromHandle( goalstate );
 	if ( !gs ) {
@@ -678,7 +680,7 @@ void BotDumpAvoidGoals( int goalstate ) {
 	for ( i = 0; i < MAX_AVOIDGOALS; i++ )
 	{
 		if ( gs->avoidgoaltimes[i] >= AAS_Time() ) {
-			BotGoalName( gs->avoidgoals[i], name, 32 );
+			BotGoalName( gs->avoidgoals[i], name, 80 );
 			Log_Write( "avoid goal %s, number %d for %f seconds", name,
 					   gs->avoidgoals[i], gs->avoidgoaltimes[i] - AAS_Time() );
 		} //end if
@@ -993,7 +995,7 @@ void BotUpdateEntityItems( void ) {
 void BotDumpGoalStack( int goalstate ) {
 	int i;
 	bot_goalstate_t *gs;
-	char name[32];
+	char name[80];
 
 	gs = BotGoalStateFromHandle( goalstate );
 	if ( !gs ) {
@@ -1001,7 +1003,7 @@ void BotDumpGoalStack( int goalstate ) {
 	}
 	for ( i = 1; i <= gs->goalstacktop; i++ )
 	{
-		BotGoalName( gs->goalstack[i].number, name, 32 );
+		BotGoalName( gs->goalstack[i].number, name, 80 );
 		Log_Write( "%d: %s", i, name );
 	} //end for
 } //end of the function BotDumpGoalStack
